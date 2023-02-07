@@ -1,15 +1,26 @@
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
+import frc.robot.commands.Reset;
+import frc.robot.commands.SwerveDrive;
+import frc.robot.commands.followPath;
 import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.DriveTrain.DriveTrain;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // Commands
 
@@ -25,8 +36,9 @@ public class RobotContainer {
 
     // The robot's subsystems
     public final Arm m_arm = Arm.getInstance();
+    public final DriveTrain m_driveTrain = DriveTrain.getInstance(); 
   
-    // Controllers
+    // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
 
 
@@ -40,6 +52,7 @@ public class RobotContainer {
       configureButtonBindings();
   
       // Configure default commands
+      m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
 
     }
 
@@ -55,12 +68,40 @@ public class RobotContainer {
     private void configureButtonBindings() {
       Trigger yButton = new JoystickButton(m_mainStick, 4);
       Trigger xButton = new JoystickButton(m_mainStick, 3);
-      //yButton.onTrue(new ArmControl(m_arm, 0.5 * 12));
-      xButton.onTrue(new ClawControl(m_arm, 0.1 * 12));
+      yButton.onTrue(new ArmControl(m_arm, 0.512 * 12));
+      xButton.onTrue(new ClawControl(m_arm, 0.16 * 12));
+
+      Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);
+      startButton.onTrue(new Reset(m_driveTrain));
 
       
 
     }
+
+    /*
+     * COMMANDS
+     */
+    public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath, PathConstraints maxSpd) {
+      return new SequentialCommandGroup(
+          new InstantCommand(() -> {
+            // Reset odometry for the first path you run during auto
+            if(isFirstPath){
+                m_driveTrain.resetOdometry(traj.getInitialHolonomicPose());
+            }
+          }),
+          new followPath(
+              traj, 
+              m_driveTrain.m_pose, // Pose supplier
+              new PIDController(0.0001, 0.000001, 0),
+              new PIDController(0.0001, 0.000001, 0),
+              new PIDController(0.0001, 0.000001, 0),
+              maxSpd,
+              true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+              m_driveTrain // Requires this drive subsystem
+          )
+      );
+    }
+
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -70,7 +111,10 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        return null;
+        PathConstraints max = new PathConstraints(4, 3);
+        PathPlannerTrajectory path = PathPlanner.loadPath("inplace rotate", max);
+        return followTrajectoryCommand(path, true, max);
+        //return null;
     }
     
 }

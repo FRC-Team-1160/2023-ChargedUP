@@ -30,7 +30,7 @@ public class ClawControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.clawControl(m_input*m_mainStick.getRawAxis(0));
+    m_arm.clawControl(m_input*m_mainStick.getRawAxis(5));
   }
 
   // Called once the command ends or is interrupted.

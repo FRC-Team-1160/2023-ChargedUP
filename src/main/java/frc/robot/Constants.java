@@ -66,6 +66,10 @@ public final class Constants {
     public static final double MS_TO_UPMS = (13824/28.4); //meters per second to units per 100ms
   }
 
+  public static final class ArmConstants {
+    public static final int ARM_GEAR_RATIO = 100;
+  }
+
   public static final class OIConstants {
     public static final int mainStickPort = 0;
   }
