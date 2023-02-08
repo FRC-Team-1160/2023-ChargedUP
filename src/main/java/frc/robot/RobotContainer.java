@@ -14,10 +14,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
+import frc.robot.commands.WristControl;
 import frc.robot.commands.Reset;
 import frc.robot.commands.SwerveDrive;
 import frc.robot.commands.followPath;
 import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -37,6 +39,7 @@ public class RobotContainer {
     // The robot's subsystems
     public final Arm m_arm = Arm.getInstance();
     public final DriveTrain m_driveTrain = DriveTrain.getInstance(); 
+    public final Claw m_claw = Claw.getInstance();
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
@@ -66,10 +69,15 @@ public class RobotContainer {
      */
     
     private void configureButtonBindings() {
-      Trigger yButton = new JoystickButton(m_mainStick, 4);
-      Trigger xButton = new JoystickButton(m_mainStick, 3);
+      Trigger yButton = new JoystickButton(m_mainStick, Button.kY.value);
+      Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
+      Trigger bButton = new JoystickButton(m_mainStick, Button.kB.value);
+
+
       yButton.onTrue(new ArmControl(m_arm, 0.512 * 12));
-      xButton.onTrue(new ClawControl(m_arm, 0.16 * 12));
+      xButton.onTrue(new WristControl(m_arm, 0.16 * 12));
+      bButton.onTrue(new ClawControl(m_claw));
+
 
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);
       startButton.onTrue(new Reset(m_driveTrain));

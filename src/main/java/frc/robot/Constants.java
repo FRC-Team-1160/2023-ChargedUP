@@ -31,7 +31,7 @@ public final class Constants {
 
     public static final int ARM_UP = 9;
     public static final int ARM_DOWN = 10;
-    public static final int CLAW = 11;
+    public static final int WRIST = 11;
 
     public static final int GATE = 0;
     
@@ -68,6 +68,7 @@ public final class Constants {
 
   public static final class ArmConstants {
     public static final int ARM_GEAR_RATIO = 100;
+    public static enum CLAW_STATE {Open, Closed};
   }
 
   public static final class OIConstants {

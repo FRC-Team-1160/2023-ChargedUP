@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -20,10 +21,10 @@ public class Arm extends SubsystemBase {
   private static Arm m_instance;
   private CANSparkMax m_armUp;
   private CANSparkMax m_armDown;
-  private CANSparkMax m_claw;
+  private CANSparkMax m_wrist;
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
-  private double armPosition; // arm position in degrees
+  private ADXRS450_Gyro m_gyro;
 
   public static Arm getInstance(){
     if (m_instance == null){
@@ -34,9 +35,10 @@ public class Arm extends SubsystemBase {
   private Arm() {
     m_armUp = new CANSparkMax(PortConstants.ARM_UP, MotorType.kBrushless);
     m_armDown = new CANSparkMax(PortConstants.ARM_DOWN, MotorType.kBrushless);
-    m_claw = new CANSparkMax(PortConstants.CLAW, MotorType.kBrushless);
+    m_wrist = new CANSparkMax(PortConstants.WRIST, MotorType.kBrushless);
     m_armController = new PIDController(0, 0, 0);
     m_upEncoder = m_armUp.getEncoder(Type.kQuadrature, 360*ArmConstants.ARM_GEAR_RATIO);
+    m_gyro = new ADXRS450_Gyro();
   }
 
   public void armControl(double input) {
@@ -48,19 +50,18 @@ public class Arm extends SubsystemBase {
     double kV = 0;
     double kA = 0;
     double kFF = 0;
-    double PIDoutput = m_armController.calculate(armPosition, setpoint);
+    double PIDoutput = m_armController.calculate(m_gyro.getAngle(), setpoint);
     double output = PIDoutput + kV*setpoint;
   }
 
   public void clawControl(double input) {
-    m_claw.setVoltage(input);
+    m_wrist.setVoltage(input);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     //update armPosition
-    armPosition = m_upEncoder.getPosition();
-    SmartDashboard.putNumber("up encoder position", m_upEncoder.getPosition());
+    SmartDashboard.putNumber("arm gyro", m_gyro.getAngle());
   }
 }
