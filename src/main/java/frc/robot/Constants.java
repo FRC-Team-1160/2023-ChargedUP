@@ -67,12 +67,14 @@ public final class Constants {
   }
 
   public static final class ArmConstants {
-    public static final int ARM_GEAR_RATIO = 100;
+    public static final int ARM_GEAR_RATIO = 82;
+    public static final int CLAW_GEAR_RATIO = 30;
     public static enum CLAW_STATE {Open, Closed};
   }
 
   public static final class OIConstants {
     public static final int mainStickPort = 0;
+    public static final int firstStickPort = 1;
   }
 
 }

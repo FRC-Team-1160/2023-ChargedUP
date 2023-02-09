@@ -15,7 +15,7 @@ public class ArmControl extends CommandBase {
   /** Creates a new ArmControl. */
   private Arm m_arm;
   private double m_input;
-  private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
+  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
   public ArmControl(Arm m_arm, double input) {
     addRequirements(m_arm);
     this.m_arm = m_arm;
@@ -33,7 +33,7 @@ public class ArmControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.armControl(m_input*m_mainStick.getRawAxis(1));
+    m_arm.armControl(m_input*m_firstStick.getRawAxis(1)*-1);
   }
 
   // Called once the command ends or is interrupted.

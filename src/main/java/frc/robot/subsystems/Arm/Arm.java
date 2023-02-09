@@ -21,7 +21,7 @@ public class Arm extends SubsystemBase {
   private static Arm m_instance;
   private CANSparkMax m_armUp;
   private CANSparkMax m_armDown;
-  private CANSparkMax m_wrist;
+  
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
   private ADXRS450_Gyro m_gyro;
@@ -35,9 +35,8 @@ public class Arm extends SubsystemBase {
   private Arm() {
     m_armUp = new CANSparkMax(PortConstants.ARM_UP, MotorType.kBrushless);
     m_armDown = new CANSparkMax(PortConstants.ARM_DOWN, MotorType.kBrushless);
-    m_wrist = new CANSparkMax(PortConstants.WRIST, MotorType.kBrushless);
     m_armController = new PIDController(0, 0, 0);
-    m_upEncoder = m_armUp.getEncoder(Type.kQuadrature, 360*ArmConstants.ARM_GEAR_RATIO);
+    //m_upEncoder = m_armUp.getEncoder(Type.kHallSensor, 360*ArmConstants.ARM_GEAR_RATIO);
     m_gyro = new ADXRS450_Gyro();
   }
 
@@ -52,10 +51,6 @@ public class Arm extends SubsystemBase {
     double kFF = 0;
     double PIDoutput = m_armController.calculate(m_gyro.getAngle(), setpoint);
     double output = PIDoutput + kV*setpoint;
-  }
-
-  public void clawControl(double input) {
-    m_wrist.setVoltage(input);
   }
 
   @Override

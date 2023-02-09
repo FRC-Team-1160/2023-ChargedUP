@@ -7,18 +7,18 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Arm.Claw;
 
 import frc.robot.Constants.OIConstants;
 
 public class WristControl extends CommandBase {
   /** Creates a new ArmControl. */
-  private Arm m_arm;
+  private Claw m_claw;
   private double m_input;
-  private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
-  public WristControl(Arm m_arm, double input) {
-    addRequirements(m_arm);
-    this.m_arm = m_arm;
+  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
+  public WristControl(Claw m_claw, double input) {
+    addRequirements(m_claw);
+    this.m_claw = m_claw;
     m_input = input;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -30,7 +30,7 @@ public class WristControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.clawControl(m_input*m_mainStick.getRawAxis(5));
+    m_claw.wristControl(m_input*m_firstStick.getRawAxis(5)*-1);
   }
 
   // Called once the command ends or is interrupted.

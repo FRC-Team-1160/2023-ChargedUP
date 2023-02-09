@@ -43,6 +43,7 @@ public class RobotContainer {
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
+    private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
 
 
 
@@ -56,6 +57,8 @@ public class RobotContainer {
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.35 * 12));
+      m_claw.setDefaultCommand(new WristControl(m_claw, 0.12 * 12));
 
     }
 
@@ -69,13 +72,10 @@ public class RobotContainer {
      */
     
     private void configureButtonBindings() {
-      Trigger yButton = new JoystickButton(m_mainStick, Button.kY.value);
-      Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
-      Trigger bButton = new JoystickButton(m_mainStick, Button.kB.value);
+      Trigger yButton = new JoystickButton(m_firstStick, Button.kY.value);
+      Trigger xButton = new JoystickButton(m_firstStick, Button.kX.value);
+      Trigger bButton = new JoystickButton(m_firstStick, Button.kB.value);
 
-
-      yButton.onTrue(new ArmControl(m_arm, 0.512 * 12));
-      xButton.onTrue(new WristControl(m_arm, 0.16 * 12));
       bButton.onTrue(new ClawControl(m_claw));
 
 

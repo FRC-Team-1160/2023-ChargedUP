@@ -153,7 +153,7 @@ public class SwerveDriveWheel
     }
 
     public void brake(double power) {
-        this.brakeConstant = (2.25*(Math.pow((4/9), power))-1.25); //exponential decay
+        this.brakeConstant = (2.25*(Math.pow((4/9), power))-1.25); //NEED TO CHANGE
     }
 
     public double getAngleError(double currentAngle, double setpoint) {

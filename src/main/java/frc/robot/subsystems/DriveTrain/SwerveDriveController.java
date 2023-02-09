@@ -175,6 +175,7 @@ public class SwerveDriveController {
         frontRightWheel.brake(power);
         backLeftWheel.brake(power);
         backRightWheel.brake(power);
+        SmartDashboard.putNumber("Brake constant", power);
     }
 
     public double testFrontRightWheel(double spd) {

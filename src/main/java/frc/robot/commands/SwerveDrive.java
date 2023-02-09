@@ -30,8 +30,8 @@ public class SwerveDrive extends CommandBase {
   public void initialize() {
     x = m_mainStick.getRawAxis(0);
     y = -m_mainStick.getRawAxis(1);
-    spd = 0.3;
-    turnspd = 0.3;
+    spd = 0.5;
+    turnspd = 0.5;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -56,7 +56,7 @@ public class SwerveDrive extends CommandBase {
       double temp = y * Math.cos(gyroAngle) + x*Math.sin(gyroAngle);
       x = -1*y * Math.sin(gyroAngle) + x*Math.cos(gyroAngle);
       y = temp;
-      spd = 0.3;
+      spd = 0.5;
     } else {
       spd = 0.0001;
     }
