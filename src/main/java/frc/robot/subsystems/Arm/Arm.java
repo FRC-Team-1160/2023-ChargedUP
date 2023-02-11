@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -24,7 +25,7 @@ public class Arm extends SubsystemBase {
   
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
-  private ADXRS450_Gyro m_gyro;
+  public ADXRS450_Gyro m_gyro;
 
   public static Arm getInstance(){
     if (m_instance == null){
@@ -35,9 +36,10 @@ public class Arm extends SubsystemBase {
   private Arm() {
     m_armUp = new CANSparkMax(PortConstants.ARM_UP, MotorType.kBrushless);
     m_armDown = new CANSparkMax(PortConstants.ARM_DOWN, MotorType.kBrushless);
-    m_armController = new PIDController(0, 0, 0);
+    m_armController = new PIDController(0.00001, 0, 0);
     //m_upEncoder = m_armUp.getEncoder(Type.kHallSensor, 360*ArmConstants.ARM_GEAR_RATIO);
     m_gyro = new ADXRS450_Gyro();
+    
   }
 
   public void armControl(double input) {
@@ -51,6 +53,8 @@ public class Arm extends SubsystemBase {
     double kFF = 0;
     double PIDoutput = m_armController.calculate(m_gyro.getAngle(), setpoint);
     double output = PIDoutput + kV*setpoint;
+    m_armUp.setVoltage(output);
+    m_armDown.setVoltage(-output);
   }
 
   @Override

@@ -53,11 +53,12 @@ public class Claw extends SubsystemBase {
   }
 
   public void wristControl(double input) {
-    if (Math.abs(input) > 0.1) {
+    m_wrist.setVoltage(input);
+    /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
     } else {
       m_wrist.stopMotor();
-    }
+    }*/
   }
 
   @Override

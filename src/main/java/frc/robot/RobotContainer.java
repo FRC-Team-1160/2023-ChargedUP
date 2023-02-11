@@ -57,8 +57,8 @@ public class RobotContainer {
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
-      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.35 * 12));
-      m_claw.setDefaultCommand(new WristControl(m_claw, 0.12 * 12));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12));
+      m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
 
     }
 
@@ -74,9 +74,9 @@ public class RobotContainer {
     private void configureButtonBindings() {
       Trigger yButton = new JoystickButton(m_firstStick, Button.kY.value);
       Trigger xButton = new JoystickButton(m_firstStick, Button.kX.value);
-      Trigger bButton = new JoystickButton(m_firstStick, Button.kB.value);
+      Trigger lbButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
 
-      bButton.onTrue(new ClawControl(m_claw));
+      lbButton.onTrue(new ClawControl(m_claw));
 
 
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);

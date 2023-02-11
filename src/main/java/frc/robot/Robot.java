@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,7 +32,14 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
 
+    NetworkTableEntry cameraSelection;
+    UsbCamera camera1, camera2;
+
+    camera1 = CameraServer.startAutomaticCapture(0);
+    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+    //cameraSelection.setString(camera2.getName());
     m_robotContainer = new RobotContainer();
+
   }
 
   /**

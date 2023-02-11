@@ -106,7 +106,7 @@ public class SwerveDriveWheel
         }
         this.currentOutputSpeed = speed;
         rotationMotor.set(TalonFXControlMode.PercentOutput, output);
-        directionMotor.set(TalonFXControlMode.PercentOutput, speed * this.brakeConstant);
+        directionMotor.set(TalonFXControlMode.PercentOutput, (speed * this.brakeConstant));
     }
 
     public void setOutputSpeed(double spd) {
@@ -153,7 +153,7 @@ public class SwerveDriveWheel
     }
 
     public void brake(double power) {
-        this.brakeConstant = (2.25*(Math.pow((4/9), power))-1.25); //NEED TO CHANGE
+        this.brakeConstant = -0.1*Math.pow(9, power) + 1.1;
     }
 
     public double getAngleError(double currentAngle, double setpoint) {
