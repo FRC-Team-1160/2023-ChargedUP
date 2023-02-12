@@ -4,14 +4,11 @@
 
 package frc.robot.commands;
 
-import java.nio.file.Path;
-
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,7 +16,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 
 public class followPath extends CommandBase {
@@ -72,17 +68,13 @@ public class followPath extends CommandBase {
     double fwd = targetChassisSpeeds.vxMetersPerSecond;
     double str = -targetChassisSpeeds.vyMetersPerSecond;
     double rot = targetChassisSpeeds.omegaRadiansPerSecond;
+
     //rot /= 2;
     //rot *= SwerveConstants.r;
     SmartDashboard.putNumber("auto fwd", fwd);
     SmartDashboard.putNumber("auto str", str);
     SmartDashboard.putNumber("auto rot", rot);
     m_drive.m_controller.setSwerveDrive(false, fwd, str, rot, m_drive.getGyroAngle());
-    if (fwd == 0 && str == 0) {
-      m_drive.m_controller.brake(0.5);
-    } else {
-      m_drive.m_controller.brake(0);
-    }
   }
 
   // Called once the command ends or is interrupted.

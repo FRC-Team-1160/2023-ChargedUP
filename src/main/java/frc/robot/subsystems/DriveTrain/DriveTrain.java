@@ -91,8 +91,8 @@ public class DriveTrain extends SubsystemBase{
     wkrP = 0.007;
     wkrI = 0.0005;
     wkrD = 0;
-    wksP = 0.001;
-    wksI = 0.00001;
+    wksP = 1.5;
+    wksI = 0.05;
     wksD = 0;
 
     //swerve modules
@@ -173,8 +173,8 @@ public class DriveTrain extends SubsystemBase{
     double str = odom[1];
     double rot = odom[2];
     Translation2d translation = new Translation2d(fwd*SwerveConstants.PERIODIC_SPEED, str*SwerveConstants.PERIODIC_SPEED);
-    Transform2d transform = new Transform2d(translation, Rotation2d.fromDegrees(rot));
-    m_pose = m_pose.plus(transform);
+    Transform2d transform = new Transform2d(translation, Rotation2d.fromDegrees(0));
+    m_pose = new Pose2d(m_pose.plus(transform).getX(), m_pose.plus(transform).getY(), Rotation2d.fromDegrees(getGyroAngle()));
 
     SmartDashboard.putNumber("Pose2DY", m_pose.getY());
     SmartDashboard.putNumber("Pose2DX", m_pose.getX());

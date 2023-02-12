@@ -17,6 +17,7 @@ import frc.robot.commands.ClawControl;
 import frc.robot.commands.WristControl;
 import frc.robot.commands.Reset;
 import frc.robot.commands.SwerveDrive;
+import frc.robot.commands.TestWheelSpeed;
 import frc.robot.commands.followPath;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
@@ -75,6 +76,8 @@ public class RobotContainer {
       Trigger yButton = new JoystickButton(m_firstStick, Button.kY.value);
       Trigger xButton = new JoystickButton(m_firstStick, Button.kX.value);
       Trigger lbButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
+      Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
+      aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       lbButton.onTrue(new ClawControl(m_claw));
 
@@ -119,8 +122,8 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        PathConstraints max = new PathConstraints(4, 3);
-        PathPlannerTrajectory path = PathPlanner.loadPath("inplace rotate", max);
+        PathConstraints max = new PathConstraints(1, 1);
+        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward rotating", max);
         return followTrajectoryCommand(path, true, max);
         //return null;
     }

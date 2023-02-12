@@ -104,28 +104,27 @@ public class SwerveDriveController {
 
     //chooses either turning in place or turning while driving
     public void setSwerveDrive(boolean isJoystick, double fwd, double str, double rot, double gyroAngle) {
-
         double l = frc.robot.Constants.SwerveConstants.l;
         double r = frc.robot.Constants.SwerveConstants.r;
         double w = frc.robot.Constants.SwerveConstants.w;
-        double a = str - (rot * (l / r));
-		double b = str + (rot * (l / r));
-		double c = fwd - (rot * (w / r));
-		double d = fwd + (rot * (w / r));   
+        double a = str - (rot * (l / r));//-1.05
+		double b = str + (rot * (l / r));//1.05
+		double c = fwd - (rot * (w / r));//-0.05
+		double d = fwd + (rot * (w / r));//2.05   
         SmartDashboard.putNumber("a kine", a);
         SmartDashboard.putNumber("b kine", b);
         SmartDashboard.putNumber("c kine", c);
         SmartDashboard.putNumber("d kine", d);
 
-		double ws1 = Math.sqrt((b * b) + (c * c));//top right
-		double ws2 = Math.sqrt((b * b) + (d * d));//top left
-		double ws3 = Math.sqrt((a * a) + (d * d));//bittom left
-		double ws4 = Math.sqrt((a * a) + (c * c));//bottom right
+		double ws1 = Math.sqrt((b * b) + (c * c));//top right  // 1.051
+		double ws2 = Math.sqrt((b * b) + (d * d));//top left   // 2.303
+		double ws3 = Math.sqrt((a * a) + (d * d));//bittom left // 2.303
+		double ws4 = Math.sqrt((a * a) + (c * c));//bottom right //1.051
 
-		double wa1 = (Math.atan2(b, c) * 180 / Math.PI);// + gyroAngle ;
-		double wa2 = (Math.atan2(b, d) * 180 / Math.PI);// + gyroAngle;
-		double wa3 = (Math.atan2(a, d) * 180 / Math.PI);// + gyroAngle;
-		double wa4 = (Math.atan2(a, c) * 180 / Math.PI);// + gyroAngle;
+		double wa1 = (Math.atan2(b, c) * 180 / Math.PI);// + gyroAngle; -87
+		double wa2 = (Math.atan2(b, d) * 180 / Math.PI);// + gyroAngle; 27
+		double wa3 = (Math.atan2(a, d) * 180 / Math.PI);// + gyroAngle; -27
+		double wa4 = (Math.atan2(a, c) * 180 / Math.PI);// + gyroAngle; 87
         if (isJoystick)
         {
 		    double max = ws1;
@@ -153,18 +152,26 @@ public class SwerveDriveController {
         SmartDashboard.putNumber("FL expected angle", angleToLoc(wa2));
         SmartDashboard.putNumber("BL expected angle", angleToLoc(wa3));
         SmartDashboard.putNumber("BR expected angle", angleToLoc(wa4));
-        SmartDashboard.putNumber("FR actual angle", frontRightWheel.getRotation());
-        SmartDashboard.putNumber("FL actual angle", frontLeftWheel.getRotation());
-        SmartDashboard.putNumber("BL actual angle", backLeftWheel.getRotation());
-        SmartDashboard.putNumber("BR actual angle", backRightWheel.getRotation());
+        SmartDashboard.putNumber("FR actual angle", frontRightWheel.getRelativeRotation());
+        SmartDashboard.putNumber("FL actual angle", frontLeftWheel.getRelativeRotation());
+        SmartDashboard.putNumber("BL actual angle", backLeftWheel.getRelativeRotation());
+        SmartDashboard.putNumber("BR actual angle", backRightWheel.getRelativeRotation());
         SmartDashboard.putNumber("FR expected speed", ws1);
         SmartDashboard.putNumber("FL expected speed", ws2);
         SmartDashboard.putNumber("BL expected speed", ws3);
         SmartDashboard.putNumber("BR expected speed", ws4);
-        SmartDashboard.putNumber("FR actual speed", frontRightWheel.getVelocity());
-        SmartDashboard.putNumber("FL actual speed", frontLeftWheel.getVelocity());
-        SmartDashboard.putNumber("BL actual speed", backLeftWheel.getVelocity());
-        SmartDashboard.putNumber("BR actual speed", backRightWheel.getVelocity());
+        SmartDashboard.putNumber("FR actual speed", frontRightWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("FL actual speed", frontLeftWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("BL actual speed", backLeftWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("BR actual speed", backRightWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("FR speed error", ws1-frontRightWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("FL speed error", ws2-frontLeftWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("BL speed error", ws3-backLeftWheel.getRelativeVelocity());
+        SmartDashboard.putNumber("BR speed error", ws4-backRightWheel.getRelativeVelocity());
+        SmartDashboard.putBoolean("FR flipped", frontRightWheel.flipped);
+        SmartDashboard.putBoolean("FL flipped", frontLeftWheel.flipped);
+        SmartDashboard.putBoolean("BL flipped", backLeftWheel.flipped);
+        SmartDashboard.putBoolean("BR flipped", backRightWheel.flipped);
         SmartDashboard.putNumber("FR speed difference", Math.abs(frontRightWheel.getVelocity())- Math.abs(ws1));
 
         

@@ -55,12 +55,12 @@ public final class Constants {
     public static final double WHEEL_CIRCUMFERENCE = 0.2865;
     public static final double SWERVE_POSITION_RATIO = WHEEL_CIRCUMFERENCE/13824; //units to meters
     public static final double PERIODIC_SPEED = 0.02;
-
-    public static final double WEIGHT = 35;
+    public static final double BATTERY_WEIGHT = 13;
+    public static final double WEIGHT = 77.5 + BATTERY_WEIGHT;
 
     //THESE TWO VALUES BECOME LESS WITH MORE WEIGHT
     public static final double MAX_WHEEL_SPEED = 4.5; //in m/s, with no weight, it is 4.7
-    public static final double MAX_WHEEL_ACCELERATION = 35; //in m/s^2, with no weight it is 45
+    public static final double MAX_WHEEL_ACCELERATION = -0.312 * WEIGHT + 45; //in m/s^2, with no weight it is 45
 
 
     public static final double MS_TO_UPMS = (13824/28.4); //meters per second to units per 100ms
