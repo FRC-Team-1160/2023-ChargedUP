@@ -91,8 +91,8 @@ public class DriveTrain extends SubsystemBase{
     wkrP = 0.007;
     wkrI = 0.0005;
     wkrD = 0;
-    wksP = 1.5;
-    wksI = 0.05;
+    wksP = 1.5; //1.5
+    wksI = 0.05; //0.05
     wksD = 0;
 
     //swerve modules
@@ -143,6 +143,13 @@ public class DriveTrain extends SubsystemBase{
   public boolean getGateStatus() {
     return m_gate.get();
   }
+
+  public double locToAngle(double ogLoc) {
+    if (ogLoc > 180) {
+      ogLoc -= 360;
+    }
+    return ogLoc;
+}
   
   @Override
   public void periodic() {
@@ -168,17 +175,17 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("FRCoder", m_frontRightCoder.getAbsolutePosition());
     SmartDashboard.putNumber("BLCoder", m_backLeftCoder.getAbsolutePosition());
     SmartDashboard.putNumber("BRCoder", m_backRightCoder.getAbsolutePosition());*/
-    double[] odom = m_controller.getSwerveOdometry(getGyroAngle());
+    double[] odom = m_controller.getSwerveOdometry(locToAngle(getGyroAngle()));
     double fwd = odom[0];
     double str = odom[1];
     double rot = odom[2];
     Translation2d translation = new Translation2d(fwd*SwerveConstants.PERIODIC_SPEED, str*SwerveConstants.PERIODIC_SPEED);
     Transform2d transform = new Transform2d(translation, Rotation2d.fromDegrees(0));
-    m_pose = new Pose2d(m_pose.plus(transform).getX(), m_pose.plus(transform).getY(), Rotation2d.fromDegrees(getGyroAngle()));
+    m_pose = new Pose2d(m_pose.plus(transform).getX(), m_pose.plus(transform).getY(), Rotation2d.fromDegrees(locToAngle(getGyroAngle())));
 
-    SmartDashboard.putNumber("Pose2DY", m_pose.getY());
-    SmartDashboard.putNumber("Pose2DX", m_pose.getX());
-    SmartDashboard.putNumber("Pose2DRotation", m_pose.getRotation().getDegrees());
+    // SmartDashboard.putNumber("Pose2DY", m_pose.getY());
+    // SmartDashboard.putNumber("Pose2DX", m_pose.getX());
+    // SmartDashboard.putNumber("Pose2DRotation", m_pose.getRotation().getDegrees());
     
 
     /*m_controller.m_pose = m_controller.m_odometry.update(gyroAngle,

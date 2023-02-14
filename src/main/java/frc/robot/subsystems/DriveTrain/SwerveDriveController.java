@@ -137,10 +137,14 @@ public class SwerveDriveController {
                 ws3 /= max;
                 ws4 /= max;
             }
-            frontRightWheel.setOutput(angleToLoc(wa1), ws1);
+            /*frontRightWheel.setOutput(angleToLoc(wa1), ws1);
             frontLeftWheel.setOutput(angleToLoc(wa2), ws2);
             backLeftWheel.setOutput(angleToLoc(wa3), ws3);
-            backRightWheel.setOutput(angleToLoc(wa4), ws4);
+            backRightWheel.setOutput(angleToLoc(wa4), ws4);*/
+            frontRightWheel.setVelocity(angleToLoc(wa1), ws1*SwerveConstants.MAX_WHEEL_SPEED);
+            frontLeftWheel.setVelocity(angleToLoc(wa2), ws2*SwerveConstants.MAX_WHEEL_SPEED);
+            backLeftWheel.setVelocity(angleToLoc(wa3), ws3*SwerveConstants.MAX_WHEEL_SPEED);
+            backRightWheel.setVelocity(angleToLoc(wa4), ws4*SwerveConstants.MAX_WHEEL_SPEED);
         } else {
             
             frontRightWheel.setVelocity(angleToLoc(wa1), ws1);

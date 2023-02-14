@@ -58,7 +58,7 @@ public class RobotContainer {
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
-      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12)); //18
       m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
 
     }

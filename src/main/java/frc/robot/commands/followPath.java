@@ -26,7 +26,7 @@ public class followPath extends CommandBase {
   private Pose2d pose;
   private boolean mirrorIfRed;
   DriveTrain m_drive;
-  private PPHolonomicDriveController controller;
+  private DriveController controller;
   private PathConstraints constraints;
 
   public followPath(PathPlannerTrajectory traj, Pose2d m_pose, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
@@ -36,7 +36,7 @@ public class followPath extends CommandBase {
     this.pose = m_pose;
     this.mirrorIfRed = mirrorIfRed;
     this.m_drive = m_drive;
-    this.controller = new PPHolonomicDriveController(xController, yController, rController);
+    this.controller = new DriveController(xController, yController, rController);
     this.constraints = constraints;
   }
 
@@ -64,12 +64,15 @@ public class followPath extends CommandBase {
     SmartDashboard.putNumber("desired x", desiredState.poseMeters.getX());
     SmartDashboard.putNumber("desired y", desiredState.poseMeters.getY());
 
+
     ChassisSpeeds targetChassisSpeeds = this.controller.calculate(pose, desiredState);
     double fwd = targetChassisSpeeds.vxMetersPerSecond;
     double str = -targetChassisSpeeds.vyMetersPerSecond;
     double rot = targetChassisSpeeds.omegaRadiansPerSecond;
-
-    //rot /= 2;
+    double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
+    double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
+      str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
+      fwd = temp;
     //rot *= SwerveConstants.r;
     SmartDashboard.putNumber("auto fwd", fwd);
     SmartDashboard.putNumber("auto str", str);

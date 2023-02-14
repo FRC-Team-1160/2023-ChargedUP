@@ -88,7 +88,7 @@ public class SwerveDriveWheel
         directionMotor.setSelectedSensorPosition(0);
     }
 
-    public void setOutput(double setpoint, double speed)
+    /*public void setOutput(double setpoint, double speed)
     {
         //choose the fastest rotation direction and wheel direction
         double currentAngle = rotationSensor.getAbsolutePosition();
@@ -96,7 +96,7 @@ public class SwerveDriveWheel
         //unflipped wheel direction RUN PID
         //divide by 180 to convert from angle to output volts
        // double error = Math.abs(setpoint - currentAngle);
-        /*if (error < 30) {
+        if (error < 30) {
             accumulator += error;
         }
     
@@ -104,7 +104,7 @@ public class SwerveDriveWheel
             accumulator = maxA;
         } else if (accumulator < -maxA) {
             accumulator = -maxA;
-        }*/
+        }
         double angle = (((setpoint - currentAngle) % 360) + 360 ) % 360;
         double error, output;
         error = getAngleError(currentAngle, setpoint);
@@ -129,7 +129,7 @@ public class SwerveDriveWheel
         this.currentOutputSpeed = speed;
         rotationMotor.set(TalonFXControlMode.PercentOutput, output);
         directionMotor.set(TalonFXControlMode.PercentOutput, (speed * this.brakeConstant));
-    }
+    }*/
 
     public void setOutputSpeed(double spd) {
         rotationMotor.set(TalonFXControlMode.PercentOutput, 0);
@@ -158,12 +158,14 @@ public class SwerveDriveWheel
             vAccumulator = -maxV;
         }
         double anglePID = (krP * error) + (krI*rAccumulator);
-        double speedPID = (ksP * vError) + (ksI*vAccumulator);
+        double speedPID = ((ksP * vError) + (ksI*vAccumulator))*(1-this.brakeConstant);
 
         double kV = 1/(SwerveConstants.MAX_WHEEL_SPEED);
-        double kA = 1/(SwerveConstants.MAX_WHEEL_ACCELERATION);
+        double kA = 0;//1/(SwerveConstants.MAX_WHEEL_ACCELERATION);
 
         double setpointAcceleration = (setpointSpeed-lastSetpointSpeed)/0.02;
+        SmartDashboard.putNumber("speed PID", speedPID/SwerveConstants.MAX_WHEEL_SPEED);
+        SmartDashboard.putNumber("accleration", kA*setpointAcceleration);
 
         double angleOutput = anglePID;
         double speedOutput = (speedPID/SwerveConstants.MAX_WHEEL_SPEED + kV*setpointSpeed + kA*setpointAcceleration);
