@@ -38,8 +38,8 @@ public final class Constants {
   }
 
   public static final class SwerveConstants{
-    public static final double l = 0.61595;
-    public static final double w = 0.61595;
+    public static final double l = 0.585;
+    public static final double w = 0.585;
     public static final double r = Math.sqrt(Math.pow(l, 2) + Math.pow(w, 2));
     public static final double centerToMotor = 0;//Distance from center of motor to center of robot
     public static final double unitsToRotations = (2048/360);

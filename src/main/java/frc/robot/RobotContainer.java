@@ -97,15 +97,17 @@ public class RobotContainer {
           new InstantCommand(() -> {
             // Reset odometry for the first path you run during auto
             if(isFirstPath){
-                m_driveTrain.resetOdometry(traj.getInitialHolonomicPose());
+              
+                m_driveTrain.resetOdometry(traj.getInitialHolonomicPose().getX(), traj.getInitialHolonomicPose().getY());
             }
           }),
           new followPath(
               traj, 
-              m_driveTrain.m_pose, // Pose supplier
+              m_driveTrain.m_poseX,
+              m_driveTrain.m_poseY, // Pose supplier
               new PIDController(0.0001, 0.000001, 0),
               new PIDController(0.0001, 0.000001, 0),
-              new PIDController(0.0001, 0.000001, 0),
+              new PIDController(0.02, 0.0, 0),
               maxSpd,
               true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
               m_driveTrain // Requires this drive subsystem
@@ -122,7 +124,7 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        PathConstraints max = new PathConstraints(1, 1);
+        PathConstraints max = new PathConstraints(1.5, 1.5);
         PathPlannerTrajectory path = PathPlanner.loadPath("3m forward rotating", max);
         return followTrajectoryCommand(path, true, max);
         //return null;

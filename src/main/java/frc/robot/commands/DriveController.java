@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Custom version of a @HolonomicDriveController specifically for following PathPlanner paths
@@ -20,9 +21,12 @@ public class DriveController {
   private final PIDController yController;
   private final PIDController rotationController;
 
-  private Translation2d translationError = new Translation2d();
-  private Rotation2d rotationError = new Rotation2d();
-  private Pose2d tolerance = new Pose2d();
+  private double translationXError = 0;
+  private double translationYError = 0;
+  private double rotationError = 0;
+  private double toleranceX = 0;
+  private double toleranceY = 0;
+  private double toleranceRotation = 0;
   private boolean isEnabled = true;
 
   /**
@@ -48,12 +52,13 @@ public class DriveController {
    * @return True if the pose error is within tolerance of the reference.
    */
   public boolean atReference() {
-    Translation2d translationTolerance = this.tolerance.getTranslation();
-    Rotation2d rotationTolerance = this.tolerance.getRotation();
+    double translationToleranceX = this.toleranceX;
+    double translationToleranceY = this.toleranceY;
+    double rotationTolerance = this.toleranceRotation;
 
-    return Math.abs(this.translationError.getX()) < translationTolerance.getX()
-        && Math.abs(this.translationError.getY()) < translationTolerance.getY()
-        && Math.abs(this.rotationError.getRadians()) < rotationTolerance.getRadians();
+    return Math.abs(this.translationXError) < translationToleranceX
+        && Math.abs(this.translationYError) < translationToleranceY
+        && Math.abs(this.rotationError) < Math.toRadians(rotationTolerance);
   }
 
   /**
@@ -61,8 +66,10 @@ public class DriveController {
    *
    * @param tolerance The pose error which is tolerable
    */
-  public void setTolerance(Pose2d tolerance) {
-    this.tolerance = tolerance;
+  public void setTolerance(double x, double y, double r) {
+    this.toleranceX = x;
+    this.toleranceY = y;
+    this.toleranceRotation = r;
   }
 
   /**
@@ -82,29 +89,60 @@ public class DriveController {
    * @param referenceState The desired trajectory state
    * @return The next output of the holonomic drive controller
    */
-  public ChassisSpeeds calculate(Pose2d currentPose, PathPlannerState referenceState) {
+  public double[] calculate(double currentPoseX, double currentPoseY, double gyroAngle, PathPlannerState referenceState) {
+    double[] speeds = new double[3];
     double xFF =
         referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getCos();
     double yFF =
         referenceState.velocityMetersPerSecond * referenceState.poseMeters.getRotation().getSin();
     double rotationFF = referenceState.holonomicAngularVelocityRadPerSec;
 
-    this.translationError = referenceState.poseMeters.relativeTo(currentPose).getTranslation();
-    this.rotationError = referenceState.holonomicRotation.minus(currentPose.getRotation());
-
+    this.translationXError = referenceState.poseMeters.getX()-currentPoseX;
+    this.translationYError = referenceState.poseMeters.getY()-currentPoseY;
+    double angleError1 = angleToLoc(referenceState.holonomicRotation.getDegrees()) - angleToLoc(gyroAngle);
+    double angleError2;
+    if (angleError1 < 0) {
+      angleError2 = 360 + angleError1;
+    } else {
+      angleError2 = 360 - angleError1;
+    }
+    if (Math.abs(angleError1) < Math.abs(angleError2)) {
+      this.rotationError = Math.toRadians(angleError1);
+    } else {
+      this.rotationError = Math.toRadians(angleError2);
+    }
+    SmartDashboard.putNumber("reference degrees", referenceState.holonomicRotation.getDegrees());
+    SmartDashboard.putNumber("rotationError", Math.toDegrees(rotationError));
     if (!this.isEnabled) {
-      return new ChassisSpeeds(xFF, yFF, rotationFF);
+      speeds[0] = xFF;
+      speeds[1] = yFF;
+      speeds[2] = rotationFF;
+      return speeds;
     }
 
     double xFeedback =
-        this.xController.calculate(currentPose.getX(), referenceState.poseMeters.getX());
+        this.xController.calculate(currentPoseX, referenceState.poseMeters.getX());
     double yFeedback =
-        this.yController.calculate(currentPose.getY(), referenceState.poseMeters.getY());
+        this.yController.calculate(currentPoseY, referenceState.poseMeters.getY());
     double rotationFeedback =
         this.rotationController.calculate(
-            currentPose.getRotation().getRadians(), referenceState.holonomicRotation.getRadians());
+             Math.toRadians(gyroAngle), referenceState.holonomicRotation.getRadians());
+    SmartDashboard.putNumber("rotationFF", rotationFF);
+    SmartDashboard.putNumber("rotationFeedback", rotationFeedback);
 
-    return new ChassisSpeeds(
-        xFF + xFeedback, yFF + yFeedback, rotationFF + rotationFeedback);
+    speeds[0] = xFF + xFeedback;
+    speeds[1] = yFF + yFeedback;
+    speeds[2] = rotationFF + rotationFeedback;
+    return speeds;
   }
+
+  public double angleToLoc(double ogRot)
+    {
+        if(ogRot < 0)
+        {
+            return ogRot + 360;
+        }
+        return ogRot;
+    }
+  
 }

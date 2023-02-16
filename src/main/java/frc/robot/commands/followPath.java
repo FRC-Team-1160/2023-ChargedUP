@@ -23,17 +23,19 @@ public class followPath extends CommandBase {
   private final Timer timer = new Timer();
   private PathPlannerTrajectory transformedTrajectory; 
   private PathPlannerTrajectory trajectory;
-  private Pose2d pose;
+  private double poseX;
+  private double poseY;
   private boolean mirrorIfRed;
   DriveTrain m_drive;
   private DriveController controller;
   private PathConstraints constraints;
 
-  public followPath(PathPlannerTrajectory traj, Pose2d m_pose, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
+  public followPath(PathPlannerTrajectory traj, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     this.trajectory = traj;
-    this.pose = m_pose;
+    this.poseX = m_poseX;
+    this.poseY = m_poseY;
     this.mirrorIfRed = mirrorIfRed;
     this.m_drive = m_drive;
     this.controller = new DriveController(xController, yController, rController);
@@ -60,24 +62,32 @@ public class followPath extends CommandBase {
     double currentTime = this.timer.get();
     PathPlannerState desiredState = (PathPlannerState) transformedTrajectory.sample(currentTime);
 
-    pose = m_drive.m_pose;
+    poseX = m_drive.m_poseX;
+    poseY = m_drive.m_poseY;
     SmartDashboard.putNumber("desired x", desiredState.poseMeters.getX());
     SmartDashboard.putNumber("desired y", desiredState.poseMeters.getY());
 
 
-    ChassisSpeeds targetChassisSpeeds = this.controller.calculate(pose, desiredState);
-    double fwd = targetChassisSpeeds.vxMetersPerSecond;
-    double str = -targetChassisSpeeds.vyMetersPerSecond;
-    double rot = targetChassisSpeeds.omegaRadiansPerSecond;
+    double[] robotSpeeds = this.controller.calculate(poseX, poseY, locToAngle(m_drive.getGyroAngle()), desiredState);
+    double fwd = robotSpeeds[0];
+    double str = -robotSpeeds[1];
+    double rot = robotSpeeds[2];
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
     double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
       str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
       fwd = temp;
-    //rot *= SwerveConstants.r;
+    rot /= 2.275;
     SmartDashboard.putNumber("auto fwd", fwd);
     SmartDashboard.putNumber("auto str", str);
     SmartDashboard.putNumber("auto rot", rot);
     m_drive.m_controller.setSwerveDrive(false, fwd, str, rot, m_drive.getGyroAngle());
+  }
+
+  public double locToAngle(double ogLoc) {
+    if (ogLoc > 180) {
+      ogLoc -= 360;
+    }
+    return ogLoc;
   }
 
   // Called once the command ends or is interrupted.

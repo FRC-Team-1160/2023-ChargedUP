@@ -70,8 +70,9 @@ public class DriveTrain extends SubsystemBase{
   private SwerveDriveKinematics m_kinematics;
 
   private Solenoid m_gate;
-
-  public Pose2d m_pose;
+  public double m_poseX;
+  public double m_poseY;
+  //public Pose2d m_pose;
 
   double wkrP, wkrI, wkrD, wksP, wksI, wksD;
 //
@@ -105,7 +106,8 @@ public class DriveTrain extends SubsystemBase{
     m_gyro = new AHRS(Port.kMXP);
     
     m_gyro.zeroYaw();
-    m_pose = new Pose2d(0,0,m_gyro.getRotation2d());
+    m_poseX = 0;
+    m_poseY = 0;
     m_controller = new SwerveDriveController(m_frontLeftWheel, m_frontRightWheel, m_backLeftWheel, m_backRightWheel, m_gyro);
   }
 
@@ -125,11 +127,13 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public void resetPose() {
-    m_pose = new Pose2d(0,0,m_gyro.getRotation2d());
+    m_poseX = 0;
+    m_poseY = 0;
   }
 
-  public void resetOdometry(Pose2d pose) {
-    m_pose = pose;
+  public void resetOdometry(double poseX, double poseY) {
+    m_poseX = poseX;
+    m_poseY = poseY;
   }
 
   public void turnBackRight(double speed) {
@@ -149,10 +153,13 @@ public class DriveTrain extends SubsystemBase{
       ogLoc -= 360;
     }
     return ogLoc;
-}
+  }
+
+  private double lastgyro = 0;
   
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("gyro velocity" ,Math.toRadians((getGyroAngle()-lastgyro)/0.02));
     double xAngle = m_mainStick.getRawAxis(0);
     double yAngle = m_mainStick.getRawAxis(1);
     double angle = Math.toDegrees(Math.atan(yAngle/xAngle)) + 90;
@@ -181,11 +188,11 @@ public class DriveTrain extends SubsystemBase{
     double rot = odom[2];
     Translation2d translation = new Translation2d(fwd*SwerveConstants.PERIODIC_SPEED, str*SwerveConstants.PERIODIC_SPEED);
     Transform2d transform = new Transform2d(translation, Rotation2d.fromDegrees(0));
-    m_pose = new Pose2d(m_pose.plus(transform).getX(), m_pose.plus(transform).getY(), Rotation2d.fromDegrees(locToAngle(getGyroAngle())));
+    m_poseX += fwd*SwerveConstants.PERIODIC_SPEED;
+    m_poseY += str*SwerveConstants.PERIODIC_SPEED;
 
-    // SmartDashboard.putNumber("Pose2DY", m_pose.getY());
-    // SmartDashboard.putNumber("Pose2DX", m_pose.getX());
-    // SmartDashboard.putNumber("Pose2DRotation", m_pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("Pose2DY", m_poseX);
+    SmartDashboard.putNumber("Pose2DX", m_poseY);
     
 
     /*m_controller.m_pose = m_controller.m_odometry.update(gyroAngle,
@@ -200,6 +207,7 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("Pose2DRotation", m_controller.m_pose.getRotation().getDegrees());
     SmartDashboard.putNumber("Gyro Rotation2D", m_gyro.getRotation2d().getDegrees());*/
     SmartDashboard.putNumber("FR wheel vel", m_frontRightWheel.getVelocity());
+    lastgyro = getGyroAngle();
   }
 
   
