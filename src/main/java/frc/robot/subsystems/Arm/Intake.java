@@ -21,40 +21,29 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.ArmConstants.CLAW_STATE;
 
-public class Claw extends SubsystemBase {
+public class Intake extends SubsystemBase {
   /** Creates a new Claw. */
-  private CLAW_STATE m_state;
-  private static Claw m_instance;
-  private DoubleSolenoid m_solenoid;
-  private CANSparkMax m_wrist;
-  private RelativeEncoder m_encoder;
+  private static Intake m_instance;
+  private CANSparkMax m_intake;
   //private Compressor m_compressor;
 
-  public static Claw getInstance(){
+  public static Intake getInstance(){
     if (m_instance == null){
-      m_instance = new Claw();
+      m_instance = new Intake();
     }
     return m_instance;
   }
-  private Claw() {
-    m_state = CLAW_STATE.Closed;
-    m_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-    m_solenoid.set(Value.kReverse);
-    m_wrist = new CANSparkMax(PortConstants.WRIST, MotorType.kBrushless);
-    m_encoder = m_wrist.getEncoder(Type.kHallSensor, 42);
+  private Intake() {
+    m_intake = new CANSparkMax(PortConstants.INTAKE, MotorType.kBrushless);
     //m_compressor = new Compressor(PneumaticsModuleType.CTREPCM);
     //m_compressor.enableDigital();
     
   }
 
-  public void toggleClaw() {
-    m_solenoid.toggle();
-    
-  }
 
 
-  public void wristControl(double input) {
-    m_wrist.setVoltage(input);
+  public void intakeControl(double input) {
+    m_intake.setVoltage(input);
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
     } else {
@@ -65,21 +54,5 @@ public class Claw extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (m_solenoid.get() == Value.kForward) {
-      SmartDashboard.putString("Claw", "Forward");
-    } else if (m_solenoid.get() == Value.kReverse) {
-      SmartDashboard.putString("Claw", "Reverse");
-    } else if (m_solenoid.get() == Value.kOff) {
-      SmartDashboard.putString("Claw", "Off");
-    } else {
-      SmartDashboard.putString("Claw", "No data");
-    }
-    SmartDashboard.putNumber("claw encoder", m_encoder.getPosition());
-    /*
-     * 0 is perpendicular to arm
-     * -7.5 is parallel
-     * -15 is perpendicular backwards
-     * 5 is before it hits the motor
-     */
   }
 }

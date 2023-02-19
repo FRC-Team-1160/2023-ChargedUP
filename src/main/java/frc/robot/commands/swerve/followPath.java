@@ -2,20 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.swerve;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 
 public class followPath extends CommandBase {
@@ -76,7 +74,7 @@ public class followPath extends CommandBase {
     double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
       str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
       fwd = temp;
-    rot /= 2.275;
+    rot /= SwerveConstants.AUTO_ROTATION;
     SmartDashboard.putNumber("auto fwd", fwd);
     SmartDashboard.putNumber("auto str", str);
     SmartDashboard.putNumber("auto rot", rot);

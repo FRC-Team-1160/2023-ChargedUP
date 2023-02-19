@@ -2,38 +2,36 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.swerve;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.DriveTrain.DriveTrain;
 
 import frc.robot.Constants.OIConstants;
 
-public class ArmControl extends CommandBase {
-  /** Creates a new ArmControl. */
-  private Arm m_arm;
-  private double m_input;
-  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
-  public ArmControl(Arm m_arm, double input) {
-    addRequirements(m_arm);
-    this.m_arm = m_arm;
-    m_input = input;
-    if (m_input < 0) {
-      m_input = 0;
-    }
+public class Reset extends CommandBase {
+  /** Creates a new SwerveDrive. */
+  DriveTrain m_drive;
+  public Reset(DriveTrain m_drive) {
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_drive);
+    this.m_drive = m_drive;
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+      m_drive.resetGyro();
+      m_drive.resetWheelPositions();
+      m_drive.resetPose();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_arm.armControl(m_input*m_firstStick.getRawAxis(1)*-1);
+    
   }
 
   // Called once the command ends or is interrupted.
@@ -43,6 +41,6 @@ public class ArmControl extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

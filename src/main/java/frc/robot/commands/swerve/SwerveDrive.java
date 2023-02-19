@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.swerve;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,7 +47,7 @@ public class SwerveDrive extends CommandBase {
       mag = 1;
     }
 
-    double turn = m_mainStick.getRawAxis(4);
+    double turn = m_mainStick.getRawAxis(3);
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
         //field oriented
     if (mag > 0.02) {
