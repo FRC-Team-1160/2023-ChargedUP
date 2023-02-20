@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.Vision.Limelight;
 
 
 public class DriveTrain extends SubsystemBase{
@@ -73,8 +74,10 @@ public class DriveTrain extends SubsystemBase{
   public double m_poseX;
   public double m_poseY;
   //public Pose2d m_pose;
+  public boolean limelightEngage;
+  private PIDController limelightEngageController;
 
-  double wkrP, wkrI, wkrD, wksP, wksI, wksD;
+  double wkrP, wkrI, wkrD, wksP, wksI, wksD, wklP, wklI, wklD;
 //
 
   //initializes the drive train
@@ -96,6 +99,11 @@ public class DriveTrain extends SubsystemBase{
     wksI = 0.05; //0.05
     wksD = 0;
 
+    //limelight PID values
+    wklP = 0.013;
+    wklI = 0.0;
+    wklD = 0;
+
     //swerve modules
 
     m_frontLeftWheel = initSwerveModule(wkrP, wkrI, wkrD, wksP, wksI, wksD, PortConstants.FRONT_LEFT_DIRECTION_DRIVE, PortConstants.FRONT_LEFT_ROTATION_DRIVE, PortConstants.FRONT_LEFT_CODER_DRIVE);
@@ -109,6 +117,10 @@ public class DriveTrain extends SubsystemBase{
     m_poseX = 0;
     m_poseY = 0;
     m_controller = new SwerveDriveController(m_frontLeftWheel, m_frontRightWheel, m_backLeftWheel, m_backRightWheel, m_gyro);
+  
+    limelightEngage = false;
+    limelightEngageController = new PIDController(wklP, wklI, wklD);
+    
   }
 
   public double getGyroAngle() {
@@ -155,6 +167,12 @@ public class DriveTrain extends SubsystemBase{
     return ogLoc;
   }
 
+  public double limelightEngagePID() {
+    double feedback = limelightEngageController.calculate(Limelight.getTx(), 0);
+
+    return feedback;
+  }
+
   private double lastgyro = 0;
   
   @Override
@@ -177,11 +195,10 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("Mag", mag);
     SmartDashboard.putNumber("Turn", turn);
     SmartDashboard.putNumber("Gyro Yaw", getGyroAngle());
-
-    /*SmartDashboard.putNumber("FLCoder", m_frontLeftCoder.getAbsolutePosition());
-    SmartDashboard.putNumber("FRCoder", m_frontRightCoder.getAbsolutePosition());
-    SmartDashboard.putNumber("BLCoder", m_backLeftCoder.getAbsolutePosition());
-    SmartDashboard.putNumber("BRCoder", m_backRightCoder.getAbsolutePosition());*/
+    SmartDashboard.putNumber("FLCoder", m_frontLeftWheel.getRotation());
+    SmartDashboard.putNumber("FRCoder", m_frontRightWheel.getRotation());
+    SmartDashboard.putNumber("BLCoder", m_backLeftWheel.getRotation());
+    SmartDashboard.putNumber("BRCoder", m_backRightWheel.getRotation());
     double[] odom = m_controller.getSwerveOdometry(locToAngle(getGyroAngle()));
     double fwd = odom[0];
     double str = odom[1];
@@ -193,7 +210,7 @@ public class DriveTrain extends SubsystemBase{
 
     SmartDashboard.putNumber("Pose2DY", m_poseX);
     SmartDashboard.putNumber("Pose2DX", m_poseY);
-    
+    SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
     /*m_controller.m_pose = m_controller.m_odometry.update(gyroAngle,
             new SwerveModulePosition[] {

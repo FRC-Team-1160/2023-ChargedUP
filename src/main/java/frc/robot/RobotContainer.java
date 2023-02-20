@@ -20,10 +20,14 @@ import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
 import frc.robot.commands.swerve.TestWheelSpeed;
 import frc.robot.commands.swerve.followPath;
+import frc.robot.commands.vision.LimelightEngage;
+import frc.robot.graphics.src.Constructor;
+import frc.robot.graphics.src.MyThread;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.Vision.Limelight;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -44,6 +48,7 @@ public class RobotContainer {
     public final DriveTrain m_driveTrain = DriveTrain.getInstance(); 
     public final Claw m_claw = Claw.getInstance();
     public final Intake m_intake = Intake.getInstance();
+    public final Limelight m_limelight = Limelight.getInstance();
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
@@ -64,7 +69,6 @@ public class RobotContainer {
       m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12)); //18
       m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
       m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.5 * 12));
-
     }
 
       
@@ -78,10 +82,12 @@ public class RobotContainer {
     
     private void configureButtonBindings() {
       Trigger yButton = new JoystickButton(m_firstStick, Button.kY.value);
-      Trigger xButton = new JoystickButton(m_firstStick, Button.kX.value);
+      Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
       Trigger lbButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
       Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
+
+      xButton.onTrue(new LimelightEngage(m_driveTrain));
 
       lbButton.onTrue(new ClawControl(m_claw));
 

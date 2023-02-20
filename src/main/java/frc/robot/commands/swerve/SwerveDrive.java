@@ -30,8 +30,8 @@ public class SwerveDrive extends CommandBase {
   public void initialize() {
     x = m_mainStick.getRawAxis(0);
     y = -m_mainStick.getRawAxis(1);
-    spd = 0.3;
-    turnspd = 0.28;
+    spd = 0.25;
+    turnspd = 0.22;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,7 +47,7 @@ public class SwerveDrive extends CommandBase {
       mag = 1;
     }
 
-    double turn = m_mainStick.getRawAxis(3);
+    double turn = m_mainStick.getRawAxis(4);
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
         //field oriented
     if (mag > 0.02) {
@@ -60,8 +60,11 @@ public class SwerveDrive extends CommandBase {
     } else {
       spd = 0.0001;
     }
-    
-    m_drive.m_controller.setSwerveDrive(true, spd*y, spd*x, turnspd*turn, gyroAngle);
+    if (m_drive.limelightEngage) {
+      m_drive.m_controller.setSwerveDrive(true, spd*y, spd*x, -1*m_drive.limelightEngagePID(), gyroAngle);
+    } else {
+      m_drive.m_controller.setSwerveDrive(true, spd*y, spd*x, turnspd*turn, gyroAngle);
+    }
     m_drive.m_controller.brake(joystickBrake);
 
   }
