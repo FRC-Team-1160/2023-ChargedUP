@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
-import frc.robot.Constants.ArmConstants.CLAW_STATE;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Claw. */

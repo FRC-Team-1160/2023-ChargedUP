@@ -19,11 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
-import frc.robot.Constants.ArmConstants.CLAW_STATE;
 
 public class Claw extends SubsystemBase {
   /** Creates a new Claw. */
-  private CLAW_STATE m_state;
   private static Claw m_instance;
   private DoubleSolenoid m_solenoid;
   private CANSparkMax m_wrist;
@@ -37,7 +35,6 @@ public class Claw extends SubsystemBase {
     return m_instance;
   }
   private Claw() {
-    m_state = CLAW_STATE.Closed;
     m_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
     m_solenoid.set(Value.kReverse);
     m_wrist = new CANSparkMax(PortConstants.WRIST, MotorType.kBrushless);

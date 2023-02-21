@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.arm.ArmControl;
+import frc.robot.commands.arm.ArmPID;
 import frc.robot.commands.arm.ClawControl;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.WristControl;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 import frc.robot.subsystems.Vision.Limelight;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // Commands
@@ -79,10 +81,29 @@ public class RobotContainer {
      */
     
     private void configureButtonBindings() {
-      Trigger yButton = new JoystickButton(m_firstStick, Button.kY.value);
-      Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
+      //CO DRIVER
+      Trigger yCoButton = new JoystickButton(m_firstStick, Button.kY.value);
+      Trigger bCoButton = new JoystickButton(m_firstStick, Button.kB.value);
+      Trigger aCoButton = new JoystickButton(m_firstStick, Button.kA.value);
+      Trigger dTopCoButton = new POVButton(m_firstStick, 0);
+      Trigger dLeftCoButton = new POVButton(m_firstStick, 270);
+      Trigger dBottomCoButton = new POVButton(m_firstStick, 180);
       Trigger lbButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
+
+      //MAIN DRIVER
+      Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
       Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
+      
+      //CUBES
+      yCoButton.onTrue(new ArmPID(m_arm, 84));
+      bCoButton.onTrue(new ArmPID(m_arm, 70));
+      aCoButton.onTrue(new ArmPID(m_arm, 28));
+
+      //CONES
+      dTopCoButton.onTrue(new ArmPID(m_arm, 92));
+      dLeftCoButton.onTrue(new ArmPID(m_arm, 82));
+      dBottomCoButton.onTrue(new ArmPID(m_arm, 28));
+
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       xButton.onTrue(new LimelightEngage(m_driveTrain));
