@@ -145,7 +145,7 @@ public class SwerveDriveWheel
     }
 
     public void brake(double power) {
-        this.brakeConstant = -0.1*Math.pow(9, power) + 1.1;
+        this.brakeConstant = -0.105*Math.pow(9, power) + 1.105;
     }
 
     public double getAngleError(double currentAngle, double setpoint) {

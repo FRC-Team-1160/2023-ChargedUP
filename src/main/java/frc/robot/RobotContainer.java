@@ -16,12 +16,15 @@ import frc.robot.commands.arm.ArmControl;
 import frc.robot.commands.arm.ArmPID;
 import frc.robot.commands.arm.ClawControl;
 import frc.robot.commands.arm.IntakeControl;
+import frc.robot.commands.arm.ToggleClawAngle;
 import frc.robot.commands.arm.WristControl;
+import frc.robot.commands.arm.WristPID;
 import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
 import frc.robot.commands.swerve.TestWheelSpeed;
 import frc.robot.commands.swerve.followPath;
 import frc.robot.commands.vision.LimelightEngage;
+import frc.robot.commands.vision.TogglePipeline;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
@@ -88,7 +91,10 @@ public class RobotContainer {
       Trigger dTopCoButton = new POVButton(m_firstStick, 0);
       Trigger dLeftCoButton = new POVButton(m_firstStick, 270);
       Trigger dBottomCoButton = new POVButton(m_firstStick, 180);
-      Trigger lbButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
+      Trigger lbCoButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
+      Trigger startCoButton = new JoystickButton(m_firstStick, Button.kStart.value);
+      Trigger xCoButton = new JoystickButton(m_firstStick, Button.kX.value);
+      Trigger backCoButton = new JoystickButton(m_firstStick, Button.kBack.value);
 
       //MAIN DRIVER
       Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
@@ -104,11 +110,15 @@ public class RobotContainer {
       dLeftCoButton.onTrue(new ArmPID(m_arm, 82));
       dBottomCoButton.onTrue(new ArmPID(m_arm, 28));
 
+      //
+      xCoButton.onTrue(new ToggleClawAngle(m_claw));
+
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
-      xButton.onTrue(new LimelightEngage(m_driveTrain));
+      //backCoButton.onTrue(new TogglePipeline());
+      startCoButton.onTrue(new LimelightEngage(m_driveTrain));
 
-      lbButton.onTrue(new ClawControl(m_claw));
+      lbCoButton.onTrue(new ClawControl(m_claw));
 
 
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);

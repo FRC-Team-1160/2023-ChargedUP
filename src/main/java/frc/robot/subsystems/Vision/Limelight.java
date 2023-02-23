@@ -24,10 +24,14 @@ public class Limelight extends SubsystemBase {
   }
   private Limelight() {
     table = NetworkTableInstance.getDefault().getTable("limelight");
+    table.getEntry("pipeline").setNumber(0);
   }
 
   public static void changePipeline(int pipeline) {
     table.getEntry("pipeline").setNumber(pipeline);
+  }
+  public static Number getPipeline() {
+    return table.getEntry("pipeline").getNumber(0);
   }
 
   public static double getTx() {
@@ -39,5 +43,6 @@ public class Limelight extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("tx", getTx());
+    SmartDashboard.putNumber("Pipeline", getPipeline().intValue());
   }
 }

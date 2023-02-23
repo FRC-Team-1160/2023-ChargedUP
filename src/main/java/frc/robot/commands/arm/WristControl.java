@@ -16,21 +16,44 @@ public class WristControl extends CommandBase {
   private Claw m_claw;
   private double m_input;
   private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
+  private double currentClawAngle;
+  private double currentWristAngle;
   public WristControl(Claw m_claw, double input) {
     addRequirements(m_claw);
     this.m_claw = m_claw;
     m_input = input;
+    currentClawAngle = m_claw.angle;
+    currentWristAngle = m_claw.wristAngle;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    currentClawAngle = m_claw.angle;
+    currentWristAngle = m_claw.wristAngle;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_claw.wristControl(m_input*m_firstStick.getRawAxis(5)*-1);
+    SmartDashboard.putNumber("claw axis input", m_firstStick.getRawAxis(5)*-1);
+    SmartDashboard.putNumber("current claw angle", currentClawAngle);
+    if (Math.abs(m_firstStick.getRawAxis(5)) < 0.2) {
+      if (m_claw.keepClawAngle) {
+        if (m_claw.m_clawSwitch.get()){
+          //STILL DOES WEIRD BREAK SO DO NOT RUN YET
+          //MAYBE CHANGE THE PID CONTROL COMMAND SO THAT IT CAN NEVER HAVE A WRISTANGLE OF GREATER THAN 0
+          m_claw.wristPID(currentClawAngle);
+        }
+      } else {
+        m_claw.wristPID(currentWristAngle);
+      }
+    } else {
+      m_claw.wristControl(m_input*m_firstStick.getRawAxis(5)*-1);
+      currentClawAngle = m_claw.angle;
+      currentWristAngle = m_claw.wristAngle;
+    }
   }
 
   // Called once the command ends or is interrupted.

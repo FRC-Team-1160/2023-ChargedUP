@@ -37,6 +37,7 @@ public final class Constants {
     public static final int GATE = 0;
 
     public static final int ARM_SWITCH = 0;
+    public static final int CLAW_SWITCH = 1;
     
   }
 
@@ -74,6 +75,7 @@ public final class Constants {
     public static final int ARM_GEAR_RATIO = 84;
     public static final int CLAW_GEAR_RATIO = 30;
     public static final double ARM_POSITION_CONVERSION = 0.258;
+    public static final double WRIST_POSITION_CONVERSION = 0.2843;
   }
 
   public static final class OIConstants {

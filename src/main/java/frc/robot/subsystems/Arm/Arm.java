@@ -74,6 +74,9 @@ public class Arm extends SubsystemBase {
     double PIDoutput = m_armController.calculate(angle, setpoint);
     double output = PIDoutput + kV*setpoint;
     double max = 3;
+    if (setpoint > angle) {
+      max = 3.5;
+    }
     if (output > max) {
       output = max;
     }
