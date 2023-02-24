@@ -7,6 +7,7 @@ package frc.robot.commands.arm;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 
 import frc.robot.Constants.OIConstants;
@@ -18,6 +19,7 @@ public class WristControl extends CommandBase {
   private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
   private double currentClawAngle;
   private double currentWristAngle;
+  private Arm m_arm;
   public WristControl(Claw m_claw, double input) {
     addRequirements(m_claw);
     this.m_claw = m_claw;
@@ -25,6 +27,7 @@ public class WristControl extends CommandBase {
     currentClawAngle = m_claw.angle;
     currentWristAngle = m_claw.wristAngle;
     // Use addRequirements() here to declare subsystem dependencies.
+    m_arm = Arm.getInstance();
   }
 
   // Called when the command is initially scheduled.
@@ -40,6 +43,13 @@ public class WristControl extends CommandBase {
     SmartDashboard.putNumber("claw axis input", m_firstStick.getRawAxis(5)*-1);
     SmartDashboard.putNumber("current claw angle", currentClawAngle);
     if (Math.abs(m_firstStick.getRawAxis(5)) < 0.2) {
+      if (m_arm.angle < 12 && currentClawAngle < -21+m_arm.angle && m_claw.keepClawAngle) {
+        currentClawAngle = m_claw.angle;
+        currentWristAngle = m_claw.wristAngle;
+      } else if (m_arm.angle < 12 && currentWristAngle < -21 && !m_claw.keepClawAngle) {
+        currentClawAngle = m_claw.angle;
+        currentWristAngle = m_claw.wristAngle;
+      }
       if (m_claw.keepClawAngle) {
         if (m_claw.m_clawSwitch.get()){
           //STILL DOES WEIRD BREAK SO DO NOT RUN YET

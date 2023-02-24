@@ -15,10 +15,12 @@ public class IntakeControl extends CommandBase {
   private Intake m_intake;
   private double m_input;
   private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
-  public IntakeControl(Intake m_intake, double input) {
+  private boolean useJoystick;
+  public IntakeControl(Intake m_intake, double input, boolean joystick) {
     addRequirements(m_intake);
     this.m_intake = m_intake;
     m_input = input;
+    useJoystick = joystick;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -29,14 +31,17 @@ public class IntakeControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_firstStick.getRawAxis(2) > 0.0001 && m_firstStick.getRawAxis(3) > 0.0001) {
-      m_intake.intakeControl(0);
-      SmartDashboard.putNumber("intake input", 0);
+    if (useJoystick) {
+      if (m_firstStick.getRawAxis(2) > 0.0001 && m_firstStick.getRawAxis(3) > 0.0001) {
+        m_intake.intakeControl(0);
+        SmartDashboard.putNumber("intake input", 0);
+      } else {
+        m_intake.intakeControl(m_input*m_firstStick.getRawAxis(2) - m_input*m_firstStick.getRawAxis(3));
+        SmartDashboard.putNumber("intake input", m_input*m_firstStick.getRawAxis(2) - m_input*m_firstStick.getRawAxis(3));
+      }
     } else {
-      m_intake.intakeControl(m_input*m_firstStick.getRawAxis(2) - m_input*m_firstStick.getRawAxis(3));
-      SmartDashboard.putNumber("intake input", m_input*m_firstStick.getRawAxis(2) - m_input*m_firstStick.getRawAxis(3));
+      m_intake.intakeControl(m_input);
     }
-    
   }
 
   // Called once the command ends or is interrupted.

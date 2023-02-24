@@ -76,6 +76,7 @@ public class DriveTrain extends SubsystemBase{
   //public Pose2d m_pose;
   public boolean limelightEngage;
   private PIDController limelightEngageController;
+  private double gyroOffset;
 
   double wkrP, wkrI, wkrD, wksP, wksI, wksD, wklP, wklI, wklD;
 //
@@ -114,6 +115,7 @@ public class DriveTrain extends SubsystemBase{
     m_gyro = new AHRS(Port.kMXP);
     
     m_gyro.zeroYaw();
+    gyroOffset = 0;
     m_poseX = 0;
     m_poseY = 0;
     m_controller = new SwerveDriveController(m_frontLeftWheel, m_frontRightWheel, m_backLeftWheel, m_backRightWheel, m_gyro);
@@ -124,7 +126,14 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public double getGyroAngle() {
-    return m_gyro.getYaw();
+    double angle = m_gyro.getYaw() + gyroOffset;
+    if (angle > 180) {
+      angle -= 360;
+    }
+    if (angle < -180) {
+      angle += 360;
+    }
+    return angle;
   }
 
   public void resetWheelPositions() {
@@ -135,6 +144,12 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public void resetGyro() {
+    m_gyro.zeroYaw();
+    gyroOffset = 0;
+  }
+
+  public void resetGyroToPosition(double rot) {
+    gyroOffset = rot;
     m_gyro.zeroYaw();
   }
 

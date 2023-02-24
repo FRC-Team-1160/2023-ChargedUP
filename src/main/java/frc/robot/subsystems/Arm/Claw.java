@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
+import frc.robot.commands.arm.WristPID;
 
 public class Claw extends SubsystemBase {
   /** Creates a new Claw. */
@@ -74,12 +75,17 @@ public class Claw extends SubsystemBase {
 
 
   public void wristControl(double input) {
-    m_wrist.setVoltage(input);
+    if (m_arm.angle < 12 && wristAngle < -21.5) {
+      wristPID(-19);
+    } else {
+      m_wrist.setVoltage(input);
+    }
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
     } else {
       m_wrist.stopMotor();
     }*/
+    SmartDashboard.putNumber("wrist input", input);
   }
 
   public void wristPID(double setpoint) {
@@ -89,12 +95,24 @@ public class Claw extends SubsystemBase {
     double currentAngle = wristAngle;
     if (keepClawAngle) {
       currentAngle = angle;
+      double currentWristAngle = setpoint-m_arm.angle;
+      if (currentWristAngle> -5) {
+        setpoint -= 5;
+      }
+    }
+    if (m_arm.angle < 12 && setpoint < -21.5+m_arm.angle && keepClawAngle) {
+      setpoint = -19+m_arm.angle;
+    } else if (m_arm.angle < 12 && setpoint < -21.5 && !keepClawAngle) {
+      setpoint = -19;
     }
     double PIDoutput = m_wristController.calculate(currentAngle, setpoint);
     double output = PIDoutput + kV*setpoint;
-    double max = 3;
-    if (setpoint > currentAngle) {
-      max = 4.5;
+    double max = 4;
+    if (setpoint > currentAngle && setpoint-currentAngle > 50) {
+      max = 7;
+    }
+    if (m_arm.angle < 10) {
+      max = 3;
     }
     if (output > max) {
       output = max;
@@ -103,6 +121,7 @@ public class Claw extends SubsystemBase {
       output = -max;
     }
     m_wrist.setVoltage(output);
+    SmartDashboard.putNumber("wrist output", output);
   }
 
   @Override

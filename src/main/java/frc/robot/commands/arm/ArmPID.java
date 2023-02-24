@@ -8,17 +8,20 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Arm.Claw;
 
 public class ArmPID extends CommandBase {
   /** Creates a new ArmPID. */
   private Arm m_arm;
+  private Claw m_claw;
   private double setpoint;
   private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
-  public ArmPID(Arm m_arm, double setpoint) {
+  public ArmPID(Arm m_arm, Claw m_claw, double setpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_arm);
     this.m_arm = m_arm;
     this.setpoint = setpoint;
+    this.m_claw = m_claw;
   }
 
   // Called when the command is initially scheduled.
@@ -28,6 +31,9 @@ public class ArmPID extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (m_arm.angle < 13 && m_claw.wristAngle < -21.5) {
+      m_arm.armControl(0);
+    }
     m_arm.armPID(setpoint);
   }
 

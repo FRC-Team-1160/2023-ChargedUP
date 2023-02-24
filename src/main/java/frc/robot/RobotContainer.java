@@ -1,15 +1,27 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
+import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.arm.ArmControl;
@@ -33,6 +45,7 @@ import frc.robot.subsystems.Vision.Limelight;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 // Commands
 
@@ -57,12 +70,33 @@ public class RobotContainer {
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
     private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
 
+    private double xP,xI,xD,yP,yI,yD,rP,rI,rD;
+
+    //Event map for auto
+    private HashMap<String, Command> eventMap = new HashMap<String, Command>();
+    //eventMap.put("intake", new Intake());
+
 
 
     /**
      * The container for the robot.  Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+
+      xP = 0.0001;
+      xI = 0.000001;
+      xD = 0;
+      yP = 0.0001;
+      yI = 0.000001;
+      yD = 0;
+      rP = 0.5;
+      rI = 0;
+      rD = 0;
+
+      /*
+       * add commands to event map
+       */
+      eventMap.put("Intake Five", intake(0.5*12, 5));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -71,7 +105,7 @@ public class RobotContainer {
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
       m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12)); //18
       m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
-      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.5 * 12));
+      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.5 * 12, true));
     }
 
       
@@ -91,24 +125,25 @@ public class RobotContainer {
       Trigger dTopCoButton = new POVButton(m_firstStick, 0);
       Trigger dLeftCoButton = new POVButton(m_firstStick, 270);
       Trigger dBottomCoButton = new POVButton(m_firstStick, 180);
-      Trigger lbCoButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
+      Trigger rbCoButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
       Trigger startCoButton = new JoystickButton(m_firstStick, Button.kStart.value);
       Trigger xCoButton = new JoystickButton(m_firstStick, Button.kX.value);
       Trigger backCoButton = new JoystickButton(m_firstStick, Button.kBack.value);
+      Trigger lbCoButton = new JoystickButton(m_firstStick, Button.kLeftBumper.value);
 
       //MAIN DRIVER
       Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
       Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
       
       //CUBES
-      yCoButton.onTrue(new ArmPID(m_arm, 84));
-      bCoButton.onTrue(new ArmPID(m_arm, 70));
-      aCoButton.onTrue(new ArmPID(m_arm, 28));
+      yCoButton.onTrue(new ArmPID(m_arm, m_claw, 84));
+      bCoButton.onTrue(new ArmPID(m_arm, m_claw, 70));
+      aCoButton.onTrue(new ArmPID(m_arm, m_claw, 28));
 
       //CONES
-      dTopCoButton.onTrue(new ArmPID(m_arm, 92));
-      dLeftCoButton.onTrue(new ArmPID(m_arm, 82));
-      dBottomCoButton.onTrue(new ArmPID(m_arm, 28));
+      dTopCoButton.onTrue(new ArmPID(m_arm, m_claw, 92));
+      dLeftCoButton.onTrue(new ArmPID(m_arm, m_claw, 82));
+      dBottomCoButton.onTrue(new ArmPID(m_arm, m_claw, 28));
 
       //
       xCoButton.onTrue(new ToggleClawAngle(m_claw));
@@ -118,7 +153,8 @@ public class RobotContainer {
       //backCoButton.onTrue(new TogglePipeline());
       startCoButton.onTrue(new LimelightEngage(m_driveTrain));
 
-      lbCoButton.onTrue(new ClawControl(m_claw));
+      rbCoButton.onTrue(new ClawControl(m_claw));
+      lbCoButton.onTrue(stow());
 
 
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);
@@ -129,8 +165,137 @@ public class RobotContainer {
     }
 
     /*
+     * 
      * COMMANDS
+     * for both auto and user
+     * 
      */
+
+    public Command intake(double input, double seconds) {
+      return new IntakeControl(m_intake, input, false).withTimeout(seconds);
+    }
+
+    public Command stow() {
+      return new ParallelCommandGroup(
+        new ArmPID(m_arm, m_claw, 0),
+        new WristPID(m_claw, 0)
+      );
+    }
+
+    /*
+     * COMMANDS FOR USE BY AUTO COMMANDS
+     * YOU DO NOT NEED TO RUN THESE
+     */
+
+    protected CommandBase resetPose(PathPlannerTrajectory trajectory) {
+      return Commands.runOnce(
+          () -> {
+            PathPlannerTrajectory.PathPlannerState initialState = trajectory.getInitialState();
+            initialState =
+                PathPlannerTrajectory.transformStateForAlliance(
+                    initialState, DriverStation.getAlliance());
+            m_driveTrain.m_poseX = initialState.poseMeters.getX();
+            m_driveTrain.m_poseY = initialState.poseMeters.getY();
+            m_driveTrain.resetGyroToPosition(initialState.holonomicRotation.getDegrees());
+          });
+    }
+
+    protected static CommandBase wrappedEventCommand(Command eventCommand) {
+      return new FunctionalCommand(
+          eventCommand::initialize,
+          eventCommand::execute,
+          eventCommand::end,
+          eventCommand::isFinished,
+          eventCommand.getRequirements().toArray(Subsystem[]::new));
+    }
+
+    protected CommandBase getStopEventCommands(StopEvent stopEvent) {
+      List<CommandBase> commands = new ArrayList<>();
+
+      int startIndex = stopEvent.executionBehavior == ExecutionBehavior.PARALLEL_DEADLINE ? 1 : 0;
+      for (int i = startIndex; i < stopEvent.names.size(); i++) {
+        String name = stopEvent.names.get(i);
+        if (eventMap.containsKey(name)) {
+          commands.add(wrappedEventCommand(eventMap.get(name)));
+        }
+      }
+
+      switch (stopEvent.executionBehavior) {
+        case SEQUENTIAL:
+          return Commands.sequence(commands.toArray(CommandBase[]::new));
+        case PARALLEL:
+          return Commands.parallel(commands.toArray(CommandBase[]::new));
+        case PARALLEL_DEADLINE:
+          Command deadline =
+              eventMap.containsKey(stopEvent.names.get(0))
+                  ? wrappedEventCommand(eventMap.get(stopEvent.names.get(0)))
+                  : Commands.none();
+          return Commands.deadline(deadline, commands.toArray(CommandBase[]::new));
+        default:
+          throw new IllegalArgumentException(
+              "Invalid stop event execution behavior: " + stopEvent.executionBehavior);
+      }
+    }
+
+    protected CommandBase stopEventGroup(StopEvent stopEvent) {
+      if (stopEvent.names.isEmpty()) {
+        return Commands.waitSeconds(stopEvent.waitTime);
+      }
+  
+      CommandBase eventCommands = getStopEventCommands(stopEvent);
+  
+      switch (stopEvent.waitBehavior) {
+        case BEFORE:
+          return Commands.sequence(Commands.waitSeconds(stopEvent.waitTime), eventCommands);
+        case AFTER:
+          return Commands.sequence(eventCommands, Commands.waitSeconds(stopEvent.waitTime));
+        case DEADLINE:
+          return Commands.deadline(Commands.waitSeconds(stopEvent.waitTime), eventCommands);
+        case MINIMUM:
+          return Commands.parallel(Commands.waitSeconds(stopEvent.waitTime), eventCommands);
+        case NONE:
+        default:
+          return eventCommands;
+      }
+    }
+
+    protected CommandBase followPathWithEvents(PathPlannerTrajectory trajectory, PathConstraints maxSpd) {
+      Command path = new followPath(
+        trajectory, 
+        m_driveTrain.m_poseX,
+        m_driveTrain.m_poseY, // Pose supplier
+        new PIDController(xP, xI, xD),
+        new PIDController(yP, yI, yD),
+        new PIDController(rP, rI, rD),
+        maxSpd,
+        true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+        m_driveTrain // Requires this drive subsystem
+    );
+      return new FollowPathWithEvents(path, trajectory.getMarkers(), eventMap);
+    }
+
+    /*
+     * 
+     * AUTO COMMANDS
+     * 
+     */
+
+    public Command fullAuto(PathPlannerTrajectory trajectory, PathConstraints maxSpd) {
+      List<PathPlannerTrajectory> pathGroup = new ArrayList<>(List.of(trajectory));
+      List<CommandBase> commands = new ArrayList<>();
+
+      commands.add(resetPose(pathGroup.get(0)));
+
+      for (PathPlannerTrajectory traj : pathGroup) {
+        commands.add(stopEventGroup(traj.getStartStopEvent()));
+        commands.add(followPathWithEvents(traj, maxSpd));
+      }
+
+      commands.add(stopEventGroup(pathGroup.get(pathGroup.size() - 1).getEndStopEvent()));
+
+      return Commands.sequence(commands.toArray(CommandBase[]::new));
+    }
+
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath, PathConstraints maxSpd) {
       return new SequentialCommandGroup(
           new InstantCommand(() -> {
@@ -144,9 +309,9 @@ public class RobotContainer {
               traj, 
               m_driveTrain.m_poseX,
               m_driveTrain.m_poseY, // Pose supplier
-              new PIDController(0.0001, 0.000001, 0),
-              new PIDController(0.0001, 0.000001, 0),
-              new PIDController(0.5, 0.0, 0),
+              new PIDController(xP, xI, xD),
+              new PIDController(yP, yI, yD),
+              new PIDController(rP, rI, rD),
               maxSpd,
               true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
               m_driveTrain // Requires this drive subsystem
