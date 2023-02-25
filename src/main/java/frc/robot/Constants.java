@@ -42,8 +42,8 @@ public final class Constants {
   }
 
   public static final class SwerveConstants{
-    public static final double l = 0.585;
-    public static final double w = 0.585;
+    public static final double l = 0.595;
+    public static final double w = 0.595;
     public static final double r = Math.sqrt(Math.pow(l, 2) + Math.pow(w, 2));
     public static final double centerToMotor = 0;//Distance from center of motor to center of robot
     public static final double unitsToRotations = (2048/360);
@@ -63,10 +63,10 @@ public final class Constants {
     public static final double WEIGHT = 77.5 + BATTERY_WEIGHT;
 
     //THESE TWO VALUES BECOME LESS WITH MORE WEIGHT
-    public static final double MAX_WHEEL_SPEED = 4.5; //in m/s, with no weight, it is 4.7
+    public static final double MAX_WHEEL_SPEED = 5; //in m/s, with no weight, it is 4.7
     public static final double MAX_WHEEL_ACCELERATION = -0.312 * WEIGHT + 45; //in m/s^2, with no weight it is 45
 
-    public static final double AUTO_ROTATION = 2.5; //as this goes up, rotation speed goes down
+    public static final double AUTO_ROTATION = 2.15; //as this goes up, rotation speed goes down
 
     public static final double MS_TO_UPMS = (13824/28.4); //meters per second to units per 100ms
   }

@@ -83,14 +83,14 @@ public class RobotContainer {
      */
     public RobotContainer() {
 
-      xP = 0.0001;
-      xI = 0.000001;
+      xP = 0;
+      xI = 0;
       xD = 0;
-      yP = 0.0001;
-      yI = 0.000001;
+      yP = 0;
+      yI = 0;
       yD = 0;
-      rP = 0.75; //still needs to be tuned
-      rI = 0.01; //still needs to be tuned
+      rP = 0; //still needs to be tuned
+      rI = 0; //still needs to be tuned
       rD = 0;
 
       /*
@@ -373,8 +373,8 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        PathConstraints max = new PathConstraints(1.5, 1.5);
-        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward intake", max);
+        PathConstraints max = new PathConstraints(2.5, 2.5);
+        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward rotating", max);
         return fullAuto(path, max);
         //return null;
     }

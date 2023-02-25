@@ -3,6 +3,7 @@ package frc.robot.commands.swerve;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.SwerveConstants;
 
 /**
  * Custom version of a @HolonomicDriveController specifically for following PathPlanner paths
@@ -95,17 +96,18 @@ public class DriveController {
 
     this.translationXError = referenceState.poseMeters.getX()-currentPoseX;
     this.translationYError = referenceState.poseMeters.getY()-currentPoseY;
-    double angleError1 = angleToLoc(referenceState.holonomicRotation.getDegrees()) - angleToLoc(gyroAngle);
-    double angleError2;
-    if (angleError1 < 0) {
-      angleError2 = 360 + angleError1;
+    if (referenceState.angularVelocityRadPerSec > 0) {
+      this.rotationError = angleToLoc(gyroAngle) - angleToLoc(referenceState.holonomicRotation.getDegrees());
+      if (this.rotationError > 180) {
+        this.rotationError = Math.abs(this.rotationError-360);
+      }
+      this.rotationError = Math.toRadians(this.rotationError);
     } else {
-      angleError2 = 360 - angleError1;
-    }
-    if (Math.abs(angleError1) < Math.abs(angleError2)) {
-      this.rotationError = Math.toRadians(angleError1);
-    } else {
-      this.rotationError = Math.toRadians(angleError2);
+      this.rotationError =  angleToLoc(referenceState.holonomicRotation.getDegrees()) - angleToLoc(gyroAngle);
+      if (this.rotationError > 180) {
+        this.rotationError = Math.abs(this.rotationError-360);
+      }
+      this.rotationError = Math.toRadians(this.rotationError);
     }
     SmartDashboard.putNumber("reference degrees", referenceState.holonomicRotation.getDegrees());
     SmartDashboard.putNumber("rotationError", Math.toDegrees(rotationError));
@@ -126,9 +128,9 @@ public class DriveController {
     SmartDashboard.putNumber("rotationFF", rotationFF);
     SmartDashboard.putNumber("rotationFeedback", rotationFeedback);
 
-    speeds[0] = xFF + xFeedback;
-    speeds[1] = yFF + yFeedback;
-    speeds[2] = rotationFF + rotationFeedback;
+    speeds[0] = xFF*0.9 + xFeedback;
+    speeds[1] = yFF*0.9 + yFeedback;
+    speeds[2] = rotationFF/SwerveConstants.AUTO_ROTATION + rotationFeedback;
     return speeds;
   }
 

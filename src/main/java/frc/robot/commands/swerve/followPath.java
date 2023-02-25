@@ -74,7 +74,7 @@ public class followPath extends CommandBase {
     double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
       str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
       fwd = temp;
-    rot /= SwerveConstants.AUTO_ROTATION;
+    //rot /= (SwerveConstants.AUTO_ROTATION + constraints.maxVelocity*0.05);
     SmartDashboard.putNumber("auto fwd", fwd);
     SmartDashboard.putNumber("auto str", str);
     SmartDashboard.putNumber("auto rot", rot);

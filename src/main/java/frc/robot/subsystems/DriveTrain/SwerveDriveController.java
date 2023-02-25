@@ -88,8 +88,8 @@ public class SwerveDriveController {
         double tstr = (str1 + str2)/2;
 
         //field centric
-        double fwd = tfwd * Math.cos(Math.toRadians(gyroAngle)) + tstr * Math.sin(Math.toRadians(gyroAngle));
-        double str = tstr * Math.cos(Math.toRadians(gyroAngle)) - tfwd * Math.sin(Math.toRadians(gyroAngle));
+        double fwd = tfwd * Math.cos(Math.toRadians(-gyroAngle)) + tstr * Math.sin(Math.toRadians(-gyroAngle));
+        double str = tstr * Math.cos(Math.toRadians(-gyroAngle)) - tfwd * Math.sin(Math.toRadians(-gyroAngle));
         SmartDashboard.putNumber("a odom", a);
         SmartDashboard.putNumber("b odom", b);
         SmartDashboard.putNumber("c odom", c);
