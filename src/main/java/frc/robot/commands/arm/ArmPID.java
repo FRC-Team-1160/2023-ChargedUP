@@ -31,7 +31,7 @@ public class ArmPID extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_arm.angle < 13 && m_claw.wristAngle < -21.5) {
+    if (m_arm.angle < 14 && m_claw.wristAngle < -20) {
       m_arm.armControl(0);
     }
     m_arm.armPID(setpoint);

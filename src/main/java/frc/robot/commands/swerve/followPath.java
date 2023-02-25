@@ -66,10 +66,10 @@ public class followPath extends CommandBase {
     SmartDashboard.putNumber("desired y", desiredState.poseMeters.getY());
 
 
-    double[] robotSpeeds = this.controller.calculate(poseX, poseY, locToAngle(m_drive.getGyroAngle()), desiredState);
+    double[] robotSpeeds = this.controller.calculate(poseX, poseY, locToAngle(m_drive.getGyroAngle())*-1, desiredState);
     double fwd = robotSpeeds[0];
     double str = -robotSpeeds[1];
-    double rot = robotSpeeds[2];
+    double rot = -robotSpeeds[2];
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
     double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
       str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);

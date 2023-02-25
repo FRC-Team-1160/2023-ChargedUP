@@ -43,10 +43,10 @@ public class WristControl extends CommandBase {
     SmartDashboard.putNumber("claw axis input", m_firstStick.getRawAxis(5)*-1);
     SmartDashboard.putNumber("current claw angle", currentClawAngle);
     if (Math.abs(m_firstStick.getRawAxis(5)) < 0.2) {
-      if (m_arm.angle < 12 && currentClawAngle < -21+m_arm.angle && m_claw.keepClawAngle) {
+      if (m_arm.angle < 14 && currentClawAngle < -20+m_arm.angle && m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
         currentWristAngle = m_claw.wristAngle;
-      } else if (m_arm.angle < 12 && currentWristAngle < -21 && !m_claw.keepClawAngle) {
+      } else if (m_arm.angle < 14 && currentWristAngle < -20 && !m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
         currentWristAngle = m_claw.wristAngle;
       }

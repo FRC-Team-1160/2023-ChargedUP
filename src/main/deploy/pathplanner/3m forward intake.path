@@ -32,14 +32,17 @@
         "y": 2.0
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 2.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "sequential",
+        "names": [
+          "Stow",
+          "Stop Intake"
+        ],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -47,7 +50,19 @@
   ],
   "markers": [
     {
-      "position": 0.7999999999999987,
+      "position": 0.2954545454545461,
+      "names": [
+        "Intake Three"
+      ]
+    },
+    {
+      "position": 0.20000000000000012,
+      "names": [
+        "Pickup"
+      ]
+    },
+    {
+      "position": 0.0,
       "names": [
         "event"
       ]

@@ -73,7 +73,7 @@ public class RobotContainer {
     private double xP,xI,xD,yP,yI,yD,rP,rI,rD;
 
     //Event map for auto
-    private HashMap<String, Command> eventMap = new HashMap<String, Command>();
+    private HashMap<String, Command> eventMap = new HashMap<>();
     //eventMap.put("intake", new Intake());
 
 
@@ -89,14 +89,20 @@ public class RobotContainer {
       yP = 0.0001;
       yI = 0.000001;
       yD = 0;
-      rP = 0.5;
-      rI = 0;
+      rP = 0.75; //still needs to be tuned
+      rI = 0.01; //still needs to be tuned
       rD = 0;
 
       /*
        * add commands to event map
        */
-      eventMap.put("Intake Five", intake(0.5*12, 5));
+      eventMap.put("Intake Three", intake(0.5*12, 3));
+      eventMap.put("Stow", stow());
+      eventMap.put("Stop Intake", intake(0, 1));
+      eventMap.put("Toggle Lime Pipe", new TogglePipeline());
+      eventMap.put("Toggle Lime Engage", new LimelightEngage(m_driveTrain));
+      eventMap.put("Toggle Claw", new ClawControl(m_claw));
+      eventMap.put("Pickup", pickup());
 
       // Configure the button bindings
       configureButtonBindings();
@@ -134,6 +140,7 @@ public class RobotContainer {
       //MAIN DRIVER
       Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
       Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
+      Trigger backButton = new JoystickButton(m_mainStick, Button.kBack.value);
       
       //CUBES
       yCoButton.onTrue(new ArmPID(m_arm, m_claw, 84));
@@ -160,6 +167,9 @@ public class RobotContainer {
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);
       startButton.onTrue(new Reset(m_driveTrain));
 
+      //TESTERS
+      backButton.onTrue(pickup());
+
       
 
     }
@@ -171,6 +181,8 @@ public class RobotContainer {
      * 
      */
 
+    
+
     public Command intake(double input, double seconds) {
       return new IntakeControl(m_intake, input, false).withTimeout(seconds);
     }
@@ -181,6 +193,39 @@ public class RobotContainer {
         new WristPID(m_claw, 0)
       );
     }
+
+    public Command pickup() {
+      return new ParallelCommandGroup(
+        new ArmPID(m_arm, m_claw, 16),
+        new WristPID(m_claw, -69)
+      );
+    }
+
+    public Command highCone() {
+      return null;
+    }
+
+    public Command midCone() {
+      return null;
+    }
+
+    public Command hybridCone() {
+      return null;
+    }
+
+    public Command highCube() {
+      return null;
+    }
+
+    public Command midCube() {
+      return null;
+    }
+
+    public Command hybridCube() {
+      return null;
+    }
+
+
 
     /*
      * COMMANDS FOR USE BY AUTO COMMANDS
@@ -329,8 +374,8 @@ public class RobotContainer {
     
     public Command getAutonomousCommand() {
         PathConstraints max = new PathConstraints(1.5, 1.5);
-        PathPlannerTrajectory path = PathPlanner.loadPath("figure8", max);
-        return followTrajectoryCommand(path, true, max);
+        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward intake", max);
+        return fullAuto(path, max);
         //return null;
     }
     

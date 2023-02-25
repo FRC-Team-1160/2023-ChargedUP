@@ -53,8 +53,8 @@ public class SwerveDrive extends CommandBase {
     if (mag > 0.02) {
       x = m_mainStick.getRawAxis(0);
       y = -m_mainStick.getRawAxis(1);
-      double temp = y * Math.cos(gyroAngle) + x*Math.sin(gyroAngle);
-      x = -1*y * Math.sin(gyroAngle) + x*Math.cos(gyroAngle);
+      double temp = y * Math.cos(-gyroAngle) + x*Math.sin(-gyroAngle);
+      x = -1*y * Math.sin(-gyroAngle) + x*Math.cos(-gyroAngle);
       y = temp;
       spd = 0.35;
     } else {
