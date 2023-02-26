@@ -13,15 +13,20 @@ import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.arm.ArmControl;
@@ -42,10 +47,6 @@ import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 import frc.robot.subsystems.Vision.Limelight;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
 // Commands
 
@@ -83,13 +84,13 @@ public class RobotContainer {
      */
     public RobotContainer() {
 
-      xP = 0;
+      xP = 0.15;
       xI = 0;
       xD = 0;
-      yP = 0;
+      yP = 0.15;
       yI = 0;
       yD = 0;
-      rP = 0; //still needs to be tuned
+      rP = 0.3; //still needs to be tuned
       rI = 0; //still needs to be tuned
       rD = 0;
 
@@ -103,14 +104,15 @@ public class RobotContainer {
       eventMap.put("Toggle Lime Engage", new LimelightEngage(m_driveTrain));
       eventMap.put("Toggle Claw", new ClawControl(m_claw));
       eventMap.put("Pickup", pickup());
+      eventMap.put("End", end());
 
       // Configure the button bindings
       configureButtonBindings();
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
-      m_arm.setDefaultCommand(new ArmControl(m_arm, 0.18 * 12)); //18
-      m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.18 * 12, 0.25 * 12)); //18
+      //m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
       m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.5 * 12, true));
     }
 
@@ -143,14 +145,14 @@ public class RobotContainer {
       Trigger backButton = new JoystickButton(m_mainStick, Button.kBack.value);
       
       //CUBES
-      yCoButton.onTrue(new ArmPID(m_arm, m_claw, 84));
-      bCoButton.onTrue(new ArmPID(m_arm, m_claw, 70));
-      aCoButton.onTrue(new ArmPID(m_arm, m_claw, 28));
+      yCoButton.onTrue(new ArmPID(m_arm, 84));
+      bCoButton.onTrue(new ArmPID(m_arm, 70));
+      aCoButton.onTrue(new ArmPID(m_arm, 28));
 
       //CONES
-      dTopCoButton.onTrue(new ArmPID(m_arm, m_claw, 92));
-      dLeftCoButton.onTrue(new ArmPID(m_arm, m_claw, 82));
-      dBottomCoButton.onTrue(new ArmPID(m_arm, m_claw, 28));
+      dTopCoButton.onTrue(new ArmPID(m_arm, 92));
+      dLeftCoButton.onTrue(new ArmPID(m_arm, 82));
+      dBottomCoButton.onTrue(new ArmPID(m_arm, 28));
 
       //
       xCoButton.onTrue(new ToggleClawAngle(m_claw));
@@ -189,14 +191,14 @@ public class RobotContainer {
 
     public Command stow() {
       return new ParallelCommandGroup(
-        new ArmPID(m_arm, m_claw, 0),
+        new ArmPID(m_arm, 0),
         new WristPID(m_claw, 0)
-      );
+      ).withTimeout(1.5);
     }
 
     public Command pickup() {
       return new ParallelCommandGroup(
-        new ArmPID(m_arm, m_claw, 16),
+        new ArmPID(m_arm, 16),
         new WristPID(m_claw, -69)
       );
     }
@@ -225,6 +227,13 @@ public class RobotContainer {
       return null;
     }
 
+    public Command end() {
+      return new ParallelCommandGroup(
+        new SwerveDrive(m_driveTrain).withTimeout(0.1),
+        new ArmControl(m_arm, m_claw, 0, 0).withTimeout(0.1),
+        new IntakeControl(m_intake, 0, false).withTimeout(0.1)
+      );
+    }
 
 
     /*
@@ -373,8 +382,8 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        PathConstraints max = new PathConstraints(2.5, 2.5);
-        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward rotating", max);
+        PathConstraints max = new PathConstraints(1.5, 1);
+        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward intake", max);
         return fullAuto(path, max);
         //return null;
     }

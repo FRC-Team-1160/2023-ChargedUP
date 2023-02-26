@@ -76,7 +76,7 @@ public class Claw extends SubsystemBase {
 
   public void wristControl(double input) {
     if (m_arm.angle < 12 && wristAngle < -20) {
-      wristPID(-19);
+      wristPID(-16);
     } else {
       m_wrist.setVoltage(input);
     }
@@ -100,10 +100,10 @@ public class Claw extends SubsystemBase {
         setpoint -= 5;
       }
     }
-    if (m_arm.angle < 14 && setpoint < -20+m_arm.angle && keepClawAngle) {
-      setpoint = -18+m_arm.angle;
-    } else if (m_arm.angle < 14 && setpoint < -20 && !keepClawAngle) {
-      setpoint = -18;
+    if (m_arm.angle < 11 && setpoint < -20+m_arm.angle && keepClawAngle) {
+      setpoint = -16+m_arm.angle;
+    } else if (m_arm.angle < 11 && setpoint < -20 && !keepClawAngle) {
+      setpoint = -16;
     }
     double PIDoutput = m_wristController.calculate(currentAngle, setpoint);
     double output = PIDoutput + kV*setpoint;

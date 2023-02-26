@@ -24,6 +24,81 @@
     },
     {
       "anchorPoint": {
+        "x": 3.0,
+        "y": 2.0
+      },
+      "prevControl": {
+        "x": 2.7866759711148994,
+        "y": 2.0
+      },
+      "nextControl": {
+        "x": 3.213324028885101,
+        "y": 2.0
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": 1.0,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.5,
+        "y": 2.0
+      },
+      "prevControl": {
+        "x": 3.369973219701221,
+        "y": 2.0
+      },
+      "nextControl": {
+        "x": 3.630026780298779,
+        "y": 2.0
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": 0.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.0,
+        "y": 2.0040640081280174
+      },
+      "prevControl": {
+        "x": 3.9167622898854035,
+        "y": 2.0040640081280174
+      },
+      "nextControl": {
+        "x": 4.083237710114597,
+        "y": 2.0040640081280174
+      },
+      "holonomicAngle": 1.0,
+      "isReversal": false,
+      "velOverride": 0.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
         "x": 5.0,
         "y": 2.0
       },
@@ -40,14 +115,18 @@
       "stopEvent": {
         "names": [
           "Stow",
-          "Stop Intake"
+          "Stop Intake",
+          "End"
         ],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
+  "maxVelocity": 1.5,
+  "maxAcceleration": 0.5,
+  "isReversed": null,
   "markers": [
     {
       "position": 0.2954545454545461,
@@ -59,12 +138,6 @@
       "position": 0.20000000000000012,
       "names": [
         "Pickup"
-      ]
-    },
-    {
-      "position": 0.0,
-      "names": [
-        "event"
       ]
     }
   ]

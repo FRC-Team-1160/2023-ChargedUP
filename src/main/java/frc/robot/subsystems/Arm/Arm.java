@@ -12,10 +12,12 @@ import com.revrobotics.SparkMaxRelativeEncoder.Type;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PortConstants;
 
 public class Arm extends SubsystemBase {
@@ -25,6 +27,8 @@ public class Arm extends SubsystemBase {
   private CANSparkMax m_armDown;
 
   public DigitalInput m_armSwitch;
+  
+  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
   
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
@@ -74,9 +78,9 @@ public class Arm extends SubsystemBase {
     double PIDoutput = m_armController.calculate(angle, setpoint);
     double output = PIDoutput + kV*setpoint;
     
-    double max = 2.5;
+    double max = 2;
     if (angle < 12) {
-      max = 1.5;
+      max = 1;
     }
     if (setpoint > angle) {
       max = 3.5;
@@ -106,5 +110,6 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("arm angle", angle);
     SmartDashboard.putNumber("arm encoder reading", getEncoderPosition());
     SmartDashboard.putBoolean("arm switch", !m_armSwitch.get());
+    SmartDashboard.putNumber("arm axis", m_firstStick.getRawAxis(1));
   }
 }
