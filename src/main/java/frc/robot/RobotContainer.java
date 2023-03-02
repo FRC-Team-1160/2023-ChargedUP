@@ -35,7 +35,6 @@ import frc.robot.commands.arm.ClawControl;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
 import frc.robot.commands.arm.WristControl;
-import frc.robot.commands.arm.WristPID;
 import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
 import frc.robot.commands.swerve.TestWheelSpeed;
@@ -111,9 +110,8 @@ public class RobotContainer {
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
-      m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.18 * 12, 0.25 * 12)); //18
-      //m_claw.setDefaultCommand(new WristControl(m_claw, 0.25 * 12));
-      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.5 * 12, true));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.18 * 12, 0.25 * 12));
+      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.4 * 12, true));
     }
 
       
@@ -145,21 +143,21 @@ public class RobotContainer {
       Trigger backButton = new JoystickButton(m_mainStick, Button.kBack.value);
       
       //CUBES
-      yCoButton.onTrue(new ArmPID(m_arm, 84));
-      bCoButton.onTrue(new ArmPID(m_arm, 70));
-      aCoButton.onTrue(new ArmPID(m_arm, 28));
+      yCoButton.onTrue(new ArmPID(m_arm, m_claw, 84, -120));
+      bCoButton.onTrue(new ArmPID(m_arm, m_claw, 70, -90));
+      aCoButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60));
 
       //CONES
-      dTopCoButton.onTrue(new ArmPID(m_arm, 92));
-      dLeftCoButton.onTrue(new ArmPID(m_arm, 82));
-      dBottomCoButton.onTrue(new ArmPID(m_arm, 28));
+      dTopCoButton.onTrue(new ArmPID(m_arm, m_claw, 92, -120));
+      dLeftCoButton.onTrue(new ArmPID(m_arm, m_claw, 82, -90));
+      dBottomCoButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60));
 
       //
       xCoButton.onTrue(new ToggleClawAngle(m_claw));
 
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
-      //backCoButton.onTrue(new TogglePipeline());
+      backCoButton.onTrue(new TogglePipeline());
       startCoButton.onTrue(new LimelightEngage(m_driveTrain));
 
       rbCoButton.onTrue(new ClawControl(m_claw));
@@ -190,17 +188,12 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ParallelCommandGroup(
-        new ArmPID(m_arm, 0),
-        new WristPID(m_claw, 0)
-      ).withTimeout(1.5);
+      return new ArmPID(m_arm, m_claw, 0, 0).withTimeout(2);
     }
 
     public Command pickup() {
-      return new ParallelCommandGroup(
-        new ArmPID(m_arm, 16),
-        new WristPID(m_claw, -69)
-      );
+    
+      return new ArmPID(m_arm, m_claw, 16, -69).withTimeout(2);
     }
 
     public Command highCone() {

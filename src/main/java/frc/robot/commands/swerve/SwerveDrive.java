@@ -13,8 +13,8 @@ import frc.robot.Constants.OIConstants;
 
 public class SwerveDrive extends CommandBase {
   /** Creates a new SwerveDrive. */
-  private double x;
-  private double y;
+  private double fwd;
+  private double str;
   private double spd;
   private double turnspd;
   DriveTrain m_drive;
@@ -28,10 +28,10 @@ public class SwerveDrive extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    x = m_mainStick.getRawAxis(0);
-    y = -m_mainStick.getRawAxis(1);
-    spd = 0.2;
-    turnspd = 0.17;
+    str = m_mainStick.getRawAxis(0);
+    fwd = -m_mainStick.getRawAxis(1);
+    spd = 0.35;
+    turnspd = 0.32;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,23 +47,23 @@ public class SwerveDrive extends CommandBase {
       mag = 1;
     }
 
-    double turn = m_mainStick.getRawAxis(4);
+    double rot = m_mainStick.getRawAxis(4);
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
         //field oriented
     if (mag > 0.02) {
-      x = m_mainStick.getRawAxis(0);
-      y = -m_mainStick.getRawAxis(1);
-      double temp = y * Math.cos(gyroAngle) + x*Math.sin(gyroAngle);
-      x = -1*y * Math.sin(gyroAngle) + x*Math.cos(gyroAngle);
-      y = temp;
-      spd = 0.2;
+      str = m_mainStick.getRawAxis(0);
+      fwd = -m_mainStick.getRawAxis(1);
+      double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
+      str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
+      fwd = temp;
+      spd = 0.35;
     } else {
       spd = 0.0001;
     }
     if (m_drive.limelightEngage) {
-      m_drive.m_controller.setSwerveDrive(true, spd*y, spd*x, -1*m_drive.limelightEngagePID(), gyroAngle);
+      m_drive.m_controller.setSwerveDrive(true, spd*fwd, spd*str, -1*m_drive.limelightEngagePID(), gyroAngle);
     } else {
-      m_drive.m_controller.setSwerveDrive(true, spd*y, spd*x, turnspd*turn, gyroAngle);
+      m_drive.m_controller.setSwerveDrive(true, spd*fwd, spd*str, turnspd*rot, gyroAngle);
     }
     m_drive.m_controller.brake(joystickBrake);
 

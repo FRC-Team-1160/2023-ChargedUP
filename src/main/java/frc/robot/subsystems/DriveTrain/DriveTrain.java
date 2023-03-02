@@ -217,27 +217,18 @@ public class DriveTrain extends SubsystemBase{
     double[] odom = m_controller.getSwerveOdometry(locToAngle(getGyroAngle()));
     double fwd = odom[0];
     double str = odom[1];
-    double rot = odom[2];
-    Translation2d translation = new Translation2d(fwd*SwerveConstants.PERIODIC_SPEED, str*SwerveConstants.PERIODIC_SPEED);
-    Transform2d transform = new Transform2d(translation, Rotation2d.fromDegrees(0));
     m_poseX += fwd*SwerveConstants.PERIODIC_SPEED;
     m_poseY += str*SwerveConstants.PERIODIC_SPEED;
+
+    if (!Limelight.getTv()) {
+      limelightEngage = false;
+    }
 
     SmartDashboard.putNumber("Pose2DY", m_poseX);
     SmartDashboard.putNumber("Pose2DX", m_poseY);
     SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
-    /*m_controller.m_pose = m_controller.m_odometry.update(gyroAngle,
-            new SwerveModulePosition[] {
-              m_controller.frontLeftWheel.getModule(),
-              m_controller.frontRightWheel.getModule(),
-              m_controller.backLeftWheel.getModule(),
-              m_controller.backRightWheel.getModule()
-            });
-    SmartDashboard.putNumber("Pose2DY", m_controller.m_pose.getY());
-    SmartDashboard.putNumber("Pose2DX", m_controller.m_pose.getX());
-    SmartDashboard.putNumber("Pose2DRotation", m_controller.m_pose.getRotation().getDegrees());
-    SmartDashboard.putNumber("Gyro Rotation2D", m_gyro.getRotation2d().getDegrees());*/
+  
     SmartDashboard.putNumber("FR wheel vel", m_frontRightWheel.getVelocity());
     lastgyro = getGyroAngle();
   }

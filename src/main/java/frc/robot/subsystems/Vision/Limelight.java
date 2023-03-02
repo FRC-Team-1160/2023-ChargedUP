@@ -38,11 +38,16 @@ public class Limelight extends SubsystemBase {
     return table.getEntry("tx").getDouble(0);
   }
 
+  public static boolean getTv() {
+    return table.getEntry("tv").getInteger(0) == 1;
+  }
+
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("tx", getTx());
     SmartDashboard.putNumber("Pipeline", getPipeline().intValue());
+    SmartDashboard.putBoolean("tv", getTv());
   }
 }
