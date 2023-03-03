@@ -66,6 +66,11 @@ public class Arm extends SubsystemBase {
         input = 0;
       }
     }
+    if (angle > 110) {
+      if (input > 0) {
+        input = 0;
+      }
+    }
     m_armUp.setVoltage(input);
     m_armDown.setVoltage(-input);
     SmartDashboard.putNumber("arm input", input);
@@ -77,6 +82,9 @@ public class Arm extends SubsystemBase {
     double kFF = 0;
     double PIDoutput = m_armController.calculate(angle, setpoint);
     double output = PIDoutput + kV*setpoint;
+    if (setpoint > 110) {
+      setpoint = 110;
+    }
     
     double max = 2;
     if (angle < 12) {

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 
 public class ArmControl extends CommandBase {
@@ -45,7 +46,7 @@ public class ArmControl extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putNumber("arm axis input", m_firstStick.getRawAxis(1)*-1);
-    if (m_arm.angle < 11 && m_claw.wristAngle < -22) {
+    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && m_claw.wristAngle < -22) {
       m_arm.armControl(0);
     } else {
       if (Math.abs(m_firstStick.getRawAxis(1)) < 0.1) {
@@ -58,10 +59,10 @@ public class ArmControl extends CommandBase {
     SmartDashboard.putNumber("claw axis input", m_firstStick.getRawAxis(5)*-1);
     SmartDashboard.putNumber("current claw angle", currentClawAngle);
     if (Math.abs(m_firstStick.getRawAxis(5)) < 0.2) {
-      if (m_arm.angle < 14 && currentClawAngle < -20+m_arm.angle && m_claw.keepClawAngle) {
+      if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentClawAngle < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
         currentWristAngle = m_claw.wristAngle;
-      } else if (m_arm.angle < 14 && currentWristAngle < -20 && !m_claw.keepClawAngle) {
+      } else if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentWristAngle < ArmConstants.WRIST_BUMPER_SAFETY && !m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
         currentWristAngle = m_claw.wristAngle;
       }

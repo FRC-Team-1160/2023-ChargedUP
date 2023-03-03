@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
+import frc.robot.Constants.SwerveConstants;
 
 public class Claw extends SubsystemBase {
   /** Creates a new Claw. */
@@ -73,10 +74,13 @@ public class Claw extends SubsystemBase {
 
 
   public void wristControl(double input) {
-    if (m_arm.angle < 12 && wristAngle < -20) {
-      wristPID(-16);
+    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
+      wristPID(ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT);
     } else {
       m_wrist.setVoltage(input);
+    }
+    if (wristAngle < -180) {
+      input = 0;
     }
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
@@ -94,14 +98,14 @@ public class Claw extends SubsystemBase {
     if (keepClawAngle) {
       currentAngle = angle;
       double currentWristAngle = setpoint-m_arm.angle;
-      if (currentWristAngle> -5) {
-        setpoint -= 5;
+      if (currentWristAngle > ArmConstants.KEPT_CLAW_ANGLE_WRIST_SAFETY) {
+        setpoint += ArmConstants.KEPT_CLAW_ANGLE_WRIST_SAFETY;
       }
     }
-    if (m_arm.angle < 11 && setpoint < -20+m_arm.angle && keepClawAngle) {
-      setpoint = -16+m_arm.angle;
-    } else if (m_arm.angle < 11 && setpoint < -20 && !keepClawAngle) {
-      setpoint = -16;
+    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && setpoint < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && keepClawAngle) {
+      setpoint = ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT+m_arm.angle;
+    } else if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && setpoint < ArmConstants.WRIST_BUMPER_SAFETY && !keepClawAngle) {
+      setpoint = ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT;
     }
     double PIDoutput = m_wristController.calculate(currentAngle, setpoint);
     double output = PIDoutput + kV*setpoint;

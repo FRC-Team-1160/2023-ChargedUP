@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Vision.Limelight;
 
 
@@ -220,7 +221,7 @@ public class DriveTrain extends SubsystemBase{
     m_poseX += fwd*SwerveConstants.PERIODIC_SPEED;
     m_poseY += str*SwerveConstants.PERIODIC_SPEED;
 
-    if (!Limelight.getTv()) {
+    if (!Limelight.getTv() || (Arm.getInstance().angle > 68 && Limelight.getPipeline().intValue() == 0) || (Arm.getInstance().angle > 55 && Limelight.getPipeline().intValue() == 1)) {
       limelightEngage = false;
     }
 

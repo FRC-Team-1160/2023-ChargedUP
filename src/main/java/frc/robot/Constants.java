@@ -76,6 +76,10 @@ public final class Constants {
     public static final int CLAW_GEAR_RATIO = 30;
     public static final double ARM_POSITION_CONVERSION = 0.258;
     public static final double WRIST_POSITION_CONVERSION = 0.2843;
+    public static final double WRIST_BUMPER_SAFETY = -20;
+    public static final double ARM_BUMPER_SAFETY = 11;
+    public static final double WRIST_BUMPER_SAFETY_SETPOINT = -16;
+    public static final double KEPT_CLAW_ANGLE_WRIST_SAFETY = -5;
   }
 
   public static final class OIConstants {
