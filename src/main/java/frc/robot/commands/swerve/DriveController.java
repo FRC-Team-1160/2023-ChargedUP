@@ -109,6 +109,8 @@ public class DriveController {
       }
       this.rotationError = Math.toRadians(this.rotationError);
     }
+    SmartDashboard.putNumber("translationXError", this.translationXError);
+    SmartDashboard.putNumber("translationYError", this.translationYError);
     SmartDashboard.putNumber("reference degrees", referenceState.holonomicRotation.getDegrees());
     SmartDashboard.putNumber("rotationError", Math.toDegrees(rotationError));
     if (!this.isEnabled) {
@@ -125,11 +127,15 @@ public class DriveController {
     double rotationFeedback =
         this.rotationController.calculate(
              Math.toRadians(gyroAngle), referenceState.holonomicRotation.getRadians());
+    SmartDashboard.putNumber("xFF", xFF);
+    SmartDashboard.putNumber("xFeedback", xFeedback);
+    SmartDashboard.putNumber("yFF", yFF);
+    SmartDashboard.putNumber("yFeedback", yFeedback);
     SmartDashboard.putNumber("rotationFF", rotationFF);
     SmartDashboard.putNumber("rotationFeedback", rotationFeedback);
 
-    speeds[0] = xFF*0.9 + xFeedback;
-    speeds[1] = yFF*0.9 + yFeedback;
+    speeds[0] = xFF + xFeedback;
+    speeds[1] = yFF + yFeedback;
     speeds[2] = rotationFF/SwerveConstants.AUTO_ROTATION + rotationFeedback;
     return speeds;
   }

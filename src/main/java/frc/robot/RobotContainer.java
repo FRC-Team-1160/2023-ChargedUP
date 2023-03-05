@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,18 +36,20 @@ import frc.robot.commands.arm.ArmPID;
 import frc.robot.commands.arm.ClawControl;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
-import frc.robot.commands.arm.WristControl;
 import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
 import frc.robot.commands.swerve.TestWheelSpeed;
 import frc.robot.commands.swerve.followPath;
 import frc.robot.commands.vision.LimelightEngage;
+import frc.robot.commands.vision.SetSpike;
 import frc.robot.commands.vision.TogglePipeline;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.Vision.LED;
 import frc.robot.subsystems.Vision.Limelight;
+import frc.robot.subsystems.Vision.Vision;
 
 // Commands
 
@@ -65,10 +69,13 @@ public class RobotContainer {
     public final Claw m_claw = Claw.getInstance();
     public final Intake m_intake = Intake.getInstance();
     public final Limelight m_limelight = Limelight.getInstance();
+    public final Vision m_vision = Vision.getInstance();
+    public final LED m_LED = LED.getInstance();
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
-    private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
+    private Joystick m_leftPanel = new Joystick(OIConstants.controlPanelLeftPort);
+    private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
 
     private double xP,xI,xD,yP,yI,yD,rP,rI,rD;
 
@@ -76,23 +83,30 @@ public class RobotContainer {
     private HashMap<String, Command> eventMap = new HashMap<>();
     //eventMap.put("intake", new Intake());
 
-
+    SendableChooser<Command> m_chooser = new SendableChooser<>();
 
     /**
      * The container for the robot.  Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
 
-      xP = 0.15;
+      xP = 1.8;
       xI = 0;
-      xD = 0;
-      yP = 0.15;
+      xD = 0.15;
+      yP = 1.8;
       yI = 0;
-      yD = 0;
-      rP = 0.3; //still needs to be tuned
+      yD = 0.15;
+      rP = 0.8; //still needs to be tuned
       rI = 0; //still needs to be tuned
       rD = 0;
 
+      /*
+       * AUTO ROUTINES
+       */
+      m_chooser.setDefaultOption("place cube left", getPathCommand("place cube left", 2.5, 1.5));
+      m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
+
+      SmartDashboard.putData("autonomous", m_chooser);
       /*
        * add commands to event map
        */
@@ -100,6 +114,8 @@ public class RobotContainer {
       eventMap.put("Stow", stow());
       eventMap.put("Stop Intake", intake(0, 1));
       eventMap.put("Toggle Lime Pipe", new TogglePipeline());
+      eventMap.put("High Cube", highCube());
+      eventMap.put("Toggle Claw", toggleClaw());
       eventMap.put("Toggle Lime Engage", new LimelightEngage(m_driveTrain));
       eventMap.put("Toggle Claw", new ClawControl(m_claw));
       eventMap.put("Pickup", pickup());
@@ -110,8 +126,9 @@ public class RobotContainer {
   
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
-      m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.18 * 12, 0.25 * 12));
+      m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
       m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.4 * 12, true));
+      m_LED.setDefaultCommand(new SetSpike(m_LED));
     }
 
       
@@ -125,47 +142,59 @@ public class RobotContainer {
     
     private void configureButtonBindings() {
       //CO DRIVER
-      Trigger yCoButton = new JoystickButton(m_firstStick, Button.kY.value);
-      Trigger bCoButton = new JoystickButton(m_firstStick, Button.kB.value);
-      Trigger aCoButton = new JoystickButton(m_firstStick, Button.kA.value);
-      Trigger dTopCoButton = new POVButton(m_firstStick, 0);
-      Trigger dLeftCoButton = new POVButton(m_firstStick, 270);
-      Trigger dBottomCoButton = new POVButton(m_firstStick, 180);
-      Trigger rbCoButton = new JoystickButton(m_firstStick, Button.kRightBumper.value);
-      Trigger startCoButton = new JoystickButton(m_firstStick, Button.kStart.value);
-      Trigger xCoButton = new JoystickButton(m_firstStick, Button.kX.value);
-      Trigger backCoButton = new JoystickButton(m_firstStick, Button.kBack.value);
-      Trigger lbCoButton = new JoystickButton(m_firstStick, Button.kLeftBumper.value);
+
+      //left panel
+      Trigger leftTLButton = new JoystickButton(m_leftPanel, 10);
+      Trigger leftMLButton = new JoystickButton(m_leftPanel, 11);
+      Trigger leftBLButton = new JoystickButton(m_leftPanel, 12);
+      Trigger leftTRButton = new JoystickButton(m_leftPanel, 7);
+      Trigger leftMRButton = new JoystickButton(m_leftPanel, 8);
+      Trigger leftBRButton = new JoystickButton(m_leftPanel, 9);
+
+      //right (and top) panel
+      Trigger headerLButton = new JoystickButton(m_rightPanel, 7);
+      Trigger headerMButton = new JoystickButton(m_rightPanel, 8);
+      Trigger headerRButton = new JoystickButton(m_rightPanel, 6);
+      Trigger rightTLButton = new JoystickButton(m_rightPanel, 10);
+      Trigger rightBLButton = new JoystickButton(m_rightPanel, 12);
+      Trigger rightTRButton = new JoystickButton(m_rightPanel, 9);
+      Trigger rightBRButton = new JoystickButton(m_rightPanel, 11);
 
       //MAIN DRIVER
       Trigger xButton = new JoystickButton(m_mainStick, Button.kX.value);
       Trigger aTrigger = new JoystickButton(m_mainStick, Button.kA.value);
       Trigger backButton = new JoystickButton(m_mainStick, Button.kBack.value);
+      Trigger rBButton = new JoystickButton(m_mainStick, Button.kRightBumper.value);
       
       //CUBES
-      yCoButton.onTrue(new ArmPID(m_arm, m_claw, 84, -120));
-      bCoButton.onTrue(new ArmPID(m_arm, m_claw, 70, -90));
-      aCoButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60));
+      leftTLButton.onTrue(new ArmPID(m_arm, m_claw, 82, -125, false));
+      leftMLButton.onTrue(new ArmPID(m_arm, m_claw, 69, -120, false));
+      leftBLButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60, false));
 
       //CONES
-      dTopCoButton.onTrue(new ArmPID(m_arm, m_claw, 92, -120));
-      dLeftCoButton.onTrue(new ArmPID(m_arm, m_claw, 82, -90));
-      dBottomCoButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60));
+      leftTRButton.onTrue(new ArmPID(m_arm, m_claw, 90, -110, false));
+      leftMRButton.onTrue(new ArmPID(m_arm, m_claw, 75, -90, false));
+      leftBRButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60, false));
 
       //
-      xCoButton.onTrue(new ToggleClawAngle(m_claw));
+      //xCoButton.onTrue(new ToggleClawAngle(m_claw));
 
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
-      backCoButton.onTrue(new TogglePipeline());
-      startCoButton.onTrue(new LimelightEngage(m_driveTrain));
+      //backCoButton.onTrue(new TogglePipeline());
+      headerLButton.onTrue(new LimelightEngage(m_driveTrain));
+      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79, -125, false));
+      headerMButton.onTrue(pickup());
 
-      rbCoButton.onTrue(new ClawControl(m_claw));
-      lbCoButton.onTrue(stow());
+      rightTRButton.onTrue(new ClawControl(m_claw));
+      rightBRButton.onTrue(stow());
 
+      //rightTLButton.whileTrue(new IntakeControl(m_intake, -0.4 * 12, true));
+      //rightBLButton.whileTrue(new IntakeControl(m_intake, 0.4 * 12, true));
 
       Trigger startButton = new JoystickButton(m_mainStick, Button.kStart.value);
       startButton.onTrue(new Reset(m_driveTrain));
+      rBButton.onTrue(new Reset(m_driveTrain));
 
       //TESTERS
       backButton.onTrue(pickup());
@@ -188,12 +217,12 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, 0, 0).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, -4, 2, true).withTimeout(2);
     }
 
     public Command pickup() {
     
-      return new ArmPID(m_arm, m_claw, 16, -69).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, 17, -67, false).withTimeout(2);
     }
 
     public Command highCone() {
@@ -209,7 +238,10 @@ public class RobotContainer {
     }
 
     public Command highCube() {
-      return null;
+      return new SequentialCommandGroup(
+        new ArmPID(m_arm, m_claw, 84, 0, false).withTimeout(1.5),
+        new ArmPID(m_arm, m_claw, 84, -115, false).withTimeout(1)
+      );
     }
 
     public Command midCube() {
@@ -218,6 +250,10 @@ public class RobotContainer {
 
     public Command hybridCube() {
       return null;
+    }
+
+    public Command toggleClaw() {
+      return new ClawControl(m_claw);
     }
 
     public Command end() {
@@ -327,9 +363,9 @@ public class RobotContainer {
      * 
      */
 
-    public Command fullAuto(PathPlannerTrajectory trajectory, PathConstraints maxSpd) {
-      List<PathPlannerTrajectory> pathGroup = new ArrayList<>(List.of(trajectory));
+    public Command fullAuto(List<PathPlannerTrajectory> pathGroup, PathConstraints maxSpd) {
       List<CommandBase> commands = new ArrayList<>();
+      SmartDashboard.putNumber("size of trajectory", pathGroup.size());
 
       commands.add(resetPose(pathGroup.get(0)));
 
@@ -367,6 +403,11 @@ public class RobotContainer {
     }
 
 
+    public Command getPathCommand(String name, double maxV, double maxA) {
+      PathConstraints max = new PathConstraints(maxV, maxA);
+      List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup(name, max);
+      return fullAuto(path, max);
+    }
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -375,10 +416,8 @@ public class RobotContainer {
 
     
     public Command getAutonomousCommand() {
-        PathConstraints max = new PathConstraints(1.5, 1);
-        PathPlannerTrajectory path = PathPlanner.loadPath("3m forward intake", max);
-        return fullAuto(path, max);
-        //return null;
+        return m_chooser.getSelected();
     }
+    
     
 }

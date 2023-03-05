@@ -42,6 +42,7 @@ public class Intake extends SubsystemBase {
 
 
   public void intakeControl(double input) {
+    SmartDashboard.putNumber("intake input", input);
     m_intake.setVoltage(input);
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);

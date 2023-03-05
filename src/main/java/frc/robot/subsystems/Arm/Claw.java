@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +36,9 @@ public class Claw extends SubsystemBase {
   public double wristAngle, angle, encoderOffset;
   private Arm m_arm;
   public boolean keepClawAngle;
+  public boolean lastFiveLimit;
+
+  private final Timer timer = new Timer();
 
   public static Claw getInstance(){
     if (m_instance == null){
@@ -57,6 +61,9 @@ public class Claw extends SubsystemBase {
     encoderOffset = 0;
     m_arm = Arm.getInstance();
     keepClawAngle = false;
+    this.timer.reset();
+    this.timer.start();
+    lastFiveLimit = false;
   }
 
   public void toggleClawAngle() {
@@ -79,8 +86,10 @@ public class Claw extends SubsystemBase {
     } else {
       m_wrist.setVoltage(input);
     }
-    if (wristAngle < -180) {
-      input = 0;
+    if (wristAngle < ArmConstants.CLAW_LIMIT) {
+      if (input < 0) {
+        input = 0;
+      }
     }
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
@@ -126,6 +135,11 @@ public class Claw extends SubsystemBase {
     SmartDashboard.putNumber("wrist output", output);
   }
 
+  public void resetTimer() {
+    this.timer.reset();
+    this.timer.start();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -138,14 +152,21 @@ public class Claw extends SubsystemBase {
     } else {
       SmartDashboard.putString("Claw", "No data");
     }
+    
 
     if (!m_clawSwitch.get()) {
       encoderOffset = getEncoderPosition();
+      resetTimer();
     }
     wristAngle = getEncoderPosition() - encoderOffset;
-
+    if (this.timer.get() < 3) {
+      lastFiveLimit = true;
+    } else {
+      lastFiveLimit = false;
+      m_arm.lastFiveLimit = false;
+    }
     angle = wristAngle + m_arm.angle;
-
+    SmartDashboard.putBoolean("lastFiveClawLimit", lastFiveLimit);
     SmartDashboard.putNumber("claw encoder", m_encoder.getPosition());
     SmartDashboard.putNumber("claw angle", angle);
     SmartDashboard.putNumber("wrist angle", wristAngle);

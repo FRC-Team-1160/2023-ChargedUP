@@ -225,8 +225,8 @@ public class DriveTrain extends SubsystemBase{
       limelightEngage = false;
     }
 
-    SmartDashboard.putNumber("Pose2DY", m_poseX);
-    SmartDashboard.putNumber("Pose2DX", m_poseY);
+    SmartDashboard.putNumber("Pose2DX", m_poseX);
+    SmartDashboard.putNumber("Pose2DY", m_poseY);
     SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
   

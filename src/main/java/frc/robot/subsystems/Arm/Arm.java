@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -24,11 +25,11 @@ public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
   private static Arm m_instance;
   private CANSparkMax m_armUp;
+  private final Timer timer = new Timer();
   private CANSparkMax m_armDown;
+  public boolean lastFiveLimit;
 
   public DigitalInput m_armSwitch;
-  
-  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
   
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
@@ -53,7 +54,9 @@ public class Arm extends SubsystemBase {
     m_armSwitch = new DigitalInput(PortConstants.ARM_SWITCH);
     angle = 0;
     encoderOffset = 0;
-    
+    this.timer.reset();
+    this.timer.start();
+    lastFiveLimit = false;
   }
 
   public double getEncoderPosition() {
@@ -66,10 +69,13 @@ public class Arm extends SubsystemBase {
         input = 0;
       }
     }
-    if (angle > 110) {
+    if (angle > ArmConstants.ARM_LIMIT) {
       if (input > 0) {
         input = 0;
       }
+    }
+    if (input < 0) {
+      input *= 0.8;
     }
     m_armUp.setVoltage(input);
     m_armDown.setVoltage(-input);
@@ -103,6 +109,11 @@ public class Arm extends SubsystemBase {
     m_armDown.setVoltage(-output);
   }
 
+  public void resetTimer() {
+    this.timer.reset();
+    this.timer.start();
+  }
+
   @Override
   public void periodic() {
     
@@ -111,13 +122,18 @@ public class Arm extends SubsystemBase {
     //update armPosition
     if (!m_armSwitch.get()) {
       encoderOffset = getEncoderPosition();
+      resetTimer();
     }
     angle = getEncoderPosition() - encoderOffset;
-
-    
+    if (this.timer.get() < 3) {
+      lastFiveLimit = true;
+    } else {
+      lastFiveLimit = false;
+      Claw.getInstance().lastFiveLimit = false;
+    }
+    SmartDashboard.putBoolean("lastFiveArmLimit", lastFiveLimit);
     SmartDashboard.putNumber("arm angle", angle);
     SmartDashboard.putNumber("arm encoder reading", getEncoderPosition());
     SmartDashboard.putBoolean("arm switch", !m_armSwitch.get());
-    SmartDashboard.putNumber("arm axis", m_firstStick.getRawAxis(1));
   }
 }

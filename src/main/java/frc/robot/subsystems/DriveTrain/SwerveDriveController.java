@@ -176,6 +176,7 @@ public class SwerveDriveController {
         SmartDashboard.putBoolean("FL unflipped", frontLeftWheel.unflipped);
         SmartDashboard.putBoolean("BL unflipped", backLeftWheel.unflipped);
         SmartDashboard.putBoolean("BR unflipped", backRightWheel.unflipped);
+        SmartDashboard.putNumber("FL Wheel", frontLeftWheel.getPosition());
         SmartDashboard.putNumber("FR speed difference", Math.abs(frontRightWheel.getVelocity())- Math.abs(ws1));
 
         

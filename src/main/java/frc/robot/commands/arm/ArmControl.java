@@ -16,7 +16,8 @@ public class ArmControl extends CommandBase {
   /** Creates a new ArmControl. */
   private Arm m_arm;
   private double m_armInput, m_wristInput;
-  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
+  private Joystick m_leftPanel = new Joystick(OIConstants.controlPanelLeftPort);
+  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
   private double currentAngle;
   private Claw m_claw;
   private double currentClawAngle;
@@ -45,20 +46,21 @@ public class ArmControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putNumber("arm axis input", m_firstStick.getRawAxis(1)*-1);
-    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && m_claw.wristAngle < -22) {
+    SmartDashboard.putNumber("arm axis input", m_leftPanel.getRawAxis(0));
+
+    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+1 && m_claw.wristAngle < -22) {
       m_arm.armControl(0);
     } else {
-      if (Math.abs(m_firstStick.getRawAxis(1)) < 0.1) {
+      if (Math.abs(m_leftPanel.getRawAxis(0)) < 0.1) {
         m_arm.armPID(currentAngle);
       } else {
-        m_arm.armControl(m_armInput*m_firstStick.getRawAxis(1)*-1);
+        m_arm.armControl(m_armInput*m_leftPanel.getRawAxis(0)*-1);
         currentAngle = m_arm.angle;
       }
     }
-    SmartDashboard.putNumber("claw axis input", m_firstStick.getRawAxis(5)*-1);
+    SmartDashboard.putNumber("claw axis input", m_rightPanel.getRawAxis(5));
     SmartDashboard.putNumber("current claw angle", currentClawAngle);
-    if (Math.abs(m_firstStick.getRawAxis(5)) < 0.2) {
+    if (Math.abs(m_rightPanel.getRawAxis(0)) < 0.2) {
       if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentClawAngle < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
         currentWristAngle = m_claw.wristAngle;
@@ -75,7 +77,7 @@ public class ArmControl extends CommandBase {
         m_claw.wristPID(currentWristAngle);
       }
     } else {
-      m_claw.wristControl(m_wristInput*m_firstStick.getRawAxis(5)*-1);
+      m_claw.wristControl(m_wristInput*m_rightPanel.getRawAxis(0)*-1);
       currentClawAngle = m_claw.angle;
       currentWristAngle = m_claw.wristAngle;
     }

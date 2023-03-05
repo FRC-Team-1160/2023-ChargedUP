@@ -17,9 +17,11 @@ public class ArmPID extends CommandBase {
   private Arm m_arm;
   private Claw m_claw;
   private double armSetpoint, wristSetpoint;
-  private Joystick m_firstStick = new Joystick(OIConstants.firstStickPort);
+  private Joystick m_leftPanel = new Joystick(OIConstants.controlPanelLeftPort);
+  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
   private boolean keptClawAngle;
-  public ArmPID(Arm m_arm, Claw m_claw, double armSetpoint, double wristSetpoint) {
+  private boolean hitSwitch;
+  public ArmPID(Arm m_arm, Claw m_claw, double armSetpoint, double wristSetpoint, boolean hitSwitch) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_arm);
     this.m_arm = m_arm;
@@ -28,6 +30,7 @@ public class ArmPID extends CommandBase {
     this.m_claw = m_claw;
     this.wristSetpoint = wristSetpoint;
     this.keptClawAngle = false;
+    this.hitSwitch = hitSwitch;
   }
 
   // Called when the command is initially scheduled.
@@ -40,12 +43,23 @@ public class ArmPID extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    SmartDashboard.putBoolean("ARM PID ACTIVE", true);
     if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && m_claw.wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
       m_arm.armControl(0);
     } else {
-      m_arm.armPID(armSetpoint);
+      if (m_arm.m_armSwitch.get() || !hitSwitch) {
+        m_arm.armPID(armSetpoint);
+      } else {
+        m_arm.armControl(0);
+      }
+      
     }
-    m_claw.wristPID(wristSetpoint);
+    if (m_claw.m_clawSwitch.get() || !hitSwitch) {
+      m_claw.wristPID(wristSetpoint);
+    } else {
+      m_claw.wristControl(0);
+    }
+    
     
   }
 
@@ -53,11 +67,12 @@ public class ArmPID extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     m_claw.keepClawAngle = keptClawAngle;
+    SmartDashboard.putBoolean("ARM PID ACTIVE", false);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(m_firstStick.getRawAxis(1)) > 0.1 || Math.abs(m_firstStick.getRawAxis(5)) > 0.2;
+    return Math.abs(m_leftPanel.getRawAxis(0)) > 0.1 || Math.abs(m_rightPanel.getRawAxis(0)) > 0.2;
   }
 }
