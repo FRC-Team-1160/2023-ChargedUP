@@ -16,19 +16,19 @@ public class SwerveDriveWheel
 {
     public PIDController directionController;
     public TalonFX rotationMotor;
-    public TalonFX directionMotor;
+    public TalonFX speedMotor;
     public CANCoder rotationSensor;
     public double lastSetpointSpeed;
-    double krP, krI, krD, ksP, ksI, ksD, rAccumulator, maxA, vAccumulator, maxV;
+    double krP, krI, krD, ksP, ksI, ksD, rAccumulator, maxA, speedAccumulator, maxV;
     double currentOutputSpeed;
     double brakeConstant;
-    public boolean flipped;
+    public boolean unflipped;
 
-    public SwerveDriveWheel(double rP, double rI, double rD, double sP, double sI, double sD, TalonFX rotationMotor, CANCoder rotationSensor, TalonFX directionMotor)
+    public SwerveDriveWheel(double rP, double rI, double rD, double sP, double sI, double sD, TalonFX rotationMotor, CANCoder rotationSensor, TalonFX speedMotor)
     {
         this.rotationSensor = rotationSensor;
         this.rotationMotor = rotationMotor;
-        this.directionMotor = directionMotor;
+        this.speedMotor = speedMotor;
         this.lastSetpointSpeed = 0;
         this.currentOutputSpeed = 0;
         this.brakeConstant = 1;
@@ -40,12 +40,12 @@ public class SwerveDriveWheel
         ksP = sP;
         ksI = sI;
         ksD = sD;
-        flipped = true;
+        unflipped = true;
 
         maxA = 100;
         rAccumulator = 0;
         maxV = SwerveConstants.MAX_WHEEL_ACCELERATION;
-        vAccumulator = 0;
+        speedAccumulator = 0;
     }
 
     public SwerveModulePosition getModule() {
@@ -53,20 +53,20 @@ public class SwerveDriveWheel
     }
 
     public double getVelocity() {
-        double v = directionMotor.getSelectedSensorVelocity()*10;
+        double v = speedMotor.getSelectedSensorVelocity()*10;
         v *= SwerveConstants.SWERVE_POSITION_RATIO;
         return v; //meters per second
     }
     
     public double getRelativeVelocity() {
-        if (!flipped) {
+        if (!unflipped) {
             return -getVelocity();
         }
         return getVelocity();
     }
 
     public double getPosition() {
-        double pos = directionMotor.getSelectedSensorPosition();
+        double pos = speedMotor.getSelectedSensorPosition();
         pos *= SwerveConstants.SWERVE_POSITION_RATIO;
         return pos; //meters
     
@@ -77,7 +77,7 @@ public class SwerveDriveWheel
     }
 
     public double getRelativeRotation() {
-        if (flipped) {
+        if (unflipped) {
             return (getRotation()+180) % 360;
         }
         return getRotation();
@@ -85,12 +85,12 @@ public class SwerveDriveWheel
     }
 
     public void resetPosition() {
-        directionMotor.setSelectedSensorPosition(0);
+        speedMotor.setSelectedSensorPosition(0);
     }
 
     public void setOutputSpeed(double spd) {
         rotationMotor.set(TalonFXControlMode.PercentOutput, 0);
-        directionMotor.set(TalonFXControlMode.PercentOutput, spd * this.brakeConstant);
+        speedMotor.set(TalonFXControlMode.PercentOutput, spd * this.brakeConstant);
         this.currentOutputSpeed = spd;
     }
 
@@ -99,7 +99,7 @@ public class SwerveDriveWheel
         double currentAngle = rotationSensor.getAbsolutePosition();
         double angle = (((setpointAngle - currentAngle) % 360) + 360 ) % 360;
         double error = getAngleError(currentAngle, setpointAngle);
-        double vError = getSpeedError(getRelativeVelocity(), setpointSpeed);
+        double speedError = setpointSpeed - getRelativeVelocity();
         if (error < 20) {
             rAccumulator += error;
         }
@@ -108,14 +108,14 @@ public class SwerveDriveWheel
         } else if (rAccumulator < -maxA) {
             rAccumulator = -maxA;
         }
-        vAccumulator += vError;
-        if (vAccumulator > maxV) {
-            vAccumulator = maxV;
-        } else if (vAccumulator < -maxV) {
-            vAccumulator = -maxV;
+        speedAccumulator += speedError;
+        if (speedAccumulator > maxV) {
+            speedAccumulator = maxV;
+        } else if (speedAccumulator < -maxV) {
+            speedAccumulator = -maxV;
         }
         double anglePID = (krP * error) + (krI*rAccumulator);
-        double speedPID = ((ksP * vError) + (ksI*vAccumulator))*(1-this.brakeConstant);
+        double speedPID = ((ksP * speedError) + (ksI*speedAccumulator))*(1-this.brakeConstant);
 
         double kV = 1/(SwerveConstants.MAX_WHEEL_SPEED);
         //double kA = 0;//1/(SwerveConstants.MAX_WHEEL_ACCELERATION);
@@ -132,20 +132,20 @@ public class SwerveDriveWheel
         }
         if (angle < 90 || angle > 270) {
             speedOutput = -speedOutput;
-            flipped = false;
+            unflipped = false;
         } else {
-            flipped = true;
+            unflipped = true;
         }
         this.currentOutputSpeed = speedOutput;
         rotationMotor.set(TalonFXControlMode.PercentOutput, angleOutput);
-        directionMotor.set(TalonFXControlMode.PercentOutput, speedOutput*this.brakeConstant);
+        speedMotor.set(TalonFXControlMode.PercentOutput, speedOutput*this.brakeConstant);
         lastSetpointSpeed = setpointSpeed;
         //SmartDashboard.putNumber("setpoint accleration", setpointAcceleration);
 
     }
 
     public void brake(double power) {
-        this.brakeConstant = -0.1*Math.pow(9, power) + 1.1;
+        this.brakeConstant = -0.11*Math.pow(9, power) + 1.11;
     }
 
     public double getAngleError(double currentAngle, double setpoint) {
@@ -163,10 +163,6 @@ public class SwerveDriveWheel
             error = 180 - error;
         }
         return error;
-    }
-
-    public double getSpeedError(double currentSpeed, double setpointSpeed) {
-        return setpointSpeed-currentSpeed;
     }
     
 }

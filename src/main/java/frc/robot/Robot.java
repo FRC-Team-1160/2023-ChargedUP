@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
     cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
     //cameraSelection.setString(camera2.getName());
     m_robotContainer = new RobotContainer();
-
+    //m_dashboard = new Driver();
   }
 
   /**
@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)

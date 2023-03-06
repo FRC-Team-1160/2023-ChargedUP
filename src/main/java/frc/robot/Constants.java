@@ -35,12 +35,15 @@ public final class Constants {
     public static final int INTAKE = 12;
 
     public static final int GATE = 0;
+
+    public static final int ARM_SWITCH = 0;
+    public static final int CLAW_SWITCH = 1;
     
   }
 
   public static final class SwerveConstants{
-    public static final double l = 0.585;
-    public static final double w = 0.585;
+    public static final double l = 0.595;
+    public static final double w = 0.595;
     public static final double r = Math.sqrt(Math.pow(l, 2) + Math.pow(w, 2));
     public static final double centerToMotor = 0;//Distance from center of motor to center of robot
     public static final double unitsToRotations = (2048/360);
@@ -60,23 +63,32 @@ public final class Constants {
     public static final double WEIGHT = 77.5 + BATTERY_WEIGHT;
 
     //THESE TWO VALUES BECOME LESS WITH MORE WEIGHT
-    public static final double MAX_WHEEL_SPEED = 4.5; //in m/s, with no weight, it is 4.7
+    public static final double MAX_WHEEL_SPEED = 4.3; //in m/s, with no weight, it is 4.7
     public static final double MAX_WHEEL_ACCELERATION = -0.312 * WEIGHT + 45; //in m/s^2, with no weight it is 45
 
-    public static final double AUTO_ROTATION = 2.5; //as this goes up, rotation speed goes down
+    public static final double AUTO_ROTATION = 2.45; //as this goes up, rotation speed goes down
 
     public static final double MS_TO_UPMS = (13824/28.4); //meters per second to units per 100ms
   }
 
   public static final class ArmConstants {
-    public static final int ARM_GEAR_RATIO = 82;
+    public static final int ARM_GEAR_RATIO = 84;
     public static final int CLAW_GEAR_RATIO = 30;
-    public static enum CLAW_STATE {Open, Closed};
+    public static final double ARM_POSITION_CONVERSION = 0.258;
+    public static final double WRIST_POSITION_CONVERSION = 0.2843;
+    public static final double WRIST_BUMPER_SAFETY = -16;
+    public static final double ARM_BUMPER_SAFETY = 12;
+    public static final double WRIST_BUMPER_SAFETY_SETPOINT = -10;
+    public static final double KEPT_CLAW_ANGLE_WRIST_SAFETY = -5;
+    public static final double ARM_LIMIT = 110;
+    public static final double CLAW_LIMIT = -180;
   }
 
   public static final class OIConstants {
     public static final int mainStickPort = 0;
-    public static final int firstStickPort = 1;
+    public static final int firstStickPort = 2;
+    public static final int controlPanelLeftPort = 1;
+    public static final int controlPanelRightPort = 3;
   }
 
 }

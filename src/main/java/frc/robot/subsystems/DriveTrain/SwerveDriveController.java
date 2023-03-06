@@ -88,8 +88,8 @@ public class SwerveDriveController {
         double tstr = (str1 + str2)/2;
 
         //field centric
-        double fwd = tfwd * Math.cos(Math.toRadians(gyroAngle)) + tstr * Math.sin(Math.toRadians(gyroAngle));
-        double str = tstr * Math.cos(Math.toRadians(gyroAngle)) - tfwd * Math.sin(Math.toRadians(gyroAngle));
+        double fwd = tfwd * Math.cos(Math.toRadians(-gyroAngle)) + tstr * Math.sin(Math.toRadians(-gyroAngle));
+        double str = tstr * Math.cos(Math.toRadians(-gyroAngle)) - tfwd * Math.sin(Math.toRadians(-gyroAngle));
         SmartDashboard.putNumber("a odom", a);
         SmartDashboard.putNumber("b odom", b);
         SmartDashboard.putNumber("c odom", c);
@@ -107,24 +107,24 @@ public class SwerveDriveController {
         double l = frc.robot.Constants.SwerveConstants.l;
         double r = frc.robot.Constants.SwerveConstants.r;
         double w = frc.robot.Constants.SwerveConstants.w;
-        double a = str - (rot * (l / r));//-1.05
-		double b = str + (rot * (l / r));//1.05
-		double c = fwd - (rot * (w / r));//-0.05
-		double d = fwd + (rot * (w / r));//2.05   
+        double a = str - (rot * (l / r));
+		double b = str + (rot * (l / r));
+		double c = fwd - (rot * (w / r));
+		double d = fwd + (rot * (w / r));
         SmartDashboard.putNumber("a kine", a);
         SmartDashboard.putNumber("b kine", b);
         SmartDashboard.putNumber("c kine", c);
         SmartDashboard.putNumber("d kine", d);
 
-		double ws1 = Math.sqrt((b * b) + (c * c));//top right  // 1.051
-		double ws2 = Math.sqrt((b * b) + (d * d));//top left   // 2.303
-		double ws3 = Math.sqrt((a * a) + (d * d));//bittom left // 2.303
-		double ws4 = Math.sqrt((a * a) + (c * c));//bottom right //1.051
+		double ws1 = Math.sqrt((b * b) + (c * c));
+		double ws2 = Math.sqrt((b * b) + (d * d));
+		double ws3 = Math.sqrt((a * a) + (d * d));
+		double ws4 = Math.sqrt((a * a) + (c * c));
 
-		double wa1 = (Math.atan2(b, c) * 180 / Math.PI);// + gyroAngle; -87
-		double wa2 = (Math.atan2(b, d) * 180 / Math.PI);// + gyroAngle; 27
-		double wa3 = (Math.atan2(a, d) * 180 / Math.PI);// + gyroAngle; -27
-		double wa4 = (Math.atan2(a, c) * 180 / Math.PI);// + gyroAngle; 87
+		double wa1 = (Math.atan2(b, c) * 180 / Math.PI);
+		double wa2 = (Math.atan2(b, d) * 180 / Math.PI);
+		double wa3 = (Math.atan2(a, d) * 180 / Math.PI);
+		double wa4 = (Math.atan2(a, c) * 180 / Math.PI);
         if (isJoystick)
         {
 		    double max = ws1;
@@ -172,10 +172,11 @@ public class SwerveDriveController {
         SmartDashboard.putNumber("FL speed error", ws2-frontLeftWheel.getRelativeVelocity());
         SmartDashboard.putNumber("BL speed error", ws3-backLeftWheel.getRelativeVelocity());
         SmartDashboard.putNumber("BR speed error", ws4-backRightWheel.getRelativeVelocity());
-        SmartDashboard.putBoolean("FR flipped", frontRightWheel.flipped);
-        SmartDashboard.putBoolean("FL flipped", frontLeftWheel.flipped);
-        SmartDashboard.putBoolean("BL flipped", backLeftWheel.flipped);
-        SmartDashboard.putBoolean("BR flipped", backRightWheel.flipped);
+        SmartDashboard.putBoolean("FR unflipped", frontRightWheel.unflipped);
+        SmartDashboard.putBoolean("FL unflipped", frontLeftWheel.unflipped);
+        SmartDashboard.putBoolean("BL unflipped", backLeftWheel.unflipped);
+        SmartDashboard.putBoolean("BR unflipped", backRightWheel.unflipped);
+        SmartDashboard.putNumber("FL Wheel", frontLeftWheel.getPosition());
         SmartDashboard.putNumber("FR speed difference", Math.abs(frontRightWheel.getVelocity())- Math.abs(ws1));
 
         
