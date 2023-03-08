@@ -84,6 +84,15 @@ public final class Constants {
     public static final double CLAW_LIMIT = -180;
   }
 
+  public static final class VisionConstants {
+    public static final double CAM_ANGLE = 59; //
+    public static final double CAM_HORIZONTAL_FOV = 24; //
+    public static final double STREAM_WIDTH_PIXELS = 640;
+    public static final double STREAM_HEIGHT_PIXELS = 640;
+    public static final double CAM_OFFSET = 0.285; //
+    public static final double ROBOT_RADIUS = 0.5029; //
+  }
+
   public static final class OIConstants {
     public static final int mainStickPort = 0;
     public static final int firstStickPort = 2;
