@@ -35,7 +35,7 @@ public class Vision extends SubsystemBase {
     double xCoord = Double.parseDouble(table.getEntry("xPos").getStringArray(sdef)[0]);
     double distance = table.getEntry("distance").getNumberArray(def)[0].doubleValue();
     double robotAngle = DriveTrain.getInstance().getGyroAngle();
-    double theta = Math.toRadians(VisionConstants.CAM_ANGLE) + (Math.toRadians(VisionConstants.CAM_HORIZONTAL_FOV) * (xCoord - 0.5*VisionConstants.STREAM_WIDTH_PIXELS)/(0.5*VisionConstants.STREAM_WIDTH_PIXELS));
+    double theta = Math.toRadians(VisionConstants.CAM_ANGLE) - (Math.toRadians(VisionConstants.CAM_HORIZONTAL_FOV) * (xCoord - 0.5*VisionConstants.STREAM_WIDTH_PIXELS)/(0.5*VisionConstants.STREAM_WIDTH_PIXELS));
 
     double frontObjDist = Math.sqrt(VisionConstants.CAM_OFFSET*VisionConstants.CAM_OFFSET + distance*distance - 2*VisionConstants.CAM_OFFSET*distance*Math.cos(theta));
     
