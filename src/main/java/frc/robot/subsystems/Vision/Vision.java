@@ -39,7 +39,7 @@ public class Vision extends SubsystemBase {
 
     double frontObjDist = Math.sqrt(VisionConstants.CAM_OFFSET*VisionConstants.CAM_OFFSET + distance*distance - 2*VisionConstants.CAM_OFFSET*distance*Math.cos(theta));
     
-    double frontObjAng = Math.asin(distance*Math.sin(theta)/frontObjDist) - Math.PI/2 - Math.toRadians(robotAngle);
+    double frontObjAng = Math.asin(distance*Math.sin(theta)/frontObjDist) - Math.PI/2 + Math.toRadians(robotAngle);
     
     double objX = frontObjDist*Math.cos(frontObjAng);
     double objY = frontObjDist*Math.sin(frontObjAng);
