@@ -31,7 +31,7 @@ public class Claw extends SubsystemBase {
   private CANSparkMax m_wrist;
   private RelativeEncoder m_encoder;
   public DigitalInput m_clawSwitch;
-  private double kP, kI;
+  private double kP, kI, kD;
   private PIDController m_wristController;
   public double wristAngle, angle, encoderOffset;
   private Arm m_arm;
@@ -53,8 +53,10 @@ public class Claw extends SubsystemBase {
     m_encoder = m_wrist.getEncoder(Type.kHallSensor, 42);
     kP = 0.3;
     kI = 0.001;
+    kD = 0.0;
+
     
-    m_wristController = new PIDController(kP, kI, 0);
+    m_wristController = new PIDController(kP, kI, kD);
     m_clawSwitch = new DigitalInput(PortConstants.CLAW_SWITCH);
     wristAngle = 0;
     angle = 0;
@@ -81,16 +83,22 @@ public class Claw extends SubsystemBase {
 
 
   public void wristControl(double input) {
-    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
-      wristPID(ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT);
-    } else {
-      m_wrist.setVoltage(input);
-    }
     if (wristAngle < ArmConstants.CLAW_LIMIT) {
       if (input < 0) {
         input = 0;
       }
     }
+    if (!m_clawSwitch.get()) {
+      if (input > 0) {
+        input = 0;
+      }
+    }
+    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
+      wristPID(ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT);
+    } else {
+      m_wrist.setVoltage(input);
+    }
+    
     /*if (Math.abs(input) > 0.1) {
       m_wrist.setVoltage(input);
     } else {

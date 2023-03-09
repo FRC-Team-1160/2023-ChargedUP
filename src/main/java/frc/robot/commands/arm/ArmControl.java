@@ -60,6 +60,8 @@ public class ArmControl extends CommandBase {
     }
     SmartDashboard.putNumber("claw axis input", m_rightPanel.getRawAxis(5));
     SmartDashboard.putNumber("current claw angle", currentClawAngle);
+    SmartDashboard.putNumber("current wrist angle", currentWristAngle);
+
     if (Math.abs(m_rightPanel.getRawAxis(0)) < 0.2) {
       if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentClawAngle < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && m_claw.keepClawAngle) {
         currentClawAngle = m_claw.angle;
@@ -74,10 +76,12 @@ public class ArmControl extends CommandBase {
           m_claw.wristPID(currentClawAngle);
         }
       } else {
+        SmartDashboard.putBoolean("wrist PID active", true);
         m_claw.wristPID(currentWristAngle);
       }
     } else {
       m_claw.wristControl(m_wristInput*m_rightPanel.getRawAxis(0)*-1);
+      SmartDashboard.putBoolean("wrist PID active", false);
       currentClawAngle = m_claw.angle;
       currentWristAngle = m_claw.wristAngle;
     }

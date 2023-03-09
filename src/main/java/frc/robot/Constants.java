@@ -75,7 +75,7 @@ public final class Constants {
     public static final int ARM_GEAR_RATIO = 84;
     public static final int CLAW_GEAR_RATIO = 30;
     public static final double ARM_POSITION_CONVERSION = 0.258;
-    public static final double WRIST_POSITION_CONVERSION = 0.2843;
+    public static final double WRIST_POSITION_CONVERSION = 0.265;
     public static final double WRIST_BUMPER_SAFETY = -16;
     public static final double ARM_BUMPER_SAFETY = 12;
     public static final double WRIST_BUMPER_SAFETY_SETPOINT = -10;
@@ -85,8 +85,8 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double CAM_ANGLE = 59; //
-    public static final double CAM_HORIZONTAL_FOV = 24; //
+    public static final double CAM_ANGLE = 60; //
+    public static final double CAM_HORIZONTAL_FOV = 32; //
     public static final double STREAM_WIDTH_PIXELS = 640;
     public static final double STREAM_HEIGHT_PIXELS = 640;
     public static final double CAM_OFFSET = 0.285; //
@@ -95,7 +95,6 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int mainStickPort = 0;
-    public static final int firstStickPort = 2;
     public static final int controlPanelLeftPort = 1;
     public static final int controlPanelRightPort = 3;
   }

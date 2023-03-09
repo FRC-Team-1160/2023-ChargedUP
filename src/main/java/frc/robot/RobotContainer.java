@@ -100,11 +100,7 @@ public class RobotContainer {
       rI = 0; //still needs to be tuned
       rD = 0;
 
-      /*
-       * AUTO ROUTINES
-       */
-      m_chooser.setDefaultOption("place cube left", getPathCommand("place cube left", 2.5, 1.5));
-      m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
+
 
       SmartDashboard.putData("autonomous", m_chooser);
       /*
@@ -120,6 +116,23 @@ public class RobotContainer {
       eventMap.put("Toggle Claw", new ClawControl(m_claw));
       eventMap.put("Pickup", pickup());
       eventMap.put("End", end());
+      eventMap.put("High Cone", highCone());
+      eventMap.put("Auto Balance", autoBalance());
+
+      /*
+       * AUTO ROUTINES
+       */
+      m_chooser.setDefaultOption("place cube left", getPathCommand("place cube left", 2.5, 1.5));
+      m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
+      m_chooser.addOption("place cube right", getPathCommand("place cube right", 2.5, 1.5));
+      m_chooser.addOption("place cube left charge left", getPathCommand("place cube left charge left", 2.5, 1.5));
+      m_chooser.addOption("place cube middle charge left", getPathCommand("place cube middle charge left", 2.5, 1.5));
+      m_chooser.addOption("place cube middle charge right", getPathCommand("place cube middle charge right", 2.5, 1.5));
+      m_chooser.addOption("place cube right charge right", getPathCommand("place cube right charge right", 2.5, 1.5));
+      m_chooser.addOption("place cone left left", getPathCommand("place cone left left", 2.5, 1.5));
+      m_chooser.addOption("place cone left right", getPathCommand("place cone left right", 2.5, 1.5));
+      //m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
+      //m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -226,7 +239,10 @@ public class RobotContainer {
     }
 
     public Command highCone() {
-      return null;
+      return new SequentialCommandGroup(
+        new ArmPID(m_arm, m_claw, 91, 0, false).withTimeout(1.5),
+        new ArmPID(m_arm, m_claw, 91, -110, false).withTimeout(1)
+      );
     }
 
     public Command midCone() {
@@ -239,8 +255,8 @@ public class RobotContainer {
 
     public Command highCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 84, 0, false).withTimeout(1.5),
-        new ArmPID(m_arm, m_claw, 84, -115, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 85, 0, false).withTimeout(1.5),
+        new ArmPID(m_arm, m_claw, 85, -110, false).withTimeout(1)
       );
     }
 
@@ -254,6 +270,10 @@ public class RobotContainer {
 
     public Command toggleClaw() {
       return new ClawControl(m_claw);
+    }
+
+    public Command autoBalance() {
+      return new ArmControl(m_arm, m_claw, 0, 0).withTimeout(0.001);
     }
 
     public Command end() {
@@ -418,6 +438,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return m_chooser.getSelected();
     }
-    
+
     
 }

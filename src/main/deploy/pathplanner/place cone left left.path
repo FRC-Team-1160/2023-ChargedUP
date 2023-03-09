@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 2.2793843460027357,
-        "y": 4.4
+        "y": 4.9
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.263493483047293,
-        "y": 4.4
+        "y": 4.9
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -17,7 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Cube"
+          "High Cone"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -27,15 +27,15 @@
     {
       "anchorPoint": {
         "x": 2.0,
-        "y": 4.4
+        "y": 4.9
       },
       "prevControl": {
         "x": 1.9951199476867052,
-        "y": 4.398938223833895
+        "y": 4.898938223833895
       },
       "nextControl": {
         "x": 2.004880052313295,
-        "y": 4.401061776166106
+        "y": 4.901061776166106
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -54,15 +54,15 @@
     {
       "anchorPoint": {
         "x": 2.3,
-        "y": 4.4
+        "y": 4.9
       },
       "prevControl": {
         "x": 2.2818816285745847,
-        "y": 4.4
+        "y": 4.9
       },
       "nextControl": {
         "x": 2.318118371425415,
-        "y": 4.4
+        "y": 4.9
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -81,12 +81,12 @@
     },
     {
       "anchorPoint": {
-        "x": 4.709844951604797,
-        "y": 4.953307140656835
+        "x": 4.648626582967452,
+        "y": 4.781124133676839
       },
       "prevControl": {
-        "x": 3.746797779309845,
-        "y": 4.85269784825284
+        "x": 3.6486265829674522,
+        "y": 4.781124133676839
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
