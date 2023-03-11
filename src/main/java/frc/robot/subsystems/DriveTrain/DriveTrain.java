@@ -154,6 +154,22 @@ public class DriveTrain extends SubsystemBase{
     m_gyro.zeroYaw();
   }
 
+  public double getGyroX() {
+    return m_gyro.getRawGyroX();
+  }
+
+  public double getGyroY() {
+    return m_gyro.getRawGyroY();
+  }
+
+  public double getGyroZ() {
+    return m_gyro.getRawGyroZ();
+  }
+
+  public double getGyroPitch() {
+    return m_gyro.getPitch();
+  }
+
   public void resetPose() {
     m_poseX = 0;
     m_poseY = 0;
@@ -224,6 +240,11 @@ public class DriveTrain extends SubsystemBase{
     if (!Limelight.getTv() || (Arm.getInstance().angle > 68 && Limelight.getPipeline().intValue() == 0) || (Arm.getInstance().angle > 55 && Limelight.getPipeline().intValue() == 1)) {
       limelightEngage = false;
     }
+
+    SmartDashboard.putNumber("gyroX", getGyroX());
+    SmartDashboard.putNumber("gyroY", getGyroY());
+    SmartDashboard.putNumber("gyroZ", getGyroZ());
+    SmartDashboard.putNumber("gyroPitch", getGyroPitch());
 
     SmartDashboard.putNumber("Pose2DX", m_poseX);
     SmartDashboard.putNumber("Pose2DY", m_poseY);

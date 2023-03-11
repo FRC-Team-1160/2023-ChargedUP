@@ -51,7 +51,7 @@ public class Claw extends SubsystemBase {
     m_solenoid.set(Value.kReverse);
     m_wrist = new CANSparkMax(PortConstants.WRIST, MotorType.kBrushless);
     m_encoder = m_wrist.getEncoder(Type.kHallSensor, 42);
-    kP = 0.3;
+    kP = 0.35;
     kI = 0.001;
     kD = 0.0;
 
@@ -108,7 +108,7 @@ public class Claw extends SubsystemBase {
   }
 
   public void wristPID(double setpoint) {
-    double kV = -0.001;
+    double kV = -0.0015;
     double kA = 0;
     double kFF = 0;
     double currentAngle = wristAngle;

@@ -36,6 +36,8 @@ import frc.robot.commands.arm.ArmPID;
 import frc.robot.commands.arm.ClawControl;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
+import frc.robot.commands.swerve.AutoBalance;
+import frc.robot.commands.swerve.MoveUntilBalance;
 import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
 import frc.robot.commands.swerve.TestWheelSpeed;
@@ -90,12 +92,12 @@ public class RobotContainer {
      */
     public RobotContainer() {
 
-      xP = 1.8;
+      xP = 1.9;
       xI = 0;
-      xD = 0.15;
-      yP = 1.8;
+      xD = 0.1;
+      yP = 1.9;
       yI = 0;
-      yD = 0.15;
+      yD = 0.1;
       rP = 0.8; //still needs to be tuned
       rI = 0; //still needs to be tuned
       rD = 0;
@@ -122,17 +124,21 @@ public class RobotContainer {
       /*
        * AUTO ROUTINES
        */
-      m_chooser.setDefaultOption("place cube left", getPathCommand("place cube left", 2.5, 1.5));
-      m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
-      m_chooser.addOption("place cube right", getPathCommand("place cube right", 2.5, 1.5));
-      m_chooser.addOption("place cube left charge left", getPathCommand("place cube left charge left", 2.5, 1.5));
-      m_chooser.addOption("place cube middle charge left", getPathCommand("place cube middle charge left", 2.5, 1.5));
-      m_chooser.addOption("place cube middle charge right", getPathCommand("place cube middle charge right", 2.5, 1.5));
-      m_chooser.addOption("place cube right charge right", getPathCommand("place cube right charge right", 2.5, 1.5));
-      m_chooser.addOption("place cone left left", getPathCommand("place cone left left", 2.5, 1.5));
-      m_chooser.addOption("place cone left right", getPathCommand("place cone left right", 2.5, 1.5));
-      //m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
-      //m_chooser.addOption("place cube middle", getPathCommand("place cube middle", 2.5, 1.5));
+      m_chooser.setDefaultOption("cube left", getPathCommand("cube left", 3.5, 2.5));
+      m_chooser.addOption("cube middle", getPathCommand("cube middle", 3.5, 2.5));
+      m_chooser.addOption("cube right", getPathCommand("cube right", 3.5, 2.5));
+      m_chooser.addOption("cube left charge left", getPathCommand("cube left charge left", 3.5, 2.5));
+      m_chooser.addOption("cube middle charge left", getPathCommand("cube middle charge left", 3.5, 2.5));
+      m_chooser.addOption("cube middle charge right", getPathCommand("cube middle charge right", 3.5, 2.5));
+      m_chooser.addOption("cube right charge right", getPathCommand("cube right charge right", 3.5, 2.5));
+      m_chooser.addOption("cone left left", getPathCommand("cone left left", 3.5, 2.5));
+      m_chooser.addOption("cone left right", getPathCommand("cone left right", 3.5, 2.5));
+      m_chooser.addOption("cone middle right", getPathCommand("cone middle right", 3.5, 2.5));
+      m_chooser.addOption("cone right right", getPathCommand("cone right right", 3.5, 2.5));
+      m_chooser.addOption("cone middle right charge right", getPathCommand("cone middle right charge right", 3.5, 2.5));
+      m_chooser.addOption("cone right right charge right", getPathCommand("cone right right charge right", 3.5, 2.5));
+      m_chooser.addOption("cone left left charge left", getPathCommand("cone left left charge left", 3.5, 2.5));
+      m_chooser.addOption("cube middle no drive", getPathCommand("cube middle no drive", 3.5, 2.5));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -140,7 +146,7 @@ public class RobotContainer {
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
       m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
-      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.4 * 12, true));
+      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.45 * 12, true));
       m_LED.setDefaultCommand(new SetSpike(m_LED));
     }
 
@@ -180,14 +186,14 @@ public class RobotContainer {
       Trigger rBButton = new JoystickButton(m_mainStick, Button.kRightBumper.value);
       
       //CUBES
-      leftTLButton.onTrue(new ArmPID(m_arm, m_claw, 82, -125, false));
-      leftMLButton.onTrue(new ArmPID(m_arm, m_claw, 69, -120, false));
-      leftBLButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60, false));
+      leftTLButton.onTrue(highCube());
+      leftMLButton.onTrue(midCube());
+      leftBLButton.onTrue(hybrid());
 
       //CONES
-      leftTRButton.onTrue(new ArmPID(m_arm, m_claw, 90, -110, false));
-      leftMRButton.onTrue(new ArmPID(m_arm, m_claw, 75, -90, false));
-      leftBRButton.onTrue(new ArmPID(m_arm, m_claw, 28, -60, false));
+      leftTRButton.onTrue(highCone());
+      leftMRButton.onTrue(midCone());
+      leftBRButton.onTrue(hybrid());
 
       //
       //xCoButton.onTrue(new ToggleClawAngle(m_claw));
@@ -195,8 +201,8 @@ public class RobotContainer {
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       //backCoButton.onTrue(new TogglePipeline());
-      headerLButton.onTrue(new LimelightEngage(m_driveTrain));
-      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79, -125, false));
+      headerLButton.toggleOnTrue(new AutoBalance(m_driveTrain));
+      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 82, -150, false));
       headerMButton.onTrue(pickup());
 
       rightTRButton.onTrue(new ClawControl(m_claw));
@@ -222,9 +228,6 @@ public class RobotContainer {
      * for both auto and user
      * 
      */
-
-    
-
     public Command intake(double input, double seconds) {
       return new IntakeControl(m_intake, input, false).withTimeout(seconds);
     }
@@ -234,38 +237,39 @@ public class RobotContainer {
     }
 
     public Command pickup() {
-    
       return new ArmPID(m_arm, m_claw, 17, -67, false).withTimeout(2);
     }
 
     public Command highCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 91, 0, false).withTimeout(1.5),
-        new ArmPID(m_arm, m_claw, 91, -110, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 87, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 87, -121, false).withTimeout(1)
       );
     }
 
     public Command midCone() {
-      return null;
+      return new SequentialCommandGroup(
+        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 69, -90, false).withTimeout(1)
+      );
     }
 
-    public Command hybridCone() {
-      return null;
+    public Command hybrid() {
+      return new ArmPID(m_arm, m_claw, 28, -60, false);
     }
 
     public Command highCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 85, 0, false).withTimeout(1.5),
-        new ArmPID(m_arm, m_claw, 85, -110, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 83, -125, false).withTimeout(1)
       );
     }
 
     public Command midCube() {
-      return null;
-    }
-
-    public Command hybridCube() {
-      return null;
+      return new SequentialCommandGroup(
+        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 75, -120, false).withTimeout(1)
+      );
     }
 
     public Command toggleClaw() {
@@ -273,7 +277,17 @@ public class RobotContainer {
     }
 
     public Command autoBalance() {
-      return new ArmControl(m_arm, m_claw, 0, 0).withTimeout(0.001);
+      return new SequentialCommandGroup(
+        new MoveUntilBalance(m_driveTrain, -1), //NEEDS TO BE TUNED
+        new AutoBalance(m_driveTrain)
+      );
+    }
+
+    public Command autoBalanceReverse() {
+      return new SequentialCommandGroup(
+        new MoveUntilBalance(m_driveTrain, 1), //NEEDS TO BE TUNED
+        new AutoBalance(m_driveTrain)
+      );
     }
 
     public Command end() {
