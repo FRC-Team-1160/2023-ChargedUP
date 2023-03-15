@@ -146,7 +146,7 @@ public class RobotContainer {
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
       m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
-      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.45 * 12, true));
+      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.65 * 12, true));
       m_LED.setDefaultCommand(new SetSpike(m_LED));
     }
 
@@ -201,8 +201,8 @@ public class RobotContainer {
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       //backCoButton.onTrue(new TogglePipeline());
-      headerLButton.toggleOnTrue(new AutoBalance(m_driveTrain));
-      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 82, -150, false));
+      //headerLButton.toggleOnTrue(autoBalance());
+      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
 
       rightTRButton.onTrue(new ClawControl(m_claw));
@@ -237,19 +237,19 @@ public class RobotContainer {
     }
 
     public Command pickup() {
-      return new ArmPID(m_arm, m_claw, 17, -67, false).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, 17, -72, false).withTimeout(2);
     }
 
     public Command highCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 87, 0, false).withTimeout(1),
-        new ArmPID(m_arm, m_claw, 87, -121, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 92, 0, false).withTimeout(0.8),
+        new ArmPID(m_arm, m_claw, 92, -121, false).withTimeout(1)
       );
     }
 
     public Command midCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(0.8),
         new ArmPID(m_arm, m_claw, 69, -90, false).withTimeout(1)
       );
     }
@@ -260,14 +260,14 @@ public class RobotContainer {
 
     public Command highCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(0.8),
         new ArmPID(m_arm, m_claw, 83, -125, false).withTimeout(1)
       );
     }
 
     public Command midCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(1),
+        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(0.8),
         new ArmPID(m_arm, m_claw, 75, -120, false).withTimeout(1)
       );
     }

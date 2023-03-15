@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.OIConstants;
 
 public class Claw extends SubsystemBase {
   /** Creates a new Claw. */
@@ -39,6 +41,7 @@ public class Claw extends SubsystemBase {
   public boolean lastFiveLimit;
 
   private final Timer timer = new Timer();
+  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
 
   public static Claw getInstance(){
     if (m_instance == null){
@@ -83,20 +86,24 @@ public class Claw extends SubsystemBase {
 
 
   public void wristControl(double input) {
-    if (wristAngle < ArmConstants.CLAW_LIMIT) {
-      if (input < 0) {
-        input = 0;
-      }
-    }
-    if (!m_clawSwitch.get()) {
-      if (input > 0) {
-        input = 0;
-      }
-    }
-    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
-      wristPID(ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT);
-    } else {
+    if (m_rightPanel.getRawButton(5)) {
       m_wrist.setVoltage(input);
+    } else {
+      if (wristAngle < ArmConstants.CLAW_LIMIT) {
+        if (input < 0) {
+          input = 0;
+        }
+      }
+      if (!m_clawSwitch.get()) {
+        if (input > 0) {
+          input = 0;
+        }
+      }
+      if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY && wristAngle < ArmConstants.WRIST_BUMPER_SAFETY) {
+        wristPID(ArmConstants.WRIST_BUMPER_SAFETY_SETPOINT);
+      } else {
+        m_wrist.setVoltage(input);
+      }
     }
     
     /*if (Math.abs(input) > 0.1) {

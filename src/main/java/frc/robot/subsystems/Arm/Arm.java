@@ -37,6 +37,8 @@ public class Arm extends SubsystemBase {
   public double encoderOffset;
   private double kP, kI;
 
+  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
+
   public static Arm getInstance(){
     if (m_instance == null){
       m_instance = new Arm();
@@ -64,18 +66,20 @@ public class Arm extends SubsystemBase {
   }
 
   public void armControl(double input) {
-    if (!m_armSwitch.get()) {
+    if (!m_rightPanel.getRawButton(5)) {
+      if (!m_armSwitch.get()) {
+        if (input < 0) {
+          input = 0;
+        }
+      }
+      if (angle > ArmConstants.ARM_LIMIT) {
+        if (input > 0) {
+          input = 0;
+        }
+      }
       if (input < 0) {
-        input = 0;
+        input *= 0.8;
       }
-    }
-    if (angle > ArmConstants.ARM_LIMIT) {
-      if (input > 0) {
-        input = 0;
-      }
-    }
-    if (input < 0) {
-      input *= 0.8;
     }
     m_armUp.setVoltage(input);
     m_armDown.setVoltage(-input);

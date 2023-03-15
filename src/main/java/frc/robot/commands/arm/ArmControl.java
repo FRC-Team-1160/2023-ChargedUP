@@ -46,45 +46,53 @@ public class ArmControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    SmartDashboard.putNumber("arm axis input", m_leftPanel.getRawAxis(0));
-
-    if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+1 && m_claw.wristAngle < -22) {
-      m_arm.armControl(0);
+    if (m_rightPanel.getRawButton(5)) {
+      SmartDashboard.putBoolean("override", true);
+      m_claw.wristControl(m_wristInput*m_rightPanel.getRawAxis(0)*-1);
+      m_arm.armControl(m_armInput*m_leftPanel.getRawAxis(0)*-1);
     } else {
-      if (Math.abs(m_leftPanel.getRawAxis(0)) < 0.1) {
-        m_arm.armPID(currentAngle);
+      SmartDashboard.putNumber("arm axis input", m_leftPanel.getRawAxis(0));
+      SmartDashboard.putBoolean("override", false);
+
+      if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+1 && m_claw.wristAngle < -22) {
+        m_arm.armControl(0);
       } else {
-        m_arm.armControl(m_armInput*m_leftPanel.getRawAxis(0)*-1);
-        currentAngle = m_arm.angle;
+        if (Math.abs(m_leftPanel.getRawAxis(0)) < 0.1) {
+          m_arm.armPID(currentAngle);
+        } else {
+          m_arm.armControl(m_armInput*m_leftPanel.getRawAxis(0)*-1);
+          currentAngle = m_arm.angle;
+        }
       }
-    }
-    SmartDashboard.putNumber("claw axis input", m_rightPanel.getRawAxis(5));
-    SmartDashboard.putNumber("current claw angle", currentClawAngle);
-    SmartDashboard.putNumber("current wrist angle", currentWristAngle);
+      SmartDashboard.putNumber("claw axis input", m_rightPanel.getRawAxis(5));
+      SmartDashboard.putNumber("current claw angle", currentClawAngle);
+      SmartDashboard.putNumber("current wrist angle", currentWristAngle);
 
-    if (Math.abs(m_rightPanel.getRawAxis(0)) < 0.2) {
-      if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentClawAngle < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && m_claw.keepClawAngle) {
-        currentClawAngle = m_claw.angle;
-        currentWristAngle = m_claw.wristAngle;
-      } else if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentWristAngle < ArmConstants.WRIST_BUMPER_SAFETY && !m_claw.keepClawAngle) {
-        currentClawAngle = m_claw.angle;
-        currentWristAngle = m_claw.wristAngle;
-      }
-      if (m_claw.keepClawAngle) {
-        if (m_claw.m_clawSwitch.get()){
+      if (Math.abs(m_rightPanel.getRawAxis(0)) < 0.2) {
+        if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentClawAngle < ArmConstants.WRIST_BUMPER_SAFETY+m_arm.angle && m_claw.keepClawAngle) {
+          currentClawAngle = m_claw.angle;
+          currentWristAngle = m_claw.wristAngle;
+        } else if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+3 && currentWristAngle < ArmConstants.WRIST_BUMPER_SAFETY && !m_claw.keepClawAngle) {
+          currentClawAngle = m_claw.angle;
+          currentWristAngle = m_claw.wristAngle;
+        }
+        if (m_claw.keepClawAngle) {
+          if (m_claw.m_clawSwitch.get()){
 
-          m_claw.wristPID(currentClawAngle);
+            m_claw.wristPID(currentClawAngle);
+          }
+        } else {
+          SmartDashboard.putBoolean("wrist PID active", true);
+          m_claw.wristPID(currentWristAngle);
         }
       } else {
-        SmartDashboard.putBoolean("wrist PID active", true);
-        m_claw.wristPID(currentWristAngle);
+        m_claw.wristControl(m_wristInput*m_rightPanel.getRawAxis(0)*-1);
+        SmartDashboard.putBoolean("wrist PID active", false);
+        currentClawAngle = m_claw.angle;
+        currentWristAngle = m_claw.wristAngle;
       }
-    } else {
-      m_claw.wristControl(m_wristInput*m_rightPanel.getRawAxis(0)*-1);
-      SmartDashboard.putBoolean("wrist PID active", false);
-      currentClawAngle = m_claw.angle;
-      currentWristAngle = m_claw.wristAngle;
     }
+    
   }
 
   // Called once the command ends or is interrupted.
