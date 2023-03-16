@@ -147,7 +147,7 @@ public class Claw extends SubsystemBase {
       output = -max;
     }
     m_wrist.setVoltage(output);
-    SmartDashboard.putNumber("wrist output", output);
+    SmartDashboard.putNumber("wrist input", output);
   }
 
   public void resetTimer() {

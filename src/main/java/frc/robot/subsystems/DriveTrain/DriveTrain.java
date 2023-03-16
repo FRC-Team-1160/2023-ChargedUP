@@ -209,7 +209,6 @@ public class DriveTrain extends SubsystemBase{
   
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("gyro velocity" ,Math.toRadians((getGyroAngle()-lastgyro)/0.02));
     double xAngle = m_mainStick.getRawAxis(0);
     double yAngle = m_mainStick.getRawAxis(1);
     double angle = Math.toDegrees(Math.atan(yAngle/xAngle)) + 90;
@@ -221,8 +220,6 @@ public class DriveTrain extends SubsystemBase{
       mag = 1;
     }
     double turn = m_mainStick.getRawAxis(4);
-    SmartDashboard.putNumber("x", xAngle);
-    SmartDashboard.putNumber("y", yAngle);
     SmartDashboard.putNumber("Angle", angle);
     SmartDashboard.putNumber("Mag", mag);
     SmartDashboard.putNumber("Turn", turn);
@@ -240,18 +237,12 @@ public class DriveTrain extends SubsystemBase{
     if (!Limelight.getTv() || (Arm.getInstance().angle > 68 && Limelight.getPipeline().intValue() == 0) || (Arm.getInstance().angle > 55 && Limelight.getPipeline().intValue() == 1)) {
       limelightEngage = false;
     }
-
-    SmartDashboard.putNumber("gyroX", getGyroX());
-    SmartDashboard.putNumber("gyroY", getGyroY());
-    SmartDashboard.putNumber("gyroZ", getGyroZ());
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
 
     SmartDashboard.putNumber("Pose2DX", m_poseX);
     SmartDashboard.putNumber("Pose2DY", m_poseY);
     SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
-  
-    SmartDashboard.putNumber("FR wheel vel", m_frontRightWheel.getVelocity());
     lastgyro = getGyroAngle();
   }
 

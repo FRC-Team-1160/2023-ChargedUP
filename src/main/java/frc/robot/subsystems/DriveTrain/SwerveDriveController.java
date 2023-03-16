@@ -90,10 +90,6 @@ public class SwerveDriveController {
         //field centric
         double fwd = tfwd * Math.cos(Math.toRadians(-gyroAngle)) + tstr * Math.sin(Math.toRadians(-gyroAngle));
         double str = tstr * Math.cos(Math.toRadians(-gyroAngle)) - tfwd * Math.sin(Math.toRadians(-gyroAngle));
-        SmartDashboard.putNumber("a odom", a);
-        SmartDashboard.putNumber("b odom", b);
-        SmartDashboard.putNumber("c odom", c);
-        SmartDashboard.putNumber("d odom", d);
         SmartDashboard.putNumber("FWD", fwd);
         SmartDashboard.putNumber("STR", str);
         SmartDashboard.putNumber("ROT", rot);
@@ -111,10 +107,6 @@ public class SwerveDriveController {
 		double b = str + (rot * (l / r));
 		double c = fwd - (rot * (w / r));
 		double d = fwd + (rot * (w / r));
-        SmartDashboard.putNumber("a kine", a);
-        SmartDashboard.putNumber("b kine", b);
-        SmartDashboard.putNumber("c kine", c);
-        SmartDashboard.putNumber("d kine", d);
 
 		double ws1 = Math.sqrt((b * b) + (c * c));
 		double ws2 = Math.sqrt((b * b) + (d * d));
@@ -160,22 +152,10 @@ public class SwerveDriveController {
         SmartDashboard.putNumber("FL actual angle", frontLeftWheel.getRelativeRotation());
         SmartDashboard.putNumber("BL actual angle", backLeftWheel.getRelativeRotation());
         SmartDashboard.putNumber("BR actual angle", backRightWheel.getRelativeRotation());
-        SmartDashboard.putNumber("FR expected speed", ws1);
-        SmartDashboard.putNumber("FL expected speed", ws2);
-        SmartDashboard.putNumber("BL expected speed", ws3);
-        SmartDashboard.putNumber("BR expected speed", ws4);
-        SmartDashboard.putNumber("FR actual speed", frontRightWheel.getRelativeVelocity());
-        SmartDashboard.putNumber("FL actual speed", frontLeftWheel.getRelativeVelocity());
-        SmartDashboard.putNumber("BL actual speed", backLeftWheel.getRelativeVelocity());
-        SmartDashboard.putNumber("BR actual speed", backRightWheel.getRelativeVelocity());
         SmartDashboard.putNumber("FR speed error", ws1-frontRightWheel.getRelativeVelocity());
         SmartDashboard.putNumber("FL speed error", ws2-frontLeftWheel.getRelativeVelocity());
         SmartDashboard.putNumber("BL speed error", ws3-backLeftWheel.getRelativeVelocity());
         SmartDashboard.putNumber("BR speed error", ws4-backRightWheel.getRelativeVelocity());
-        SmartDashboard.putBoolean("FR unflipped", frontRightWheel.unflipped);
-        SmartDashboard.putBoolean("FL unflipped", frontLeftWheel.unflipped);
-        SmartDashboard.putBoolean("BL unflipped", backLeftWheel.unflipped);
-        SmartDashboard.putBoolean("BR unflipped", backRightWheel.unflipped);
         SmartDashboard.putNumber("FL Wheel", frontLeftWheel.getPosition());
         SmartDashboard.putNumber("FR speed difference", Math.abs(frontRightWheel.getVelocity())- Math.abs(ws1));
 

@@ -121,7 +121,7 @@ public class SwerveDriveWheel
         //double kA = 0;//1/(SwerveConstants.MAX_WHEEL_ACCELERATION);
 
         //double setpointAcceleration = (setpointSpeed-lastSetpointSpeed)/0.02;
-        SmartDashboard.putNumber("speed PID", speedPID/SwerveConstants.MAX_WHEEL_SPEED);
+        //SmartDashboard.putNumber("speed PID", speedPID/SwerveConstants.MAX_WHEEL_SPEED);
         //SmartDashboard.putNumber("accleration", kA*setpointAcceleration);
 
         double angleOutput = anglePID;

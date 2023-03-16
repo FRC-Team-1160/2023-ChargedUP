@@ -43,20 +43,16 @@ public class AutoBalance extends CommandBase {
       m_drive.m_controller.setSwerveDrive(false, 0.5, 0, 0, m_drive.getGyroAngle());
       dir = true;
     } else {
-      
       timer.start();
       if (timer.get() < 0.5) {
         if (dir) {
           m_drive.m_controller.setSwerveDrive(false, -0.25, 0, 0, m_drive.getGyroAngle());
-
         } else {
           m_drive.m_controller.setSwerveDrive(false, 0.25, 0, 0, m_drive.getGyroAngle());
-
         }
       } else {
         timer.stop();
         m_drive.m_controller.setSwerveDrive(false, 0.01, 0, 0, m_drive.getGyroAngle());
-
       }
     }
   }

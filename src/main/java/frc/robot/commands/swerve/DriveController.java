@@ -111,7 +111,6 @@ public class DriveController {
     }
     SmartDashboard.putNumber("translationXError", this.translationXError);
     SmartDashboard.putNumber("translationYError", this.translationYError);
-    SmartDashboard.putNumber("reference degrees", referenceState.holonomicRotation.getDegrees());
     SmartDashboard.putNumber("rotationError", Math.toDegrees(rotationError));
     if (!this.isEnabled) {
       speeds[0] = xFF;

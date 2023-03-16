@@ -399,7 +399,6 @@ public class RobotContainer {
 
     public Command fullAuto(List<PathPlannerTrajectory> pathGroup, PathConstraints maxSpd) {
       List<CommandBase> commands = new ArrayList<>();
-      SmartDashboard.putNumber("size of trajectory", pathGroup.size());
 
       commands.add(resetPose(pathGroup.get(0)));
 

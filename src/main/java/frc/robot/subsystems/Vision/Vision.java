@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems.Vision;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,10 +39,10 @@ public class Vision extends SubsystemBase {
     double xCoord = Double.parseDouble(table.getEntry("xPos").getStringArray(sdef)[0]);
     double distance = table.getEntry("distance").getNumberArray(def)[0].doubleValue();
     double robotAngle = DriveTrain.getInstance().getGyroAngle();
+    
     double theta = Math.toRadians(VisionConstants.CAM_ANGLE) - (Math.toRadians(VisionConstants.CAM_HORIZONTAL_FOV) * (xCoord - 0.5*VisionConstants.STREAM_WIDTH_PIXELS)/(0.5*VisionConstants.STREAM_WIDTH_PIXELS));
 
     double frontObjDist = Math.sqrt(VisionConstants.CAM_OFFSET*VisionConstants.CAM_OFFSET + distance*distance - 2*VisionConstants.CAM_OFFSET*distance*Math.cos(theta));
-    
     double frontObjAng = Math.asin(distance*Math.sin(theta)/frontObjDist) - Math.PI/2 + Math.toRadians(robotAngle);
     
     double objX = frontObjDist*Math.cos(frontObjAng);
@@ -53,6 +57,19 @@ public class Vision extends SubsystemBase {
     double yPos = DriveTrain.getInstance().m_poseY + objY + rY;
     double[] pos = {xPos, yPos};
     return pos;
+  }
+
+  public PathPlannerTrajectory generatePathToObj(PathConstraints max) {
+    double[] pos = getObjPosition();
+    double xPos = pos[0];
+    double yPos = pos[1];
+    return PathPlanner.generatePath(
+      max,
+      null,
+      null,
+      null,
+      null
+      );
   }
 
   @Override

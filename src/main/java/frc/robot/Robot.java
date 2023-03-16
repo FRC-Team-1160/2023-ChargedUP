@@ -61,7 +61,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       auto = m_autonomousCommand.getName();
     }
-    SmartDashboard.putString("Selected Auto", auto);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
