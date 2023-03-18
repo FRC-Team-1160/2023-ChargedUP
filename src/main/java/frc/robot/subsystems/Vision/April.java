@@ -17,25 +17,33 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class AprilTag extends SubsystemBase {
+public class April extends SubsystemBase {
   /** Creates a new AprilTag. */
-  private static AprilTag m_instance;
+  private static April m_instance;
 
   private AprilTagDetector detector;
+  private Mat img;
+  private CvSink sink;
   private AprilTagPoseEstimator estimator;
   private int iterations;
   private UsbCamera cam;
   
-  public static AprilTag getInstance(){
+  public static April getInstance(){
     if (m_instance == null){
-      m_instance = new AprilTag();
+      m_instance = new April();
     }
     return m_instance;
   }
-  public AprilTag() {
-    detector.setConfig(null);
-    estimator.setConfig(null);
-    cam = CameraServer.startAutomaticCapture("april tag", 1);
+  private April() {
+    cam = CameraServer.startAutomaticCapture(0);
+    img = null;
+    sink = CameraServer.getVideo();
+    //cam.setResolution(360, 240);
+    detector = new AprilTagDetector();
+    //estimator = new AprilTagPoseEstimator(new Config(, , , 180, 120));
+    //detector.setConfig(null);
+    //estimator.setConfig(null);
+    
     iterations = 50;
     
   }
@@ -43,11 +51,13 @@ public class AprilTag extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    CvSink sink = CameraServer.getVideo("april tag");
-    Mat img = new Mat();
-    sink.grabFrame(img);
-    AprilTagDetection[] results = detector.detect(img);
-    AprilTagPoseEstimate poseEstimate = estimator.estimateOrthogonalIteration(results[0], iterations);
+    img = new Mat();
+    double sec = sink.grabFrame(img);
+    SmartDashboard.putNumber("frame time", sec);
+    /*AprilTagDetection[] results = detector.detect(img);
+    SmartDashboard.putNumber("resultsCenterX", results[0].getCenterX());
+    SmartDashboard.putNumber("resultsCenterY", results[0].getCenterY());
+    /*AprilTagPoseEstimate poseEstimate = estimator.estimateOrthogonalIteration(results[0], iterations);
     Transform3d pose1 = poseEstimate.pose1;
     Transform3d pose2 = poseEstimate.pose2;
     SmartDashboard.putNumber("pose1 x", pose1.getX());
@@ -55,6 +65,6 @@ public class AprilTag extends SubsystemBase {
     SmartDashboard.putNumber("pose1 z", pose1.getZ());
     SmartDashboard.putNumber("pose2 x", pose2.getX());
     SmartDashboard.putNumber("pose2 y", pose2.getY());
-    SmartDashboard.putNumber("pose2 z", pose2.getZ());
+    SmartDashboard.putNumber("pose2 z", pose2.getZ());*/
   }
 }

@@ -11,6 +11,7 @@ import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
 import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.Vision.April;
 import frc.robot.subsystems.Vision.LED;
 import frc.robot.subsystems.Vision.Limelight;
 import frc.robot.subsystems.Vision.Vision;
@@ -73,6 +75,7 @@ public class RobotContainer {
     public final Limelight m_limelight = Limelight.getInstance();
     public final Vision m_vision = Vision.getInstance();
     public final LED m_LED = LED.getInstance();
+    public final April m_aprilTag = April.getInstance();
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
