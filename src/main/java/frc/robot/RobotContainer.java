@@ -11,6 +11,7 @@ import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
 import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;

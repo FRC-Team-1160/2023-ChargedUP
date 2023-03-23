@@ -36,8 +36,8 @@ public class Robot extends TimedRobot {
     NetworkTableEntry cameraSelection;
     UsbCamera camera1, camera2;
 
-    camera1 = CameraServer.startAutomaticCapture(0);
-    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+    //camera1 = CameraServer.startAutomaticCapture(0);
+    //cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
     //cameraSelection.setString(camera2.getName());
     m_robotContainer = new RobotContainer();
     //m_dashboard = new Driver();

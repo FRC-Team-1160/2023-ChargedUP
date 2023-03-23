@@ -7,6 +7,8 @@
 
 package frc.robot.subsystems.DriveTrain;
 
+import java.util.ArrayList;
+
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -27,8 +29,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -82,6 +86,10 @@ public class DriveTrain extends SubsystemBase{
   public double m_poseY;
   public Pose2d m_pose;
   public Field2d m_fieldSim = new Field2d();
+  public int time;
+
+  public ArrayList<Pose> poseLog;
+
   public boolean limelightEngage;
   private PIDController limelightEngageController;
   private double gyroOffset;
@@ -128,6 +136,9 @@ public class DriveTrain extends SubsystemBase{
     gyroOffset = 0;
     m_poseX = 0;
     m_poseY = 0;
+    time = 0;
+    m_pose = new Pose(m_poseX, m_poseY, getGyroAngle(), 0);
+    poseLog = new ArrayList<Pose>();
     m_controller = new SwerveDriveController(m_frontLeftWheel, m_frontRightWheel, m_backLeftWheel, m_backRightWheel, m_gyro);
   
     limelightEngage = false;
@@ -215,6 +226,19 @@ public class DriveTrain extends SubsystemBase{
     return feedback;
   }
 
+  public void logPose() {
+    poseLog.add(m_pose);
+  }
+
+  //gets the pose at sec seconds ago
+  public Pose getPastPose(double sec) {
+    int timestampBefore = time-(int)Math.ceil(sec/0.02);
+    int timestampAfter = time-(int)Math.floor(sec/0.02);
+    double pos = 1+(((time*0.02-sec)-(double)timestampAfter*0.02)/(0.02)); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
+    Pose poseBefore = poseLog.get(timestampBefore);
+    Pose poseAfter = poseLog.get(timestampAfter);
+    return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
+  }
   /** Updates the field-relative position. */
   public void updateOdometry() {
 
@@ -260,6 +284,11 @@ public class DriveTrain extends SubsystemBase{
     m_poseX += fwd*SwerveConstants.PERIODIC_SPEED;
     m_poseY += str*SwerveConstants.PERIODIC_SPEED;
 
+    m_pose.updatePose(m_poseX, m_poseY, getGyroAngle(), time);
+    if (DriverStation.isTeleopEnabled()) {
+      logPose();
+      time += 1;
+    }
     if (!Limelight.getTv() || (Arm.getInstance().angle > 68 && Limelight.getPipeline().intValue() == 0) || (Arm.getInstance().angle > 55 && Limelight.getPipeline().intValue() == 1)) {
       limelightEngage = false;
     }
