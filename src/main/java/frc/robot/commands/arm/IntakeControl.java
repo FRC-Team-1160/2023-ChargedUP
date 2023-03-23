@@ -37,7 +37,7 @@ public class IntakeControl extends CommandBase {
       } else if (!m_rightPanel.getRawButton(10) && m_rightPanel.getRawButton(12)) {
         m_intake.intakeControl(-m_input);
       } else {
-        m_intake.intakeControl(0);
+        m_intake.intakeControl(-0.05*12);
       }
     } else {
       m_intake.intakeControl(m_input);

@@ -34,6 +34,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.commands.arm.ArmControl;
 import frc.robot.commands.arm.ArmPID;
 import frc.robot.commands.arm.ClawControl;
+import frc.robot.commands.arm.ClawToggle;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
 import frc.robot.commands.swerve.AutoBalance;
@@ -48,7 +49,9 @@ import frc.robot.commands.vision.TogglePipeline;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
+import frc.robot.subsystems.Arm.Piston;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.LED;
 import frc.robot.subsystems.Vision.Limelight;
 import frc.robot.subsystems.Vision.Vision;
@@ -73,6 +76,8 @@ public class RobotContainer {
     public final Limelight m_limelight = Limelight.getInstance();
     public final Vision m_vision = Vision.getInstance();
     public final LED m_LED = LED.getInstance();
+    public final AprilTag m_AprilTag = AprilTag.getInstance();
+    public final Piston m_piston = Piston.getInstance();
   
     // Controllers`
     private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
@@ -113,9 +118,8 @@ public class RobotContainer {
       eventMap.put("Stop Intake", intake(0, 1));
       eventMap.put("Toggle Lime Pipe", new TogglePipeline());
       eventMap.put("High Cube", highCube());
-      eventMap.put("Toggle Claw", toggleClaw());
       eventMap.put("Toggle Lime Engage", new LimelightEngage(m_driveTrain));
-      eventMap.put("Toggle Claw", new ClawControl(m_claw));
+      eventMap.put("Toggle Claw", new ClawToggle(m_piston));
       eventMap.put("Pickup", pickup());
       eventMap.put("End", end());
       eventMap.put("High Cone", highCone());
@@ -146,8 +150,9 @@ public class RobotContainer {
       // Configure default commands
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
       m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
-      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.65 * 12, true));
+      m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.7 * 12, true));
       m_LED.setDefaultCommand(new SetSpike(m_LED));
+      m_piston.setDefaultCommand(new ClawControl(m_piston));
     }
 
       
@@ -205,7 +210,7 @@ public class RobotContainer {
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
 
-      rightTRButton.onTrue(new ClawControl(m_claw));
+      //rightTRButton.onTrue(new ClawControl(m_claw));
       rightBRButton.onTrue(stow());
 
       //rightTLButton.whileTrue(new IntakeControl(m_intake, -0.4 * 12, true));
@@ -270,10 +275,6 @@ public class RobotContainer {
         new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(0.8),
         new ArmPID(m_arm, m_claw, 75, -120, false).withTimeout(1)
       );
-    }
-
-    public Command toggleClaw() {
-      return new ClawControl(m_claw);
     }
 
     public Command autoBalance() {

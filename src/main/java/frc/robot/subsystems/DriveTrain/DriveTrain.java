@@ -7,6 +7,10 @@
 
 package frc.robot.subsystems.DriveTrain;
 
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
+
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -27,6 +31,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SerialPort.Port;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +39,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.Limelight;
 
 
@@ -74,10 +80,13 @@ public class DriveTrain extends SubsystemBase{
   private Solenoid m_gate;
   public double m_poseX;
   public double m_poseY;
-  //public Pose2d m_pose;
+  public Pose2d m_pose;
+  public Field2d m_fieldSim = new Field2d();
   public boolean limelightEngage;
   private PIDController limelightEngageController;
   private double gyroOffset;
+
+  public AprilTag at;
 
   double wkrP, wkrI, wkrD, wksP, wksI, wksD, wklP, wklI, wklD;
 //
@@ -124,6 +133,7 @@ public class DriveTrain extends SubsystemBase{
     limelightEngage = false;
     limelightEngageController = new PIDController(wklP, wklI, wklD);
     
+    at = AprilTag.getInstance();
   }
 
   public double getGyroAngle() {
@@ -205,7 +215,23 @@ public class DriveTrain extends SubsystemBase{
     return feedback;
   }
 
-  private double lastgyro = 0;
+  /** Updates the field-relative position. */
+  public void updateOdometry() {
+
+    Optional<EstimatedRobotPose> result =
+            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
+
+    if (result.isPresent()) {
+        EstimatedRobotPose camPose = result.get();
+        m_fieldSim.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
+    } else {
+        // move it way off the screen to make it disappear
+        m_fieldSim.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+    }
+
+    m_fieldSim.getObject("Actual Pos").setPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
+}
+
   
   @Override
   public void periodic() {
@@ -223,7 +249,7 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("Angle", angle);
     SmartDashboard.putNumber("Mag", mag);
     SmartDashboard.putNumber("Turn", turn);
-    SmartDashboard.putNumber("Gyro Yaw", getGyroAngle());
+    
     SmartDashboard.putNumber("FLCoder", m_frontLeftWheel.getRotation());
     SmartDashboard.putNumber("FRCoder", m_frontRightWheel.getRotation());
     SmartDashboard.putNumber("BLCoder", m_backLeftWheel.getRotation());
@@ -238,12 +264,20 @@ public class DriveTrain extends SubsystemBase{
       limelightEngage = false;
     }
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
-
-    SmartDashboard.putNumber("Pose2DX", m_poseX);
-    SmartDashboard.putNumber("Pose2DY", m_poseY);
+    m_pose = new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle())));
+    SmartDashboard.putNumber("PoseX", m_poseX);
+    SmartDashboard.putNumber("PoseY", m_poseY);
+    SmartDashboard.putNumber("Gyro Yaw", getGyroAngle());
+    SmartDashboard.putNumber("Pose2DX", m_pose.getX());
+    SmartDashboard.putNumber("Pose2DY", m_pose.getY());
+    SmartDashboard.putNumber("PoseGyro", m_pose.getRotation().getDegrees());
     SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
-    lastgyro = getGyroAngle();
+    SmartDashboard.putNumber("PoseXerror", m_poseX - m_pose.getX());
+    SmartDashboard.putNumber("PoseYerror", m_poseY - m_pose.getY());
+    SmartDashboard.putNumber("Gyro Yaw error", getGyroAngle() - m_pose.getRotation().getDegrees());
+
+    
   }
 
   

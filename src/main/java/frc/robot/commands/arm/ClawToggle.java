@@ -5,18 +5,12 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.Arm.Piston;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class ClawControl extends CommandBase {
-  /** Creates a new ClawControl. */
+public class ClawToggle extends CommandBase {
+  /** Creates a new ClawToggle. */
   private Piston m_piston;
-  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
-
-  public ClawControl(Piston m_piston) {
+  public ClawToggle(Piston m_piston) {
     addRequirements(m_piston);
     this.m_piston = m_piston;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -25,17 +19,12 @@ public class ClawControl extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    m_piston.togglePiston();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    if (!m_rightPanel.getRawButton(2)) {
-      m_piston.setPiston(Value.kReverse);
-    } else {
-      m_piston.setPiston(Value.kForward);
-    }
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -44,6 +33,6 @@ public class ClawControl extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
