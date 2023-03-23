@@ -84,7 +84,8 @@ public class DriveTrain extends SubsystemBase{
   private Solenoid m_gate;
   public double m_poseX;
   public double m_poseY;
-  public Pose2d m_pose;
+  public Pose2d m_pose2D;
+  public Pose m_pose;
   public Field2d m_fieldSim = new Field2d();
   public int time;
 
@@ -293,18 +294,18 @@ public class DriveTrain extends SubsystemBase{
       limelightEngage = false;
     }
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
-    m_pose = new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle())));
+    m_pose2D = new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle())));
     SmartDashboard.putNumber("PoseX", m_poseX);
     SmartDashboard.putNumber("PoseY", m_poseY);
     SmartDashboard.putNumber("Gyro Yaw", getGyroAngle());
-    SmartDashboard.putNumber("Pose2DX", m_pose.getX());
-    SmartDashboard.putNumber("Pose2DY", m_pose.getY());
-    SmartDashboard.putNumber("PoseGyro", m_pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("Pose2DX", m_pose2D.getX());
+    SmartDashboard.putNumber("Pose2DY", m_pose2D.getY());
+    SmartDashboard.putNumber("PoseGyro", m_pose2D.getRotation().getDegrees());
     SmartDashboard.putBoolean("limelightEnaged", limelightEngage);
 
-    SmartDashboard.putNumber("PoseXerror", m_poseX - m_pose.getX());
-    SmartDashboard.putNumber("PoseYerror", m_poseY - m_pose.getY());
-    SmartDashboard.putNumber("Gyro Yaw error", getGyroAngle() - m_pose.getRotation().getDegrees());
+    SmartDashboard.putNumber("PoseXerror", m_poseX - m_pose2D.getX());
+    SmartDashboard.putNumber("PoseYerror", m_poseY - m_pose2D.getY());
+    SmartDashboard.putNumber("Gyro Yaw error", getGyroAngle() - m_pose2D.getRotation().getDegrees());
 
     
   }
