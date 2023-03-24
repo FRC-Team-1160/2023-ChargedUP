@@ -84,7 +84,10 @@ public class DriveTrain extends SubsystemBase{
   private Solenoid m_gate;
   public double m_poseX;
   public double m_poseY;
+  public double prevPoseX;
+  public double prevPoseY;
   public Pose2d m_pose2D;
+  public Pose2d prevPose2D;
   public Pose m_pose;
   public Field2d m_fieldSim = new Field2d();
   public int time;
@@ -137,6 +140,8 @@ public class DriveTrain extends SubsystemBase{
     gyroOffset = 0;
     m_poseX = 0;
     m_poseY = 0;
+    prevPoseX = 0;
+    prevPoseY = 0;
     time = 0;
     m_pose = new Pose(m_poseX, m_poseY, getGyroAngle(), 0);
     poseLog = new ArrayList<Pose>();
@@ -248,18 +253,30 @@ public class DriveTrain extends SubsystemBase{
 
     if (result.isPresent()) {
         EstimatedRobotPose camPose = result.get();
-        m_fieldSim.getObject("Cam Est Pos").setPose(camPose.estimatedPose.toPose2d());
-    } else {
-        // move it way off the screen to make it disappear
-        m_fieldSim.getObject("Cam Est Pos").setPose(new Pose2d(-100, -100, new Rotation2d()));
+        m_pose2D = camPose.estimatedPose.toPose2d();
+        if (checkAprilAccuracy()) {
+          m_poseX = m_pose2D.getX();
+          m_poseY = m_pose2D.getY();
+        }
     }
-
-    m_fieldSim.getObject("Actual Pos").setPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
+   
 }
+  public boolean checkAprilAccuracy() {
+    double poseDiffX = m_poseX - prevPoseX;
+    double poseDiffY = m_poseY - prevPoseY;
+    Transform2d poseDiff = m_pose2D.minus(prevPose2D);
+    if (Math.abs(poseDiffX-poseDiff.getX()) < 0.18 && Math.abs(poseDiffY-poseDiff.getY()) < 0.18) {
+      return true;
+    }
+    return false;
+  }
 
   
   @Override
   public void periodic() {
+    prevPoseX = m_poseX;
+    prevPoseY = m_poseY;
+    prevPose2D = new Pose2d(m_pose2D.getX(), m_pose2D.getY(), m_pose2D.getRotation());
     double xAngle = m_mainStick.getRawAxis(0);
     double yAngle = m_mainStick.getRawAxis(1);
     double angle = Math.toDegrees(Math.atan(yAngle/xAngle)) + 90;
@@ -279,6 +296,7 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("FRCoder", m_frontRightWheel.getRotation());
     SmartDashboard.putNumber("BLCoder", m_backLeftWheel.getRotation());
     SmartDashboard.putNumber("BRCoder", m_backRightWheel.getRotation());
+    // UPDATE ODOMETRY
     double[] odom = m_controller.getSwerveOdometry(locToAngle(getGyroAngle()));
     double fwd = odom[0];
     double str = odom[1];
@@ -294,7 +312,11 @@ public class DriveTrain extends SubsystemBase{
       limelightEngage = false;
     }
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
-    m_pose2D = new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle())));
+    
+
+    updateOdometry();
+    //
+    
     SmartDashboard.putNumber("PoseX", m_poseX);
     SmartDashboard.putNumber("PoseY", m_poseY);
     SmartDashboard.putNumber("Gyro Yaw", getGyroAngle());
