@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -45,6 +46,8 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.Limelight;
+
+import org.littletonrobotics.junction.Logger;
 
 
 public class DriveTrain extends SubsystemBase{
@@ -88,6 +91,8 @@ public class DriveTrain extends SubsystemBase{
   public double prevPoseY;
   public Pose2d m_pose2D;
   public Pose2d prevPose2D;
+  
+
   public Pose m_pose;
   public Field2d m_fieldSim = new Field2d();
   public int time;
@@ -249,7 +254,7 @@ public class DriveTrain extends SubsystemBase{
   public void updateOdometry() {
 
     Optional<EstimatedRobotPose> result =
-            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
+            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(getGyroAngle()))));
 
     if (result.isPresent()) {
         EstimatedRobotPose camPose = result.get();
@@ -316,6 +321,10 @@ public class DriveTrain extends SubsystemBase{
 
     updateOdometry();
     //
+    Logger.getInstance().recordOutput("Odometry/RotationDegrees",
+          getGyroAngle());
+      Logger.getInstance().recordOutput("Odometry/XMeters", m_poseX);
+      Logger.getInstance().recordOutput("Odometry/YMeters", m_poseY);
     
     SmartDashboard.putNumber("PoseX", m_poseX);
     SmartDashboard.putNumber("PoseY", m_poseY);
