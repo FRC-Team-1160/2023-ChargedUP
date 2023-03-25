@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
@@ -28,6 +29,7 @@ public class Arm extends SubsystemBase {
   private final Timer timer = new Timer();
   private CANSparkMax m_armDown;
   public boolean lastFiveLimit;
+  public AnalogPotentiometer pot = new AnalogPotentiometer(0, 180, 30);
 
   public DigitalInput m_armSwitch;
   
@@ -138,6 +140,7 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putBoolean("lastFiveArmLimit", lastFiveLimit);
     SmartDashboard.putNumber("arm angle", angle);
     SmartDashboard.putNumber("arm encoder reading", getEncoderPosition());
+    SmartDashboard.putNumber("arm potentiometer reading", pot.get());
     SmartDashboard.putBoolean("arm switch", !m_armSwitch.get());
   }
 }
