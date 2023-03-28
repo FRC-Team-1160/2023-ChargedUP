@@ -89,12 +89,12 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double CAM_ANGLE = 60; // MARCUS LABEL THESE PLEASE
-    public static final double CAM_HORIZONTAL_FOV = 32; //
+    public static final double CAM_ANGLE = -Math.PI/6; // MARCUS LABEL THESE PLEASE
     public static final double STREAM_WIDTH_PIXELS = 640;
     public static final double STREAM_HEIGHT_PIXELS = 640;
-    public static final double CAM_OFFSET = 0.285; //
+    public static final double[][] CAM_OFFSET = {{-0.25},{0.25}}; //
     public static final double ROBOT_RADIUS = 0.5029; //
+    
   }
 
   public static final class AprilTagConstants {

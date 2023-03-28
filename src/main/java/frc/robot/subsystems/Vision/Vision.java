@@ -29,38 +29,39 @@ public class Vision extends SubsystemBase {
     table = NetworkTableInstance.getDefault().getTable("vision");
   }
 
-  public double[] getObjPosition() {
-    String[] sdef = {"null"};
+  public double[] getRelativeObjectPose() {
     Number[] def = {-1,-1};
-    double[] ddef = {0, 0};
-    if (table.getEntry("xPos").getStringArray(sdef)[0].equals("null")) {
-      return ddef;
+    double u1 = table.getEntry("offset").getNumberArray(def)[0].doubleValue();
+    double u2 = table.getEntry("distance").getNumberArray(def)[0].doubleValue();
+    if (u2 == -1) {
+      return null;
     }
-    double xCoord = Double.parseDouble(table.getEntry("xPos").getStringArray(sdef)[0]);
-    double distance = table.getEntry("distance").getNumberArray(def)[0].doubleValue();
-    double robotAngle = DriveTrain.getInstance().getGyroAngle();
-    
-    double theta = Math.toRadians(VisionConstants.CAM_ANGLE) - (Math.toRadians(VisionConstants.CAM_HORIZONTAL_FOV) * (xCoord - 0.5*VisionConstants.STREAM_WIDTH_PIXELS)/(0.5*VisionConstants.STREAM_WIDTH_PIXELS));
 
-    double frontObjDist = Math.sqrt(VisionConstants.CAM_OFFSET*VisionConstants.CAM_OFFSET + distance*distance - 2*VisionConstants.CAM_OFFSET*distance*Math.cos(theta));
-    double frontObjAng = Math.asin(distance*Math.sin(theta)/frontObjDist) - Math.PI/2 + Math.toRadians(robotAngle);
+//these two are constants that we will set in Constants.java
+    double camAngle = VisionConstants.CAM_ANGLE;
+    double[][] camOffsetMatrix = VisionConstants.CAM_OFFSET; //horizontal, vertical
+
+    double[][] rotMatrix = {{Math.cos(camAngle), -Math.sin(camAngle)}, {Math.sin(camAngle), Math.cos(camAngle)}};
+    double[][] cMatrix = {{u1},{u2}};
+    double[][] rMatrix = Matrix.add(camOffsetMatrix, Matrix.multiply(rotMatrix, cMatrix));
+    double[] pose = {rMatrix[1][0], rMatrix[0][0]}; //flipped around because x is vertical and y is horizontal
+    return pose;
     
-    double objX = frontObjDist*Math.cos(frontObjAng);
-    double objY = frontObjDist*Math.sin(frontObjAng);
-    SmartDashboard.putNumber("objrelativeX", objX);
-    
-    double rX = VisionConstants.ROBOT_RADIUS*Math.cos(Math.toRadians(robotAngle));
-    double rY = VisionConstants.ROBOT_RADIUS*Math.sin(Math.toRadians(-robotAngle));
-    
-    //this should be the final positions of the object on the field
-    double xPos = DriveTrain.getInstance().m_poseX + objX + rX;
-    double yPos = DriveTrain.getInstance().m_poseY + objY + rY;
-    double[] pos = {xPos, yPos};
-    return pos;
+  }
+
+  public double[] getFieldObjectPose() {
+    double[] rPose = getRelativeObjectPose();
+    double[][] matrix = {{rPose[0]}, {rPose[0]}};
+    double angle = -DriveTrain.getInstance().getGyroAngle();
+    double[][] rotMatrix = {{Math.cos(angle), -Math.sin(angle)}, {Math.sin(angle), Math.cos(angle)}};
+    double[][] offsetMatrix = {{DriveTrain.getInstance().m_poseX}, {DriveTrain.getInstance().m_poseY}};
+    double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
+    double[] pose = {rMatrix[0][0], rMatrix[1][0]};
+    return pose;
   }
 
   public PathPlannerTrajectory generatePathToObj(PathConstraints max) {
-    double[] pos = getObjPosition();
+    double[] pos = getRelativeObjectPose();
     double xPos = pos[0];
     double yPos = pos[1];
     return PathPlanner.generatePath(
@@ -76,11 +77,11 @@ public class Vision extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     Number[] def = {-1,-1};
-    String[] sdef = {"null"};
     SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
-    SmartDashboard.putString("offset", table.getEntry("offset").getStringArray(sdef)[0]);
-    SmartDashboard.putString("objXPX", table.getEntry("xPos").getStringArray(sdef)[0]);
-    SmartDashboard.putNumber("objXpos", getObjPosition()[0]);
-    SmartDashboard.putNumber("objYpos", getObjPosition()[1]);
+    SmartDashboard.putNumber("offset", table.getEntry("offset").getNumberArray(def)[0].doubleValue());
+    SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
+    SmartDashboard.putNumber("objRelativeYpos", getRelativeObjectPose()[1]);
+    SmartDashboard.putNumber("objFieldXpos", getRelativeObjectPose()[0]);
+    SmartDashboard.putNumber("objFieldYpos", getRelativeObjectPose()[1]);
   }
 }
