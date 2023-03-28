@@ -77,8 +77,8 @@ public class Vision extends SubsystemBase {
     // This method will be called once per scheduler run
     Number[] def = {-1,-1};
     String[] sdef = {"null"};
-    SmartDashboard.putNumber("vision", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
-    SmartDashboard.putString("obj", table.getEntry("obj").getStringArray(sdef)[0]);
+    SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
+    SmartDashboard.putString("offset", table.getEntry("offset").getStringArray(sdef)[0]);
     SmartDashboard.putString("objXPX", table.getEntry("xPos").getStringArray(sdef)[0]);
     SmartDashboard.putNumber("objXpos", getObjPosition()[0]);
     SmartDashboard.putNumber("objYpos", getObjPosition()[1]);
