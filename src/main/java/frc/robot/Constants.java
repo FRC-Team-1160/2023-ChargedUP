@@ -78,14 +78,14 @@ public final class Constants {
   public static final class ArmConstants {
     public static final int ARM_GEAR_RATIO = 84;
     public static final int CLAW_GEAR_RATIO = 30;
-    public static final double ARM_POSITION_CONVERSION = 0.258;
+    public static final double ARM_POSITION_CONVERSION = 0.2578;
     public static final double WRIST_POSITION_CONVERSION = 0.265;
-    public static final double WRIST_BUMPER_SAFETY = -16;
-    public static final double ARM_BUMPER_SAFETY = 12;
-    public static final double WRIST_BUMPER_SAFETY_SETPOINT = -10;
+    public static final double WRIST_BUMPER_SAFETY = -15;//-16;
+    public static final double ARM_BUMPER_SAFETY = 11;//12;
+    public static final double WRIST_BUMPER_SAFETY_SETPOINT = -10;//-10;
     public static final double KEPT_CLAW_ANGLE_WRIST_SAFETY = -5;
     public static final double ARM_LIMIT = 110;
-    public static final double CLAW_LIMIT = -180;
+    public static final double CLAW_LIMIT = -190;
   }
 
   public static final class VisionConstants {
@@ -102,7 +102,7 @@ public final class Constants {
     // ok so idk what focal length is but its supposed to be in pixels
     public static final Transform3d ROBOT_TO_CAM =
     new Transform3d(
-            new Translation3d(0.0, 0.0, 0.5),
+            new Translation3d(0.0635, -0.2, 0.8),
             new Rotation3d(
                     0, 0,
                     0));  // Cam mounted facing forward, at center, half a meter up

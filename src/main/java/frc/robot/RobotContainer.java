@@ -206,7 +206,7 @@ public class RobotContainer {
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       //backCoButton.onTrue(new TogglePipeline());
-      //headerLButton.toggleOnTrue(autoBalance());
+      headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
 
@@ -238,7 +238,7 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, -4, 2, true).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, -4, 3, true).withTimeout(2);
     }
 
     public Command pickup() {
@@ -247,14 +247,14 @@ public class RobotContainer {
 
     public Command highCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 92, 0, false).withTimeout(0.8),
+        new ArmPID(m_arm, m_claw, 92, 0, false).withTimeout(0.3),
         new ArmPID(m_arm, m_claw, 92, -121, false).withTimeout(1)
       );
     }
 
     public Command midCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(0.8),
+        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(0.3),
         new ArmPID(m_arm, m_claw, 69, -90, false).withTimeout(1)
       );
     }

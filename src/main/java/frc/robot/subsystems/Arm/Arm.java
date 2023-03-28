@@ -29,15 +29,17 @@ public class Arm extends SubsystemBase {
   private final Timer timer = new Timer();
   private CANSparkMax m_armDown;
   public boolean lastFiveLimit;
-  public AnalogPotentiometer pot = new AnalogPotentiometer(0, 180, 30);
+  public AnalogPotentiometer pot;
 
   public DigitalInput m_armSwitch;
   
   private PIDController m_armController;
   private RelativeEncoder m_upEncoder;
+  public double angle1;
   public double angle;
   public double encoderOffset;
-  private double kP, kI;
+  public double potOffset;
+  private double kP, kI, kD;
 
   private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
 
@@ -51,13 +53,17 @@ public class Arm extends SubsystemBase {
     m_armUp = new CANSparkMax(PortConstants.ARM_UP, MotorType.kBrushless);
     m_armDown = new CANSparkMax(PortConstants.ARM_DOWN, MotorType.kBrushless);
     kP = 0.2;
-    kI = 0.009;
+    kI = 0.0;
+    kD = 0.001;
     
-    m_armController = new PIDController(kP, kI, 0);
+    m_armController = new PIDController(kP, kI, kD);
     m_upEncoder = m_armUp.getEncoder(Type.kHallSensor, 42);
     m_armSwitch = new DigitalInput(PortConstants.ARM_SWITCH);
+    pot = new AnalogPotentiometer(0);
     angle = 0;
+    angle1 = 0;
     encoderOffset = 0;
+    potOffset = -1077;
     this.timer.reset();
     this.timer.start();
     lastFiveLimit = false;
@@ -65,6 +71,10 @@ public class Arm extends SubsystemBase {
 
   public double getEncoderPosition() {
     return m_upEncoder.getPosition()/ArmConstants.ARM_POSITION_CONVERSION;
+  }
+
+  public double getPotPosition() {
+    return pot.get()*-1330;
   }
 
   public void armControl(double input) {
@@ -89,7 +99,7 @@ public class Arm extends SubsystemBase {
   }
 
   public void armPID(double setpoint) {
-    double kV = 0.001;
+    double kV = 0.01;
     double kA = 0;
     double kFF = 0;
     double PIDoutput = m_armController.calculate(angle, setpoint);
@@ -98,12 +108,12 @@ public class Arm extends SubsystemBase {
       setpoint = 110;
     }
     
-    double max = 2;
-    if (angle < 12) {
+    double max = 4;
+    if (angle < 15) {
       max = 1;
     }
     if (setpoint > angle) {
-      max = 3.5;
+      max = 6;
     }
     if (output > max) {
       output = max;
@@ -128,9 +138,17 @@ public class Arm extends SubsystemBase {
     //update armPosition
     if (!m_armSwitch.get()) {
       encoderOffset = getEncoderPosition();
+      //potOffset = getPotPosition();
       resetTimer();
     }
-    angle = getEncoderPosition() - encoderOffset;
+    if (m_rightPanel.getRawButton(3)) {
+      angle = getEncoderPosition() - encoderOffset;
+      SmartDashboard.putString("encoder mode", "encoder");
+    } else {
+      angle = getPotPosition() - potOffset;
+      SmartDashboard.putString("encoder mode", "potent");
+    }
+
     if (this.timer.get() < 3) {
       lastFiveLimit = true;
     } else {
@@ -140,7 +158,6 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putBoolean("lastFiveArmLimit", lastFiveLimit);
     SmartDashboard.putNumber("arm angle", angle);
     SmartDashboard.putNumber("arm encoder reading", getEncoderPosition());
-    SmartDashboard.putNumber("arm potentiometer reading", pot.get());
     SmartDashboard.putBoolean("arm switch", !m_armSwitch.get());
   }
 }

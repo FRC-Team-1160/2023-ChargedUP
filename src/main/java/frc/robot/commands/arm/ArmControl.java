@@ -56,10 +56,13 @@ public class ArmControl extends CommandBase {
 
       if (m_arm.angle < ArmConstants.ARM_BUMPER_SAFETY+1 && m_claw.wristAngle < -22) {
         m_arm.armControl(0);
+        SmartDashboard.putBoolean("ARM PID ACTIVE", false);
       } else {
         if (Math.abs(m_leftPanel.getRawAxis(0)) < 0.1) {
+          SmartDashboard.putBoolean("ARM PID ACTIVE", true);
           m_arm.armPID(currentAngle);
         } else {
+          SmartDashboard.putBoolean("ARM PID ACTIVE", false);
           m_arm.armControl(m_armInput*m_leftPanel.getRawAxis(0)*-1);
           currentAngle = m_arm.angle;
         }

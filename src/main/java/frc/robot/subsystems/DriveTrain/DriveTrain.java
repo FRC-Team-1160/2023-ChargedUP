@@ -147,6 +147,8 @@ public class DriveTrain extends SubsystemBase{
     m_poseY = 0;
     prevPoseX = 0;
     prevPoseY = 0;
+    prevPose2D = new Pose2d();
+    m_pose2D = new Pose2d();
     time = 0;
     m_pose = new Pose(m_poseX, m_poseY, getGyroAngle(), 0);
     poseLog = new ArrayList<Pose>();
@@ -203,8 +205,7 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public void resetPose() {
-    m_poseX = 0;
-    m_poseY = 0;
+    updateOdometry(true);
   }
 
   public void resetOdometry(double poseX, double poseY) {
@@ -251,15 +252,16 @@ public class DriveTrain extends SubsystemBase{
     return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
   }
   /** Updates the field-relative position. */
-  public void updateOdometry() {
+  public void updateOdometry(boolean ignoreAccuracy) {
 
     Optional<EstimatedRobotPose> result =
-            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(getGyroAngle()))));
+            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
 
     if (result.isPresent()) {
         EstimatedRobotPose camPose = result.get();
         m_pose2D = camPose.estimatedPose.toPose2d();
-        if (checkAprilAccuracy()) {
+        SmartDashboard.putBoolean("april accuracy", checkAprilAccuracy());
+        if (ignoreAccuracy) {
           m_poseX = m_pose2D.getX();
           m_poseY = m_pose2D.getY();
         }
@@ -319,8 +321,9 @@ public class DriveTrain extends SubsystemBase{
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
     
 
-    updateOdometry();
+    updateOdometry(false);
     //
+    Logger.getInstance().recordOutput("Odometry/Pose", new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
     Logger.getInstance().recordOutput("Odometry/RotationDegrees",
           getGyroAngle());
       Logger.getInstance().recordOutput("Odometry/XMeters", m_poseX);

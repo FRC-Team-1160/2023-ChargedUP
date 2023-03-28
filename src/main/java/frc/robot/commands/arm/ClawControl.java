@@ -30,7 +30,7 @@ public class ClawControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!m_rightPanel.getRawButton(2)) {
+    if (m_rightPanel.getRawButton(2)) {
       m_piston.setPiston(Value.kReverse);
     } else {
       m_piston.setPiston(Value.kForward);
