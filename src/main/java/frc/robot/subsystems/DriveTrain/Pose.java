@@ -4,23 +4,20 @@ public class Pose {
     public double x;
     public double y;
     public double angle;
-    public double time;
 
-    public Pose(double x, double y, double angle, double time) {
+    public Pose(double x, double y, double angle) {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.time = time;
     }
 
-    public void updatePose(double x, double y, double angle, double time) {
+    public void updatePose(double x, double y, double angle) {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.time = time;
     }
 
-    public static Pose getPoseBetweenPoses(Pose pose1, Pose pose2, double pos) {
+    /*public static Pose getPoseBetweenPoses(Pose pose1, Pose pose2, double pos) {
         double x1 = pose1.x;
         double x2 = pose2.x;
         double y1 = pose1.y;
@@ -42,5 +39,5 @@ public class Pose {
             a3 = a1 - angleDiff*pos;
         }
         return new Pose(x3, y3, a3, t3);
-    }
+    }*/
 }

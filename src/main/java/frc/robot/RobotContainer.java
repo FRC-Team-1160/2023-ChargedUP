@@ -265,14 +265,14 @@ public class RobotContainer {
 
     public Command highCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(0.8),
+        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(0.3),
         new ArmPID(m_arm, m_claw, 83, -125, false).withTimeout(1)
       );
     }
 
     public Command midCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(0.8),
+        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(0.3),
         new ArmPID(m_arm, m_claw, 75, -120, false).withTimeout(1)
       );
     }

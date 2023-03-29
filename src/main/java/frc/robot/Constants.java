@@ -94,6 +94,7 @@ public final class Constants {
     public static final double STREAM_HEIGHT_PIXELS = 640;
     public static final double[][] CAM_OFFSET = {{-0.3175},{-0.273}}; //
     public static final double ROBOT_RADIUS = 0.5029; //
+    public static final double INTAKE_OFFSET = 0.6;
     
   }
 

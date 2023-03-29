@@ -54,8 +54,8 @@ public class SwerveDrive extends CommandBase {
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
         //field oriented
     if (mag > 0.02) {
-      str = (m_mainStick.getRawAxis(0)*(5/9)) + (Math.pow(m_mainStick.getRawAxis(0), 3)*(4/9));
-      fwd = -((m_mainStick.getRawAxis(1)*(5/9)) + (Math.pow(m_mainStick.getRawAxis(1), 3)*(4/9)));
+      str = m_mainStick.getRawAxis(0);//(m_mainStick.getRawAxis(0)*(5/9)) + (Math.pow(m_mainStick.getRawAxis(0), 3)*(4/9));
+      fwd = -m_mainStick.getRawAxis(1);//-((m_mainStick.getRawAxis(1)*(5/9)) + (Math.pow(m_mainStick.getRawAxis(1), 3)*(4/9)));
       double temp = fwd * Math.cos(gyroAngle) + str*Math.sin(gyroAngle);
       str = -1*fwd * Math.sin(gyroAngle) + str*Math.cos(gyroAngle);
       fwd = temp;
