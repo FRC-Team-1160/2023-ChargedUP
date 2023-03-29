@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.DriveTrain.Pose;
 
 public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
@@ -48,7 +49,7 @@ public class Vision extends SubsystemBase {
     double[][] rotMatrix = {{Math.cos(camAngle), -Math.sin(camAngle)}, {Math.sin(camAngle), Math.cos(camAngle)}};
     double[][] cMatrix = {{u1},{u2}};
     double[][] rMatrix = Matrix.add(camOffsetMatrix, Matrix.multiply(rotMatrix, cMatrix));
-    pose[0] = rMatrix[1][0];
+    pose[0] = rMatrix[0][1];
     pose[1] = rMatrix[0][0]; //flipped around because x is vertical and y is horizontal
     return pose;
     
@@ -60,13 +61,21 @@ public class Vision extends SubsystemBase {
     if (rPose[0] == -1 && rPose[1] == -1) {
       return pose;
     }
-    double[][] matrix = {{rPose[0]}, {rPose[0]}};
+    double[][] matrix = {{rPose[0]}, {rPose[1]}};
     double angle = -DriveTrain.getInstance().getGyroAngle();
     double[][] rotMatrix = {{Math.cos(angle), -Math.sin(angle)}, {Math.sin(angle), Math.cos(angle)}};
-    double[][] offsetMatrix = {{DriveTrain.getInstance().m_poseX}, {DriveTrain.getInstance().m_poseY}};
+    double execTime = table.getEntry("execTime").getNumber(-1).doubleValue();
+    if (execTime == -1) {
+      return null;
+    }
+    DriveTrain m_drive = DriveTrain.getInstance();
+    Pose pastPose = m_drive.getPastPose(execTime);
+    double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
+    double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
+    double[][] offsetMatrix = {{driveX}, {driveY}};
     double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
     pose[0] = rMatrix[0][0];
-    pose[1] = rMatrix[1][0];
+    pose[1] = rMatrix[0][1];
     
     return pose;
   }
@@ -76,8 +85,13 @@ public class Vision extends SubsystemBase {
     DriveTrain m_drive = DriveTrain.getInstance();
     double xPos = pos[0];
     double yPos = pos[1];
-    double driveX = 0; //THESE WILL BE FROM POSE HISTORY
-    double driveY = 0; //THESE WILL BE FROM POSE HISTORY
+    double execTime = table.getEntry("execTime").getNumber(-1).doubleValue();
+    if (execTime == -1) {
+      return null;
+    }
+    Pose pastPose = m_drive.getPastPose(execTime);
+    double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
+    double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
     double xDiff = xPos - driveX;
     double yDiff = yPos - driveY;
     double angle = Math.atan((yDiff)/(xDiff));

@@ -8,7 +8,7 @@
 package frc.robot.subsystems.DriveTrain;
 
 import java.util.ArrayList;
-
+import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -98,7 +98,7 @@ public class DriveTrain extends SubsystemBase{
   public Pose m_pose;
   public Field2d m_fieldSim = new Field2d();
 
-  public TreeMap<Pose, Double> poseLog;
+  public TreeMap<Double, Pose> poseLog;
 
   public boolean limelightEngage;
   private PIDController limelightEngageController;
@@ -151,7 +151,7 @@ public class DriveTrain extends SubsystemBase{
     prevPose2D = new Pose2d();
     m_pose2D = new Pose2d();
     m_pose = new Pose(m_poseX, m_poseY, getGyroAngle());
-    poseLog = new TreeMap<Pose, Double>();
+    poseLog = new TreeMap<Double, Pose>();
     m_controller = new SwerveDriveController(m_frontLeftWheel, m_frontRightWheel, m_backLeftWheel, m_backRightWheel, m_gyro);
   
     limelightEngage = false;
@@ -239,18 +239,21 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public void logPose() {
-    poseLog.put(new Pose(m_pose.x, m_pose.y, getGyroAngle()), Timer.getFPGATimestamp());
+    poseLog.put(Timer.getFPGATimestamp(), new Pose(m_pose.x, m_pose.y, getGyroAngle()));
   }
 
   //gets the pose at sec seconds ago
-  /*public Pose getPastPose(double sec) {
-    int timestampBefore = time-(int)Math.ceil(sec/0.02);
-    int timestampAfter = time-(int)Math.floor(sec/0.02);
-    double pos = 1+(((time*0.02-sec)-(double)timestampAfter*0.02)/(0.02)); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
-    Pose poseBefore = poseLog.get(timestampBefore);
-    Pose poseAfter = poseLog.get(timestampAfter);
+  public Pose getPastPose(double sec) {
+    double pastTime = Timer.getFPGATimestamp()-sec;
+    Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(pastTime);
+    Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(pastTime);
+    double timeBefore = entryBefore.getKey();
+    double timeAfter = entryAfter.getKey();
+    Pose poseBefore = entryBefore.getValue();
+    Pose poseAfter = entryAfter.getValue();
+    double pos = 1+((pastTime-timeAfter)/(timeAfter-timeBefore)); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
     return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
-  }*/
+  }
   /** Updates the field-relative position. */
   public void updateOdometry(boolean ignoreAccuracy) {
 
