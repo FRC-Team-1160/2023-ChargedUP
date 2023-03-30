@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems.DriveTrain;
 
+import java.lang.StackWalker.Option;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
@@ -243,21 +244,21 @@ public class DriveTrain extends SubsystemBase{
   }
 
   //gets the pose at sec seconds ago
-  public Pose getPastPose(double sec) {
+  public Optional<Pose> getPastPose(double sec) {
     double pastTime = Timer.getFPGATimestamp()-sec;
     
     Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(Double.valueOf(pastTime));
     Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(Double.valueOf(pastTime));
     
     if (entryBefore == null || entryAfter == null) {
-      return null;
+      return Optional.of(null);
     }
     double timeBefore = entryBefore.getKey();
     double timeAfter = entryAfter.getKey();
     Pose poseBefore = entryBefore.getValue();
     Pose poseAfter = entryAfter.getValue();
-    double pos = 1+((pastTime-timeAfter)/(timeAfter-timeBefore)); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
-    return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
+    double pos = (pastTime-timeBefore)/(timeAfter-timeBefore); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
+    return Optional.of(Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos));
   }
   /** Updates the field-relative position. */
   public void updateOdometry(boolean ignoreAccuracy) {

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Vision;
 
+import java.util.Optional;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -69,38 +71,37 @@ public class Vision extends SubsystemBase {
       return pose;
     }
     DriveTrain m_drive = DriveTrain.getInstance();
-    Pose pastPose = m_drive.getPastPose(execTime/1000);
-    if (pastPose == null) {
-      return pose;
-    }
-    double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
-    double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
-    double[][] offsetMatrix = {{driveX}, {driveY}};
-    double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
-    pose[0] = rMatrix[0][0];
-    pose[1] = rMatrix[1][0];
+    Optional<Pose> pastPose = m_drive.getPastPose(execTime/1000);
+    if (pastPose.isPresent()) {
     
+      double driveX = pastPose.get().x; //THESE WILL BE FROM POSE HISTORY
+      double driveY = pastPose.get().y; //THESE WILL BE FROM POSE HISTORY
+      double[][] offsetMatrix = {{driveX}, {driveY}};
+      double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
+      pose[0] = rMatrix[0][0];
+      pose[1] = rMatrix[1][0];
+    }
     return pose;
   }
 
   public PathPlannerTrajectory generatePathToObj(PathConstraints max) {
     double[] pos = getFieldObjectPose();
-    DriveTrain m_drive = DriveTrain.getInstance();
     double xPos = pos[0];
     double yPos = pos[1];
     double execTime = table.getEntry("execTime").getNumber(-1).doubleValue();
     if (execTime == -1) {
       return null;
     }
-    Pose pastPose = m_drive.getPastPose(execTime/1000);
-    if (pastPose == null) {
+    DriveTrain m_drive = DriveTrain.getInstance();
+    Optional<Pose> pastPose = m_drive.getPastPose(execTime/1000);
+    if (!pastPose.isPresent()) {
       SmartDashboard.putBoolean("pastPoseNull", true);
       return null;
     } else {
       SmartDashboard.putBoolean("pastPoseNull", false);
-    }
-    double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
-    double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
+    
+    double driveX = pastPose.get().x; //THESE WILL BE FROM POSE HISTORY
+    double driveY = pastPose.get().y; //THESE WILL BE FROM POSE HISTORY
     double xDiff = xPos - driveX;
     double yDiff = yPos - driveY;
     double angle = Math.atan((yDiff)/(xDiff));
@@ -114,6 +115,7 @@ public class Vision extends SubsystemBase {
       turnToObject,
       turnToObject
       );
+    }
   }
 
   @Override
@@ -123,7 +125,7 @@ public class Vision extends SubsystemBase {
     SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
     SmartDashboard.putNumber("offset", table.getEntry("offset").getNumberArray(def)[0].doubleValue());
     SmartDashboard.putNumber("execTime", table.getEntry("execTime").getNumber(-1).doubleValue());
-    SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
+    /*SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
     SmartDashboard.putNumber("objRelativeYpos", getRelativeObjectPose()[1]);
     SmartDashboard.putNumber("objFieldXpos", getFieldObjectPose()[0]);
     SmartDashboard.putNumber("objFieldYpos", getFieldObjectPose()[1]);
@@ -131,7 +133,7 @@ public class Vision extends SubsystemBase {
       SmartDashboard.putNumber("past pose x", DriveTrain.getInstance().getPastPose(table.getEntry("execTime").getNumber(-1).doubleValue()/1000).x);
     } else {
       SmartDashboard.putNumber("past pose x", -1);
-    }
+    }*/
     
   }
 }
