@@ -49,7 +49,7 @@ public class Vision extends SubsystemBase {
     double[][] rotMatrix = {{Math.cos(camAngle), -Math.sin(camAngle)}, {Math.sin(camAngle), Math.cos(camAngle)}};
     double[][] cMatrix = {{u1},{u2}};
     double[][] rMatrix = Matrix.add(camOffsetMatrix, Matrix.multiply(rotMatrix, cMatrix));
-    pose[0] = rMatrix[0][1];
+    pose[0] = rMatrix[1][0];
     pose[1] = rMatrix[0][0]; //flipped around because x is vertical and y is horizontal
     return pose;
     
@@ -62,20 +62,23 @@ public class Vision extends SubsystemBase {
       return pose;
     }
     double[][] matrix = {{rPose[0]}, {rPose[1]}};
-    double angle = -DriveTrain.getInstance().getGyroAngle();
+    double angle = DriveTrain.getInstance().getGyroAngle();
     double[][] rotMatrix = {{Math.cos(angle), -Math.sin(angle)}, {Math.sin(angle), Math.cos(angle)}};
     double execTime = table.getEntry("execTime").getNumber(-1).doubleValue();
     if (execTime == -1) {
-      return null;
+      return pose;
     }
     DriveTrain m_drive = DriveTrain.getInstance();
-    Pose pastPose = m_drive.getPastPose(execTime);
+    Pose pastPose = m_drive.getPastPose(execTime/1000);
+    if (pastPose == null) {
+      return pose;
+    }
     double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
     double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
     double[][] offsetMatrix = {{driveX}, {driveY}};
     double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
     pose[0] = rMatrix[0][0];
-    pose[1] = rMatrix[0][1];
+    pose[1] = rMatrix[1][0];
     
     return pose;
   }
@@ -89,7 +92,13 @@ public class Vision extends SubsystemBase {
     if (execTime == -1) {
       return null;
     }
-    Pose pastPose = m_drive.getPastPose(execTime);
+    Pose pastPose = m_drive.getPastPose(execTime/1000);
+    if (pastPose == null) {
+      SmartDashboard.putBoolean("pastPoseNull", true);
+      return null;
+    } else {
+      SmartDashboard.putBoolean("pastPoseNull", false);
+    }
     double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
     double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
     double xDiff = xPos - driveX;
@@ -103,7 +112,7 @@ public class Vision extends SubsystemBase {
     return PathPlanner.generatePath(
       max,
       turnToObject,
-      goToObject
+      turnToObject
       );
   }
 
@@ -113,9 +122,16 @@ public class Vision extends SubsystemBase {
     Number[] def = {-1,-1};
     SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
     SmartDashboard.putNumber("offset", table.getEntry("offset").getNumberArray(def)[0].doubleValue());
+    SmartDashboard.putNumber("execTime", table.getEntry("execTime").getNumber(-1).doubleValue());
     SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
     SmartDashboard.putNumber("objRelativeYpos", getRelativeObjectPose()[1]);
     SmartDashboard.putNumber("objFieldXpos", getFieldObjectPose()[0]);
     SmartDashboard.putNumber("objFieldYpos", getFieldObjectPose()[1]);
+    if (DriveTrain.getInstance().getPastPose(table.getEntry("execTime").getNumber(-1).doubleValue()/1000) != null) {
+      SmartDashboard.putNumber("past pose x", DriveTrain.getInstance().getPastPose(table.getEntry("execTime").getNumber(-1).doubleValue()/1000).x);
+    } else {
+      SmartDashboard.putNumber("past pose x", -1);
+    }
+    
   }
 }

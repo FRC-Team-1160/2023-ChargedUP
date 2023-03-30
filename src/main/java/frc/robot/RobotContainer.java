@@ -206,7 +206,13 @@ public class RobotContainer {
       aTrigger.toggleOnTrue(new TestWheelSpeed(m_driveTrain));
 
       //backCoButton.onTrue(new TogglePipeline());
-      headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
+      //single substation
+      //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
+      //test function
+      if (m_vision.generatePathToObj(new PathConstraints(1, 1)) != null) {
+        headerLButton.onTrue(followPathWithEvents(m_vision.generatePathToObj(new PathConstraints(1, 1)), new PathConstraints(1, 1)));
+      }
+      
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
 
@@ -378,6 +384,9 @@ public class RobotContainer {
     }
 
     protected CommandBase followPathWithEvents(PathPlannerTrajectory trajectory, PathConstraints maxSpd) {
+      if (trajectory == null) {
+        return null;
+      }
       Command path = new followPath(
         trajectory, 
         m_driveTrain.m_poseX,

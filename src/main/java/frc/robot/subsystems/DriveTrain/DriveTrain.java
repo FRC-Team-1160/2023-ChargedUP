@@ -245,8 +245,13 @@ public class DriveTrain extends SubsystemBase{
   //gets the pose at sec seconds ago
   public Pose getPastPose(double sec) {
     double pastTime = Timer.getFPGATimestamp()-sec;
-    Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(pastTime);
-    Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(pastTime);
+    
+    Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(Double.valueOf(pastTime));
+    Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(Double.valueOf(pastTime));
+    
+    if (entryBefore == null || entryAfter == null) {
+      return null;
+    }
     double timeBefore = entryBefore.getKey();
     double timeAfter = entryAfter.getKey();
     Pose poseBefore = entryBefore.getValue();
@@ -317,6 +322,7 @@ public class DriveTrain extends SubsystemBase{
     if (DriverStation.isTeleopEnabled()) {
       logPose();
     }
+    SmartDashboard.putBoolean("treemap empty?", poseLog.isEmpty());
     if (!Limelight.getTv() || (Arm.getInstance().angle > 68 && Limelight.getPipeline().intValue() == 0) || (Arm.getInstance().angle > 55 && Limelight.getPipeline().intValue() == 1)) {
       limelightEngage = false;
     }
