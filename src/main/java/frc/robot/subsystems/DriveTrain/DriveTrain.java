@@ -49,6 +49,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.Limelight;
+import frc.robot.subsystems.Vision.Vision;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -106,6 +107,7 @@ public class DriveTrain extends SubsystemBase{
   private double gyroOffset;
 
   public AprilTag at;
+  private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
 
   double wkrP, wkrI, wkrD, wksP, wksI, wksD, wklP, wklI, wklD;
 //
@@ -244,21 +246,21 @@ public class DriveTrain extends SubsystemBase{
   }
 
   //gets the pose at sec seconds ago
-  public Optional<Pose> getPastPose(double sec) {
+  public Pose getPastPose(double sec) {
     double pastTime = Timer.getFPGATimestamp()-sec;
     
     Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(Double.valueOf(pastTime));
     Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(Double.valueOf(pastTime));
     
     if (entryBefore == null || entryAfter == null) {
-      return Optional.of(null);
+      return null;
     }
     double timeBefore = entryBefore.getKey();
     double timeAfter = entryAfter.getKey();
     Pose poseBefore = entryBefore.getValue();
     Pose poseAfter = entryAfter.getValue();
     double pos = (pastTime-timeBefore)/(timeAfter-timeBefore); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
-    return Optional.of(Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos));
+    return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
   }
   /** Updates the field-relative position. */
   public void updateOdometry(boolean ignoreAccuracy) {

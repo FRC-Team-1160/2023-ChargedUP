@@ -209,8 +209,11 @@ public class RobotContainer {
       //single substation
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
-      if (m_vision.generatePathToObj(new PathConstraints(1, 1)) != null) {
-        headerLButton.onTrue(followPathWithEvents(m_vision.generatePathToObj(new PathConstraints(1, 1)), new PathConstraints(1, 1)));
+      if (m_vision.traj != null) {
+        SmartDashboard.putBoolean("pastposeNull", false);
+        headerLButton.onTrue(followPathWithEvents(m_vision.traj, new PathConstraints(1, 1)));
+      } else {
+        SmartDashboard.putBoolean("pastposeNull", true);
       }
       
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
@@ -384,9 +387,11 @@ public class RobotContainer {
     }
 
     protected CommandBase followPathWithEvents(PathPlannerTrajectory trajectory, PathConstraints maxSpd) {
+      SmartDashboard.putBoolean("pathevents running", true);
       if (trajectory == null) {
         return null;
       }
+      
       Command path = new followPath(
         trajectory, 
         m_driveTrain.m_poseX,
