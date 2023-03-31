@@ -96,9 +96,10 @@ public class Vision extends SubsystemBase {
     DriveTrain m_drive = DriveTrain.getInstance();
     Pose pastPose = m_drive.getPastPose(execTime/1000);
     if (pastPose == null) {
+      SmartDashboard.putBoolean("generatePath", false);
       return null;
     } else {
-    
+      SmartDashboard.putBoolean("generatePath", true);
     double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
     double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
     double xDiff = xPos - driveX;
@@ -112,8 +113,9 @@ public class Vision extends SubsystemBase {
     PathPoint goToObject = new PathPoint(new Translation2d(driveX+fX, driveY+fY), Rotation2d.fromRadians(angle), Rotation2d.fromRadians(angle));
     return PathPlanner.generatePath(
       max,
+      false,
       turnToObject,
-      turnToObject
+      goToObject
       );
     }
   }

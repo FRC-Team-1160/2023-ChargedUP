@@ -209,12 +209,8 @@ public class RobotContainer {
       //single substation
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
-      if (m_vision.traj != null) {
-        SmartDashboard.putBoolean("pastposeNull", false);
-        headerLButton.onTrue(followPathWithEvents(m_vision.traj, new PathConstraints(1, 1)));
-      } else {
-        SmartDashboard.putBoolean("pastposeNull", true);
-      }
+      headerLButton.onTrue(intakeObject());
+
       
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
@@ -306,6 +302,16 @@ public class RobotContainer {
         new ArmControl(m_arm, m_claw, 0, 0).withTimeout(0.1),
         new IntakeControl(m_intake, 0, false).withTimeout(0.1)
       );
+    }
+
+    public Command intakeObject() {
+      if (m_vision.traj == null) {
+        SmartDashboard.putBoolean("pastposeNull", true);
+        return stow();
+      } else {
+        SmartDashboard.putBoolean("pastposeNull", false);
+        return followPathWithEvents(m_vision.traj, new PathConstraints(1, 1));
+      }
     }
 
 
