@@ -43,6 +43,12 @@ public class followPath extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if (trajectory == null) {
+      SmartDashboard.putBoolean("followPath", false);
+    } else {
+      SmartDashboard.putBoolean("followPath", true);
+    }
+
     if (mirrorIfRed) {
       transformedTrajectory =
           PathPlannerTrajectory.transformTrajectoryForAlliance(
@@ -91,9 +97,8 @@ public class followPath extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     this.timer.stop();
-    if (interrupted) {
-      m_drive.m_controller.setSwerveDrive(false, 0,0,0,m_drive.getGyroAngle());
-    }
+    //m_drive.m_controller.setSwerveDrive(false, 0,0,0,m_drive.getGyroAngle());
+    
   }
 
   // Returns true when the command should end.

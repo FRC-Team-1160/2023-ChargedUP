@@ -100,6 +100,7 @@ public class SwerveDriveController {
 
     //chooses either turning in place or turning while driving
     public void setSwerveDrive(boolean isJoystick, double fwd, double str, double rot, double gyroAngle) {
+        SmartDashboard.putNumber("swervedrivefwd", fwd);
         double l = frc.robot.Constants.SwerveConstants.l;
         double r = frc.robot.Constants.SwerveConstants.r;
         double w = frc.robot.Constants.SwerveConstants.w;

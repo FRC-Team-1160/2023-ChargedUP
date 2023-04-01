@@ -51,6 +51,9 @@ public class SwerveDrive extends CommandBase {
     }
 
     double rot = m_mainStick.getRawAxis(4);
+    SmartDashboard.putNumber("joystickX", joystickX);
+    SmartDashboard.putNumber("joystickY", joystickY);
+    SmartDashboard.putNumber("joystickROT", rot);
     double gyroAngle = Math.toRadians(m_drive.getGyroAngle());
         //field oriented
     if (mag > 0.02) {

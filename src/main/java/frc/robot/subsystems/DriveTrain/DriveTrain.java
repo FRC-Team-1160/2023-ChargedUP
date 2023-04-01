@@ -248,19 +248,32 @@ public class DriveTrain extends SubsystemBase{
   //gets the pose at sec seconds ago
   public Pose getPastPose(double sec) {
     double pastTime = Timer.getFPGATimestamp()-sec;
-    
+    SmartDashboard.putNumber("past Time", pastTime);
     Map.Entry<Double, Pose> entryBefore = poseLog.floorEntry(Double.valueOf(pastTime));
     Map.Entry<Double, Pose> entryAfter = poseLog.ceilingEntry(Double.valueOf(pastTime));
     
-    if (entryBefore == null || entryAfter == null) {
+    if (entryBefore == null && entryAfter == null) {
+      SmartDashboard.putNumber("entry null", 1);
       return null;
+    } else {
+      if (entryBefore == null) {
+        SmartDashboard.putNumber("entry null", 2);
+        return entryAfter.getValue();
+      } else if (entryAfter == null) {
+        SmartDashboard.putNumber("entry null", 3);
+        return entryBefore.getValue();
+      } else {
+        SmartDashboard.putNumber("entry null", 0);
+        double timeBefore = entryBefore.getKey();
+        double timeAfter = entryAfter.getKey();
+        Pose poseBefore = entryBefore.getValue();
+        Pose poseAfter = entryAfter.getValue();
+        double pos = (pastTime-timeBefore)/(timeAfter-timeBefore); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
+        SmartDashboard.putNumber("pos", pos);
+        return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
+      }
     }
-    double timeBefore = entryBefore.getKey();
-    double timeAfter = entryAfter.getKey();
-    Pose poseBefore = entryBefore.getValue();
-    Pose poseAfter = entryAfter.getValue();
-    double pos = (pastTime-timeBefore)/(timeAfter-timeBefore); //value from 0 to 1, where 0 if it is exacty at timestamp before and 1 if exactly at timestamp after
-    return Pose.getPoseBetweenPoses(poseBefore, poseAfter, pos);
+    
   }
   /** Updates the field-relative position. */
   public void updateOdometry(boolean ignoreAccuracy) {

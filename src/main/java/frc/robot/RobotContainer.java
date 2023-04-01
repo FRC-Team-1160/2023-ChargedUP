@@ -38,6 +38,7 @@ import frc.robot.commands.arm.ClawToggle;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
 import frc.robot.commands.swerve.AutoBalance;
+import frc.robot.commands.swerve.MoveTimed;
 import frc.robot.commands.swerve.MoveUntilBalance;
 import frc.robot.commands.swerve.Reset;
 import frc.robot.commands.swerve.SwerveDrive;
@@ -46,6 +47,7 @@ import frc.robot.commands.swerve.followPath;
 import frc.robot.commands.vision.LimelightEngage;
 import frc.robot.commands.vision.SetSpike;
 import frc.robot.commands.vision.TogglePipeline;
+import frc.robot.commands.vision.generateAndFollow;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
@@ -87,7 +89,7 @@ public class RobotContainer {
     private double xP,xI,xD,yP,yI,yD,rP,rI,rD;
 
     //Event map for auto
-    private HashMap<String, Command> eventMap = new HashMap<>();
+    public HashMap<String, Command> eventMap = new HashMap<>();
     //eventMap.put("intake", new Intake());
 
     SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -305,13 +307,26 @@ public class RobotContainer {
     }
 
     public Command intakeObject() {
-      if (m_vision.traj == null) {
-        SmartDashboard.putBoolean("pastposeNull", true);
-        return stow();
-      } else {
-        SmartDashboard.putBoolean("pastposeNull", false);
-        return followPathWithEvents(m_vision.traj, new PathConstraints(1, 1));
-      }
+      return new SequentialCommandGroup(
+        new generateAndFollow(
+          m_vision,
+          m_driveTrain.m_poseX,
+          m_driveTrain.m_poseY, // Pose supplier
+          new PIDController(xP, xI, xD),
+          new PIDController(yP, yI, yD),
+          new PIDController(rP, rI, rD),
+          new PathConstraints(1, 1),
+          false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+          m_driveTrain // Requires this drive subsystem
+        ),
+        pickup(),
+        new ParallelCommandGroup(
+          new MoveTimed(m_driveTrain, 0.3, 1.5),
+          intake(0.7 * 12, 1.6)
+        )
+        
+      );
+      
     }
 
 
