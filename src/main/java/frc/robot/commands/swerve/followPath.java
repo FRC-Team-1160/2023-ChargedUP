@@ -97,7 +97,7 @@ public class followPath extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     this.timer.stop();
-    //m_drive.m_controller.setSwerveDrive(false, 0,0,0,m_drive.getGyroAngle());
+    m_drive.m_controller.setSwerveDrive(false, 0,0,0,m_drive.getGyroAngle());
     
   }
 

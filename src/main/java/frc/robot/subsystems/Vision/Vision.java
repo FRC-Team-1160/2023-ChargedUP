@@ -133,7 +133,7 @@ public class Vision extends SubsystemBase {
     PathPoint goToObject = new PathPoint(new Translation2d(driveX+fX, driveY+fY), Rotation2d.fromRadians(angle), Rotation2d.fromRadians(angle));
     return PathPlanner.generatePath(
       max,
-      true,
+      false,
       turnToObject,
       goToObject
       );

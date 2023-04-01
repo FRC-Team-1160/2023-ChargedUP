@@ -17,7 +17,7 @@ public class MoveTimed extends CommandBase {
   private double time;
   private final Timer timer;
   /** Creates a new MoveUntilBalance. */
-  public MoveTimed(DriveTrain m_drive, double m_input, double time) {
+  public MoveTimed(DriveTrain m_drive, double m_input){//, double time) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     this.m_drive = m_drive;
@@ -29,25 +29,25 @@ public class MoveTimed extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    this.timer.reset();
-    this.timer.start();
+    //this.timer.reset();
+    //this.timer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.m_controller.setSwerveDrive(true, m_input, 0, 0, Math.toRadians(m_drive.getGyroAngle()));
+    m_drive.m_controller.setSwerveDrive(false, m_input, 0, 0, Math.toRadians(m_drive.getGyroAngle()));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    this.timer.stop();
+    //this.timer.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return this.timer.get() >= time;
+    return false;//this.timer.get() >= time;
   }
 }

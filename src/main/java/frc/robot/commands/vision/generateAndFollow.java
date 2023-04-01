@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.commands.swerve.DriveController;
@@ -25,14 +26,16 @@ public class generateAndFollow extends CommandBase {
   private double poseY;
   private boolean mirrorIfRed;
   DriveTrain m_drive;
+  Intake m_intake;
   private PIDController xController;
   private PIDController yController;
   private PIDController rController;
   private PathConstraints constraints;
-  public generateAndFollow(Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
+  public generateAndFollow(Intake m_intake, Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     addRequirements(m_vision);
+    addRequirements(m_intake);
     this.m_vision = m_vision;
     this.poseX = m_poseX;
     this.poseY = m_poseY;
@@ -42,6 +45,7 @@ public class generateAndFollow extends CommandBase {
     this.xController = xController;
     this.yController = yController;
     this.rController = rController;
+    this.m_intake = m_intake;
   }
 
   // Called when the command is initially scheduled.
@@ -63,6 +67,8 @@ public class generateAndFollow extends CommandBase {
   public void execute() {
     if (traj != null) {
       followPath.execute();
+      m_intake.intakeControl(-0.7*12);
+      
     }
     
   }

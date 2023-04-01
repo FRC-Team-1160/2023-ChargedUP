@@ -154,7 +154,7 @@ public class RobotContainer {
       m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
       m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.7 * 12, true));
       m_LED.setDefaultCommand(new SetSpike(m_LED));
-      m_piston.setDefaultCommand(new ClawControl(m_piston));
+      m_piston.setDefaultCommand(new ClawControl(m_piston, true));
     }
 
       
@@ -212,6 +212,7 @@ public class RobotContainer {
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
       headerLButton.onTrue(intakeObject());
+      //headerLButton.onTrue(new MoveTimed(m_driveTrain, 1.5).withTimeout(2));
 
       
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
@@ -245,11 +246,11 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, -4, 3, true).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, -4, 3, true).withTimeout(1.5);
     }
 
     public Command pickup() {
-      return new ArmPID(m_arm, m_claw, 17, -72, false).withTimeout(2);
+      return new ArmPID(m_arm, m_claw, 17, -72, false).withTimeout(1.5);
     }
 
     public Command highCone() {
@@ -308,24 +309,30 @@ public class RobotContainer {
 
     public Command intakeObject() {
       return new SequentialCommandGroup(
-        new generateAndFollow(
-          m_vision,
-          m_driveTrain.m_poseX,
-          m_driveTrain.m_poseY, // Pose supplier
-          new PIDController(xP, xI, xD),
-          new PIDController(yP, yI, yD),
-          new PIDController(rP, rI, rD),
-          new PathConstraints(1, 1),
-          false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-          m_driveTrain // Requires this drive subsystem
-        ),
-        pickup(),
         new ParallelCommandGroup(
-          new MoveTimed(m_driveTrain, 0.3, 1.5),
-          intake(0.7 * 12, 1.6)
-        )
-        
-      );
+          pickup(),
+          new SequentialCommandGroup(
+
+            new ClawControl(m_piston, false).withTimeout(0.1),
+            new generateAndFollow(
+              m_intake,
+              m_vision,
+              m_driveTrain.m_poseX,
+              m_driveTrain.m_poseY, // Pose supplier
+              new PIDController(xP, xI, xD),
+              new PIDController(yP, yI, yD),
+              new PIDController(rP, rI, rD),
+              new PathConstraints(2, 1),
+              false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+              m_driveTrain // Requires this drive subsystem
+            ),
+            new ClawControl(m_piston, false).withTimeout(1)
+            
+          )
+        ),
+        stow()
+      )
+      ;
       
     }
 

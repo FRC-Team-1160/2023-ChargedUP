@@ -15,26 +15,34 @@ public class ClawControl extends CommandBase {
   /** Creates a new ClawControl. */
   private Piston m_piston;
   private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
+  private boolean isSwitch;
 
-  public ClawControl(Piston m_piston) {
+  public ClawControl(Piston m_piston, boolean isSwitch) {
     addRequirements(m_piston);
     this.m_piston = m_piston;
+    this.isSwitch = isSwitch;
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    if (!isSwitch) {
+      m_piston.togglePiston();
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_rightPanel.getRawButton(2)) {
-      m_piston.setPiston(Value.kReverse);
-    } else {
-      m_piston.setPiston(Value.kForward);
+    if (isSwitch) {
+      if (m_rightPanel.getRawButton(2)) {
+        m_piston.setPiston(Value.kReverse);
+      } else {
+        m_piston.setPiston(Value.kForward);
+      }
     }
+    
   }
 
   // Called once the command ends or is interrupted.
