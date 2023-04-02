@@ -47,7 +47,6 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PortConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.Arm.Arm;
-import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.Limelight;
 import frc.robot.subsystems.Vision.Vision;
 
@@ -106,7 +105,6 @@ public class DriveTrain extends SubsystemBase{
   private PIDController limelightEngageController;
   private double gyroOffset;
 
-  public AprilTag at;
   private Joystick m_rightPanel = new Joystick(OIConstants.controlPanelRightPort);
 
   double wkrP, wkrI, wkrD, wksP, wksI, wksD, wklP, wklI, wklD;
@@ -160,7 +158,6 @@ public class DriveTrain extends SubsystemBase{
     limelightEngage = false;
     limelightEngageController = new PIDController(wklP, wklI, wklD);
     
-    at = AprilTag.getInstance();
   }
 
   public double getGyroAngle() {
@@ -208,7 +205,8 @@ public class DriveTrain extends SubsystemBase{
   }
 
   public void resetPose() {
-    updateOdometry(true);
+    m_poseX = 0;
+    m_poseY = 0;
   }
 
   public void resetOdometry(double poseX, double poseY) {
@@ -275,23 +273,6 @@ public class DriveTrain extends SubsystemBase{
     }
     
   }
-  /** Updates the field-relative position. */
-  public void updateOdometry(boolean ignoreAccuracy) {
-
-    Optional<EstimatedRobotPose> result =
-            at.getEstimatedGlobalPose(new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
-
-    if (result.isPresent()) {
-        EstimatedRobotPose camPose = result.get();
-        m_pose2D = camPose.estimatedPose.toPose2d();
-        SmartDashboard.putBoolean("april accuracy", checkAprilAccuracy());
-        if (ignoreAccuracy) {
-          m_poseX = m_pose2D.getX();
-          m_poseY = m_pose2D.getY();
-        }
-    }
-   
-}
   public boolean checkAprilAccuracy() {
     double poseDiffX = m_poseX - prevPoseX;
     double poseDiffY = m_poseY - prevPoseY;
@@ -335,7 +316,7 @@ public class DriveTrain extends SubsystemBase{
     m_poseY += str*SwerveConstants.PERIODIC_SPEED;
 
     m_pose.updatePose(m_poseX, m_poseY, getGyroAngle());
-    if (DriverStation.isTeleopEnabled()) {
+    if (DriverStation.isTeleopEnabled() || DriverStation.isAutonomousEnabled()) {
       logPose();
     }
     SmartDashboard.putBoolean("treemap empty?", poseLog.isEmpty());
@@ -344,8 +325,6 @@ public class DriveTrain extends SubsystemBase{
     }
     SmartDashboard.putNumber("gyroPitch", getGyroPitch());
     
-
-    updateOdometry(false);
     //
     Logger.getInstance().recordOutput("Odometry/Pose", new Pose2d(m_poseX, m_poseY, new Rotation2d(Math.toRadians(-getGyroAngle()))));
     Logger.getInstance().recordOutput("Odometry/RotationDegrees",

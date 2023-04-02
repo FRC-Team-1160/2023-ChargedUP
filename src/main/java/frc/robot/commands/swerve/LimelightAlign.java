@@ -5,27 +5,26 @@
 package frc.robot.commands.swerve;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
+import frc.robot.subsystems.Vision.Limelight;
 
-public class MoveTimed extends CommandBase {
+public class LimelightAlign extends CommandBase {
   private DriveTrain m_drive;
   private Joystick m_mainStick = new Joystick(OIConstants.mainStickPort);
-  private double m_fwd;
-  private double m_str;
-  private double time;
-  private final Timer timer;
+  private Limelight m_lime;
+  PIDController m_controller;
   /** Creates a new MoveUntilBalance. */
-  public MoveTimed(DriveTrain m_drive, double m_fwd, double m_str){//, double time) {
+  public LimelightAlign(DriveTrain m_drive, Limelight m_limelight){//, double time) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     this.m_drive = m_drive;
-    this.m_fwd = m_fwd;
-    this.m_str = m_str;
-    this.timer = new Timer();
-    
+    this.m_lime = m_limelight;
+    m_controller = new PIDController(0.07, 0, 0);
   }
 
   // Called when the command is initially scheduled.
@@ -38,13 +37,15 @@ public class MoveTimed extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_drive.m_controller.setSwerveDrive(false, m_fwd, m_str, 0, Math.toRadians(m_drive.getGyroAngle()));
+    double str = m_controller.calculate(-Limelight.getTx(), 0);
+    SmartDashboard.putNumber("lime pid", str);
+    m_drive.m_controller.setSwerveDrive(false, 0.0, str, 0, Math.toRadians(m_drive.getGyroAngle()));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drive.m_controller.setSwerveDrive(false, 0.1*m_fwd, 0.1*m_str, 0, Math.toRadians(m_drive.getGyroAngle()));
+    m_drive.m_controller.setSwerveDrive(false, 0.001, 0.001, 0, Math.toRadians(m_drive.getGyroAngle()));
     //this.timer.stop();
   }
 

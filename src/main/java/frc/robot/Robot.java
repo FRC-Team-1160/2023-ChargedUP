@@ -59,6 +59,7 @@ public class Robot extends LoggedRobot {
 
     NetworkTableEntry cameraSelection;
     UsbCamera camera1, camera2;
+    //NetworkTableInstance.getDefault().startServer();
 
     //camera1 = CameraServer.startAutomaticCapture(0);
     //cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -38,6 +39,7 @@ import frc.robot.commands.arm.ClawToggle;
 import frc.robot.commands.arm.IntakeControl;
 import frc.robot.commands.arm.ToggleClawAngle;
 import frc.robot.commands.swerve.AutoBalance;
+import frc.robot.commands.swerve.LimelightAlign;
 import frc.robot.commands.swerve.MoveTimed;
 import frc.robot.commands.swerve.MoveUntilBalance;
 import frc.robot.commands.swerve.Reset;
@@ -53,7 +55,6 @@ import frc.robot.subsystems.Arm.Claw;
 import frc.robot.subsystems.Arm.Intake;
 import frc.robot.subsystems.Arm.Piston;
 import frc.robot.subsystems.DriveTrain.DriveTrain;
-import frc.robot.subsystems.Vision.AprilTag;
 import frc.robot.subsystems.Vision.LED;
 import frc.robot.subsystems.Vision.Limelight;
 import frc.robot.subsystems.Vision.Vision;
@@ -78,7 +79,6 @@ public class RobotContainer {
     public final Limelight m_limelight = Limelight.getInstance();
     public final Vision m_vision = Vision.getInstance();
     public final LED m_LED = LED.getInstance();
-    public final AprilTag m_AprilTag = AprilTag.getInstance();
     public final Piston m_piston = Piston.getInstance();
   
     // Controllers`
@@ -115,17 +115,22 @@ public class RobotContainer {
       /*
        * add commands to event map
        */
-      eventMap.put("Intake Three", intake(0.5*12, 3));
+      eventMap.put("Intake Three", intake(-0.5*12, 3));
+      eventMap.put("Outtake", new IntakeControl(m_intake, 0.5*12, false).withTimeout(0.3));
       eventMap.put("Stow", stow());
       eventMap.put("Stop Intake", intake(0, 1));
       eventMap.put("Toggle Lime Pipe", new TogglePipeline());
       eventMap.put("High Cube", highCube());
       eventMap.put("Toggle Lime Engage", new LimelightEngage(m_driveTrain));
-      eventMap.put("Toggle Claw", new ClawToggle(m_piston));
+      eventMap.put("Toggle Claw", toggleClaw());
       eventMap.put("Pickup", pickup());
       eventMap.put("End", end());
       eventMap.put("High Cone", highCone());
       eventMap.put("Auto Balance", autoBalance());
+      eventMap.put("Intake Cone", intakeObject());
+      eventMap.put("limelight", limelight());
+      eventMap.put("align", align());
+      eventMap.put("moveAndDrop", moveAndDrop());
 
       /*
        * AUTO ROUTINES
@@ -145,6 +150,7 @@ public class RobotContainer {
       m_chooser.addOption("cone right right charge right", getPathCommand("cone right right charge right", 3.5, 2.5));
       m_chooser.addOption("cone left left charge left", getPathCommand("cone left left charge left", 3.5, 2.5));
       m_chooser.addOption("cube middle no drive", getPathCommand("cube middle no drive", 3.5, 2.5));
+      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 3.5, 2.5));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -211,9 +217,8 @@ public class RobotContainer {
       //single substation
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
-      headerLButton.onTrue(intakeObject());
-      //headerLButton.onTrue(new MoveTimed(m_driveTrain, 1.5).withTimeout(2));
-
+      //headerLButton.onTrue(intakeObject());
+      headerLButton.onTrue(moveAndDrop());
       
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
@@ -241,22 +246,42 @@ public class RobotContainer {
      * for both auto and user
      * 
      */
+    public Command moveAndDrop() {
+      return new SequentialCommandGroup(
+        new MoveTimed(m_driveTrain, 0.9, 0).withTimeout(0.9),
+        new WaitCommand(0.6),
+        toggleClaw()
+      );
+      
+    }
+    public Command toggleClaw() {
+      return new ClawControl(m_piston, false).withTimeout(0.2);
+    }
+
+    public Command limelight() {
+      return new LimelightAlign(m_driveTrain, m_limelight).withTimeout(0.7);
+    }
+
+    public Command align() {
+      return new MoveTimed(m_driveTrain, 0, 0.4).withTimeout(0.32);
+    }
+    
     public Command intake(double input, double seconds) {
       return new IntakeControl(m_intake, input, false).withTimeout(seconds);
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, -4, 3, true).withTimeout(1.5);
+      return new ArmPID(m_arm, m_claw, -5, 12, true).withTimeout(1.5);
     }
 
     public Command pickup() {
-      return new ArmPID(m_arm, m_claw, 17, -72, false).withTimeout(1.5);
+      return new ArmPID(m_arm, m_claw, 17.5, -69, false).withTimeout(1.5);
     }
 
     public Command highCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 92, 0, false).withTimeout(0.3),
-        new ArmPID(m_arm, m_claw, 92, -121, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 90, 0, false).withTimeout(0.4),
+        new ArmPID(m_arm, m_claw, 90, -121, false).withTimeout(1)
       );
     }
 
@@ -309,6 +334,9 @@ public class RobotContainer {
 
     public Command intakeObject() {
       return new SequentialCommandGroup(
+        new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
+        new WaitCommand(12),
+        stow(),
         new ParallelCommandGroup(
           pickup(),
           new SequentialCommandGroup(
@@ -326,8 +354,7 @@ public class RobotContainer {
               false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
               m_driveTrain // Requires this drive subsystem
             ),
-            new ClawControl(m_piston, false).withTimeout(1)
-            
+            toggleClaw()
           )
         ),
         stow()

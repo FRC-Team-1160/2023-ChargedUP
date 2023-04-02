@@ -22,7 +22,9 @@ import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.VideoMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.ConnectionInfo;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +36,7 @@ public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
   private static NetworkTable table;
   private static Vision m_instance;
+  private static NetworkTableInstance tableInstance;
   private CvSource source;
   public static Vision getInstance(){
     if (m_instance == null){
@@ -43,6 +46,7 @@ public class Vision extends SubsystemBase {
   }
   private Vision() {
     table = NetworkTableInstance.getDefault().getTable("vision");
+    tableInstance = NetworkTableInstance.getDefault();
     source = new CvSource("Frame", VideoMode.PixelFormat.kMJPEG, 640, 640, 3);
   }
 
@@ -145,20 +149,35 @@ public class Vision extends SubsystemBase {
     // This method will be called once per scheduler run
     
     Number[] def = {-1,-1};
+    ConnectionInfo[] info = tableInstance.getConnections();
+    if (info.length == 3) {
+      SmartDashboard.putString("connection IP 3", info[2].remote_ip);
+    } else if (info.length == 2) {
+      SmartDashboard.putString("connection IP 3", "not detected");
+      SmartDashboard.putString("connection IP 2", info[1].remote_ip);
+    } else {
+      SmartDashboard.putString("connection IP 2", "not detected");
+    }
+    SmartDashboard.putNumber("number of connections", info.length);
+    SmartDashboard.putString("connection IP 1", info[0].remote_ip);
+    
     SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
     SmartDashboard.putNumber("offset", table.getEntry("offset").getNumberArray(def)[0].doubleValue());
-    //SmartDashboard.putNumber("execTime", table.getEntry("execTime").getNumber(-1).doubleValue());
+    SmartDashboard.putNumber("executTime", table.getEntry("execTime").getNumber(-1).doubleValue());
     SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
     SmartDashboard.putNumber("objRelativeYpos", getRelativeObjectPose()[1]);
     SmartDashboard.putNumber("objFieldXpos", getFieldObjectPose()[0]);
     SmartDashboard.putNumber("objFieldYpos", getFieldObjectPose()[1]);
     /*byte[] defBytes = {-1, -1};
     byte[] jpg_bytes = table.getEntry("frame").getRaw(defBytes);
-    Mat frame = Imgcodecs.imdecode(new MatOfByte(jpg_bytes), Imgcodecs.IMREAD_UNCHANGED);
-    Imgproc.resize(frame, frame, new Size(640, 640));
+    if (!jpg_bytes.equals(defBytes)) {
+      Mat frame = Imgcodecs.imdecode(new MatOfByte(jpg_bytes), Imgcodecs.IMREAD_UNCHANGED);
+      Imgproc.resize(frame, frame, new Size(640, 640));
+      
+      source.putFrame(frame);
+      CameraServer.putVideo("Frame", 640, 640);
+    }*/
     
-    source.putFrame(frame);
-    CameraServer.putVideo("Frame", 640, 640);*/
 
     /*if (DriveTrain.getInstance().getPastPose(table.getEntry("execTime").getNumber(-1).doubleValue()/1000) != null) {
       SmartDashboard.putNumber("past pose x", DriveTrain.getInstance().getPastPose(table.getEntry("execTime").getNumber(-1).doubleValue()/1000).x);
