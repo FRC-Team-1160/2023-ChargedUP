@@ -53,13 +53,12 @@ public class Vision extends SubsystemBase {
   public double[] getRelativeObjectPose() {
     Number[] def = {-1,-1};
     double[] pose = {-1, -1};
-    double u1 = table.getEntry("offset").getNumberArray(def)[0].doubleValue();
-    double u2 = table.getEntry("distance").getNumberArray(def)[0].doubleValue();
+    double u1 = table.getEntry("offset").getNumber(-1).doubleValue();
+    double u2 = table.getEntry("distance").getNumber(-1).doubleValue();
     if ((u2 == 0 && u1 == 0) || u2 == -1) {
       return pose;
     }
 
-//these two are constants that we will set in Constants.java
     double camAngle = VisionConstants.CAM_ANGLE;
     double[][] camOffsetMatrix = VisionConstants.CAM_OFFSET; //horizontal, vertical
 
@@ -89,8 +88,8 @@ public class Vision extends SubsystemBase {
     Pose pastPose = m_drive.getPastPose(execTime/1000);
     if (pastPose != null) {
     
-      double driveX = pastPose.x; //THESE WILL BE FROM POSE HISTORY
-      double driveY = pastPose.y; //THESE WILL BE FROM POSE HISTORY
+      double driveX = pastPose.x;
+      double driveY = pastPose.y;
       double[][] offsetMatrix = {{driveX}, {driveY}};
       double[][] rMatrix = Matrix.add(offsetMatrix, Matrix.multiply(rotMatrix, matrix));
       pose[0] = rMatrix[0][0];
@@ -161,8 +160,8 @@ public class Vision extends SubsystemBase {
     SmartDashboard.putNumber("number of connections", info.length);
     SmartDashboard.putString("connection IP 1", info[0].remote_ip);
     
-    SmartDashboard.putNumber("distance", table.getEntry("distance").getNumberArray(def)[0].doubleValue());
-    SmartDashboard.putNumber("offset", table.getEntry("offset").getNumberArray(def)[0].doubleValue());
+    SmartDashboard.putNumber("distance", table.getEntry("distance").getNumber(-1).doubleValue());
+    SmartDashboard.putNumber("offset", table.getEntry("offset").getNumber(-1).doubleValue());
     SmartDashboard.putNumber("executTime", table.getEntry("execTime").getNumber(-1).doubleValue());
     SmartDashboard.putNumber("objRelativeXpos", getRelativeObjectPose()[0]);
     SmartDashboard.putNumber("objRelativeYpos", getRelativeObjectPose()[1]);

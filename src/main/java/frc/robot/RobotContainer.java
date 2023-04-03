@@ -150,7 +150,7 @@ public class RobotContainer {
       m_chooser.addOption("cone right right charge right", getPathCommand("cone right right charge right", 3.5, 2.5));
       m_chooser.addOption("cone left left charge left", getPathCommand("cone left left charge left", 3.5, 2.5));
       m_chooser.addOption("cube middle no drive", getPathCommand("cube middle no drive", 3.5, 2.5));
-      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 3.5, 2.5));
+      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 2, 1));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -248,8 +248,8 @@ public class RobotContainer {
      */
     public Command moveAndDrop() {
       return new SequentialCommandGroup(
-        new MoveTimed(m_driveTrain, 0.9, 0).withTimeout(0.9),
-        new WaitCommand(0.6),
+        new MoveTimed(m_driveTrain, 1, 0).withTimeout(0.9),
+        new WaitCommand(0.5),
         toggleClaw()
       );
       
@@ -259,11 +259,15 @@ public class RobotContainer {
     }
 
     public Command limelight() {
-      return new LimelightAlign(m_driveTrain, m_limelight).withTimeout(0.7);
+      return new LimelightAlign(m_driveTrain, m_limelight).withTimeout(1);
     }
 
     public Command align() {
-      return new MoveTimed(m_driveTrain, 0, 0.4).withTimeout(0.32);
+      return new SequentialCommandGroup(
+        new MoveTimed(m_driveTrain, 0, 0.5).withTimeout(0.35),
+        stow()
+      );
+      
     }
     
     public Command intake(double input, double seconds) {
@@ -335,7 +339,7 @@ public class RobotContainer {
     public Command intakeObject() {
       return new SequentialCommandGroup(
         new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
-        new WaitCommand(12),
+        new WaitCommand(1.5),
         stow(),
         new ParallelCommandGroup(
           pickup(),
