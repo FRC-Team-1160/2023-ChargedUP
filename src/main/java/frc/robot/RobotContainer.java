@@ -7,11 +7,14 @@ import java.util.List;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.PathPlannerTrajectory.StopEvent;
 import com.pathplanner.lib.PathPlannerTrajectory.StopEvent.ExecutionBehavior;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -99,12 +102,12 @@ public class RobotContainer {
      */
     public RobotContainer() {
 
-      xP = 1.9;
+      xP = 1.93;
       xI = 0;
-      xD = 0.1;
-      yP = 1.9;
+      xD = 0.13;
+      yP = 1.93;
       yI = 0;
-      yD = 0.1;
+      yD = 0.13;
       rP = 0.8; //still needs to be tuned
       rI = 0; //still needs to be tuned
       rD = 0;
@@ -150,7 +153,7 @@ public class RobotContainer {
       m_chooser.addOption("cone right right charge right", getPathCommand("cone right right charge right", 3.5, 2.5));
       m_chooser.addOption("cone left left charge left", getPathCommand("cone left left charge left", 3.5, 2.5));
       m_chooser.addOption("cube middle no drive", getPathCommand("cube middle no drive", 3.5, 2.5));
-      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 2, 1));
+      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 3.5, 2.5));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -218,7 +221,7 @@ public class RobotContainer {
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
       //headerLButton.onTrue(intakeObject());
-      headerLButton.onTrue(moveAndDrop());
+      headerLButton.onTrue(limelight());
       
       headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
       headerMButton.onTrue(pickup());
@@ -248,7 +251,8 @@ public class RobotContainer {
      */
     public Command moveAndDrop() {
       return new SequentialCommandGroup(
-        new MoveTimed(m_driveTrain, 1, 0).withTimeout(0.9),
+        new MoveTimed(m_driveTrain, 1, 0).withTimeout(0.5),
+        new MoveTimed(m_driveTrain, 0.5, 0).withTimeout(0.4),
         new WaitCommand(0.5),
         toggleClaw()
       );
@@ -257,14 +261,23 @@ public class RobotContainer {
     public Command toggleClaw() {
       return new ClawControl(m_piston, false).withTimeout(0.2);
     }
+    public Command alignThenMove() {
+      return new SequentialCommandGroup(
+        limelight(),
+        moveAndDrop()
+      );
+    }
 
     public Command limelight() {
-      return new LimelightAlign(m_driveTrain, m_limelight).withTimeout(1);
+      return new SequentialCommandGroup(
+        new LimelightAlign(m_driveTrain, m_limelight, 1, 0).withTimeout(2),
+        new LimelightAlign(m_driveTrain, m_limelight, 0, 1).withTimeout(2)
+      );
     }
 
     public Command align() {
       return new SequentialCommandGroup(
-        new MoveTimed(m_driveTrain, 0, 0.5).withTimeout(0.35),
+        limelight(),
         stow()
       );
       
@@ -275,17 +288,27 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, -5, 12, true).withTimeout(1.5);
+      return new ArmPID(m_arm, m_claw, -5, 12, true).withTimeout(0.8);
+    }
+    public Command fastStow() {
+      return new ArmPID(m_arm, m_claw, -6, 12, true).withTimeout(0.6);
     }
 
     public Command pickup() {
-      return new ArmPID(m_arm, m_claw, 17.5, -69, false).withTimeout(1.5);
+      return new ArmPID(m_arm, m_claw, 17.5, -65, false).withTimeout(0.8);
+    }
+
+    public Command stowPickup() {
+      return new SequentialCommandGroup(
+        fastStow(),
+        pickup()
+      );
     }
 
     public Command highCone() {
       return new SequentialCommandGroup(
         new ArmPID(m_arm, m_claw, 90, 0, false).withTimeout(0.4),
-        new ArmPID(m_arm, m_claw, 90, -121, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 90, -127, false).withTimeout(1)
       );
     }
 
@@ -302,6 +325,7 @@ public class RobotContainer {
 
     public Command highCube() {
       return new SequentialCommandGroup(
+        new IntakeControl(m_intake, -0.5*12, false).withTimeout(0.1),
         new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(0.3),
         new ArmPID(m_arm, m_claw, 83, -125, false).withTimeout(1)
       );
@@ -339,10 +363,9 @@ public class RobotContainer {
     public Command intakeObject() {
       return new SequentialCommandGroup(
         new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
-        new WaitCommand(1.5),
-        stow(),
+        new WaitCommand(1),
         new ParallelCommandGroup(
-          pickup(),
+          stowPickup(),
           new SequentialCommandGroup(
 
             new ClawControl(m_piston, false).withTimeout(0.1),
@@ -356,12 +379,30 @@ public class RobotContainer {
               new PIDController(rP, rI, rD),
               new PathConstraints(2, 1),
               false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-              m_driveTrain // Requires this drive subsystem
+              m_driveTrain,
+              true // Requires this drive subsystem
             ),
             toggleClaw()
           )
         ),
-        stow()
+        stow(),
+        new generateAndFollow(
+          m_intake,
+          m_vision,
+          m_driveTrain.m_poseX,
+          m_driveTrain.m_poseY, // Pose supplier
+          new PIDController(xP, xI, xD),
+          new PIDController(yP, yI, yD),
+          new PIDController(rP, rI, rD),
+          new PathConstraints(3.5, 2.5),
+          false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+          m_driveTrain,
+          false // Requires this drive subsystem
+        ),
+        //align(),
+        new MoveTimed(m_driveTrain, 0.1, 0.1).withTimeout(0.1),
+        highCone(),
+        moveAndDrop()
       )
       ;
       

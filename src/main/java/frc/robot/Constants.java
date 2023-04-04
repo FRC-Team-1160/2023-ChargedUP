@@ -80,10 +80,10 @@ public final class Constants {
     public static final int CLAW_GEAR_RATIO = 30;
     public static final double ARM_POSITION_CONVERSION = 0.2578;
     public static final double WRIST_POSITION_CONVERSION = 0.265;
-    public static final double WRIST_BUMPER_SAFETY = -15;//-16;
-    public static final double ARM_BUMPER_SAFETY = 11;//12;
+    public static final double WRIST_BUMPER_SAFETY = -18;//-16;
+    public static final double ARM_BUMPER_SAFETY = 9;//12;
     public static final double WRIST_BUMPER_SAFETY_SETPOINT = -10;//-10;
-    public static final double KEPT_CLAW_ANGLE_WRIST_SAFETY = -5;
+    public static final double KEPT_CLAW_ANGLE_WRIST_SAFETY = -4;
     public static final double ARM_LIMIT = 110;
     public static final double CLAW_LIMIT = -190;
   }
@@ -94,7 +94,7 @@ public final class Constants {
     public static final double STREAM_HEIGHT_PIXELS = 640;
     public static final double[][] CAM_OFFSET = {{-0.273},{0.3175}}; //
     public static final double ROBOT_RADIUS = 0.5029; //
-    public static final double INTAKE_OFFSET = 0.7;
+    public static final double INTAKE_OFFSET = 0.72;
   }
 
   public static final class AprilTagConstants {

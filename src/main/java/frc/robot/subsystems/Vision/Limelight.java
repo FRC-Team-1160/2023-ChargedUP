@@ -32,10 +32,13 @@ public class Limelight extends SubsystemBase {
   public static Number getPipeline() {
     return table.getEntry("pipeline").getNumber(0);
   }
-
   public static double getTx() {
     return table.getEntry("tx").getDouble(0);
   }
+  public static double getTy() {
+    return table.getEntry("ty").getDouble(0);
+  }
+
 
   public static boolean getTv() {
     return table.getEntry("tv").getInteger(0) == 1;

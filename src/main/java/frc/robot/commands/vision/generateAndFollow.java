@@ -5,9 +5,13 @@
 package frc.robot.commands.vision;
 
 import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -31,7 +35,8 @@ public class generateAndFollow extends CommandBase {
   private PIDController yController;
   private PIDController rController;
   private PathConstraints constraints;
-  public generateAndFollow(Intake m_intake, Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive) {
+  private boolean findObj;
+  public generateAndFollow(Intake m_intake, Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive, boolean findObj) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     addRequirements(m_vision);
@@ -46,12 +51,23 @@ public class generateAndFollow extends CommandBase {
     this.yController = yController;
     this.rController = rController;
     this.m_intake = m_intake;
+    this.findObj = findObj;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    traj = m_vision.generatePathToObj(constraints);
+    if (findObj) {
+      traj = m_vision.generatePathToObj(constraints);
+    } else {
+      traj = PathPlanner.generatePath(
+        constraints,
+        new PathPoint(new Translation2d(3.79, 4.64), Rotation2d.fromDegrees(-176.52), Rotation2d.fromDegrees(160)),
+        new PathPoint(new Translation2d(2.3, 4.57), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(180)),
+        new PathPoint(new Translation2d(2.3, 3.8), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(180))
+        );
+    }
+    
     if (traj == null) {
       SmartDashboard.putBoolean("generateandfollow", false);
     } else {
@@ -67,7 +83,10 @@ public class generateAndFollow extends CommandBase {
   public void execute() {
     if (traj != null) {
       followPath.execute();
-      m_intake.intakeControl(-0.7*12);
+      if (findObj) {
+        m_intake.intakeControl(-0.7*12);
+      }
+      
       
     }
     
