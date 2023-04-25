@@ -7,6 +7,10 @@ package frc.robot.commands.arm;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.Arm.Piston;
+
+import java.sql.Driver;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +31,7 @@ public class ClawControl extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if (!isSwitch) {
+    if (!isSwitch || !DriverStation.isTeleopEnabled()) {
       m_piston.togglePiston();
     }
   }
@@ -35,7 +39,7 @@ public class ClawControl extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (isSwitch) {
+    if (isSwitch && DriverStation.isTeleopEnabled()) {
       if (m_rightPanel.getRawButton(2)) {
         m_piston.setPiston(Value.kReverse);
       } else {

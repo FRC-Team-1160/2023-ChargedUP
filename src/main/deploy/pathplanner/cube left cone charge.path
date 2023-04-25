@@ -54,11 +54,11 @@
     },
     {
       "anchorPoint": {
-        "x": 5.147686533172535,
+        "x": 5.0,
         "y": 4.60205648006682
       },
       "prevControl": {
-        "x": 5.03520325958026,
+        "x": 4.887516726407725,
         "y": 4.584751361052625
       },
       "nextControl": null,
@@ -69,7 +69,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "Intake Cone"
+          "Intake Cone Charge"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",

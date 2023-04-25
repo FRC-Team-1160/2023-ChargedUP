@@ -52,6 +52,7 @@ import frc.robot.commands.swerve.followPath;
 import frc.robot.commands.vision.LimelightEngage;
 import frc.robot.commands.vision.SetSpike;
 import frc.robot.commands.vision.TogglePipeline;
+import frc.robot.commands.vision.WaitUntilVision;
 import frc.robot.commands.vision.generateAndFollow;
 import frc.robot.subsystems.Arm.Arm;
 import frc.robot.subsystems.Arm.Claw;
@@ -81,7 +82,7 @@ public class RobotContainer {
     public final Intake m_intake = Intake.getInstance();
     public final Limelight m_limelight = Limelight.getInstance();
     public final Vision m_vision = Vision.getInstance();
-    public final LED m_LED = LED.getInstance();
+    //public final LED m_LED = LED.getInstance();
     public final Piston m_piston = Piston.getInstance();
   
     // Controllers`
@@ -131,6 +132,7 @@ public class RobotContainer {
       eventMap.put("High Cone", highCone());
       eventMap.put("Auto Balance", autoBalance());
       eventMap.put("Intake Cone", intakeObject());
+      eventMap.put("Intake Cone Charge", intakeObjectBalance());
       eventMap.put("limelight", limelight());
       eventMap.put("align", align());
       eventMap.put("moveAndDrop", moveAndDrop());
@@ -153,7 +155,8 @@ public class RobotContainer {
       m_chooser.addOption("cone right right charge right", getPathCommand("cone right right charge right", 3.5, 2.5));
       m_chooser.addOption("cone left left charge left", getPathCommand("cone left left charge left", 3.5, 2.5));
       m_chooser.addOption("cube middle no drive", getPathCommand("cube middle no drive", 3.5, 2.5));
-      m_chooser.addOption("cube left cone right test", getPathCommand("cube left cone right test", 3.5, 2.5));
+      m_chooser.addOption("cube left cone right", getPathCommand("cube left cone right", 4, 3));
+      m_chooser.addOption("cube left cone charge", getPathCommand("cube left cone charge", 4, 3));
 
       // Configure the button bindings
       configureButtonBindings();
@@ -162,7 +165,7 @@ public class RobotContainer {
       m_driveTrain.setDefaultCommand(new SwerveDrive(m_driveTrain));
       m_arm.setDefaultCommand(new ArmControl(m_arm, m_claw, 0.14 * 12, 0.17 * 12));
       m_intake.setDefaultCommand(new IntakeControl(m_intake, 0.7 * 12, true));
-      m_LED.setDefaultCommand(new SetSpike(m_LED));
+      //m_LED.setDefaultCommand(new SetSpike(m_LED));
       m_piston.setDefaultCommand(new ClawControl(m_piston, true));
     }
 
@@ -221,9 +224,9 @@ public class RobotContainer {
       //headerLButton.onTrue(new ArmPID(m_arm, m_claw, 53.5, -64.5, false));
       //test function
       //headerLButton.onTrue(intakeObject());
-      headerLButton.onTrue(limelight());
+      headerLButton.onTrue(findObj());
       
-      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 79.5, -140, false));
+      headerRButton.onTrue(new ArmPID(m_arm, m_claw, 81, -140, false));
       headerMButton.onTrue(pickup());
 
       //rightTRButton.onTrue(new ClawControl(m_claw));
@@ -253,13 +256,13 @@ public class RobotContainer {
       return new SequentialCommandGroup(
         new MoveTimed(m_driveTrain, 1, 0).withTimeout(0.5),
         new MoveTimed(m_driveTrain, 0.5, 0).withTimeout(0.4),
-        new WaitCommand(0.5),
+        new ArmPID(m_arm, m_claw, 89, -97, false).withTimeout(0.4),
         toggleClaw()
       );
       
     }
     public Command toggleClaw() {
-      return new ClawControl(m_piston, false).withTimeout(0.2);
+      return new ClawControl(m_piston, false).withTimeout(0.25);
     }
     public Command alignThenMove() {
       return new SequentialCommandGroup(
@@ -288,14 +291,14 @@ public class RobotContainer {
     }
 
     public Command stow() {
-      return new ArmPID(m_arm, m_claw, -5, 12, true).withTimeout(0.8);
+      return new ArmPID(m_arm, m_claw, -5, 8, true).withTimeout(0.8);
     }
     public Command fastStow() {
-      return new ArmPID(m_arm, m_claw, -6, 12, true).withTimeout(0.6);
+      return new ArmPID(m_arm, m_claw, -6, 8, true).withTimeout(0.6);
     }
 
     public Command pickup() {
-      return new ArmPID(m_arm, m_claw, 17.5, -65, false).withTimeout(0.8);
+      return new ArmPID(m_arm, m_claw, 17.5, -67, false).withTimeout(0.8);
     }
 
     public Command stowPickup() {
@@ -307,34 +310,41 @@ public class RobotContainer {
 
     public Command highCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 90, 0, false).withTimeout(0.4),
-        new ArmPID(m_arm, m_claw, 90, -127, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 89, 0, false).withTimeout(0.4),
+        new ArmPID(m_arm, m_claw, 89, -117, false).withTimeout(1)
       );
     }
 
     public Command midCone() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 69, 0, false).withTimeout(0.3),
-        new ArmPID(m_arm, m_claw, 69, -90, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 66, 0, false).withTimeout(0.3),
+        new ArmPID(m_arm, m_claw, 66, -87, false).withTimeout(1)
       );
     }
 
     public Command hybrid() {
-      return new ArmPID(m_arm, m_claw, 28, -60, false);
+      return new ArmPID(m_arm, m_claw, 28, -57, false);
     }
 
     public Command highCube() {
       return new SequentialCommandGroup(
         new IntakeControl(m_intake, -0.5*12, false).withTimeout(0.1),
-        new ArmPID(m_arm, m_claw, 83, 0, false).withTimeout(0.3),
-        new ArmPID(m_arm, m_claw, 83, -125, false).withTimeout(1)
+        new ParallelCommandGroup(
+          new SequentialCommandGroup(
+            new ArmPID(m_arm, m_claw, 81, 0, false).withTimeout(0.3),
+            new ArmPID(m_arm, m_claw, 81, -127, false).withTimeout(1)
+          ),
+          new IntakeControl(m_intake, -0.3*12, false).withTimeout(0.5)
+        )
+        
+        
       );
     }
 
     public Command midCube() {
       return new SequentialCommandGroup(
-        new ArmPID(m_arm, m_claw, 75, 0, false).withTimeout(0.3),
-        new ArmPID(m_arm, m_claw, 75, -120, false).withTimeout(1)
+        new ArmPID(m_arm, m_claw, 70, 0, false).withTimeout(0.3),
+        new ArmPID(m_arm, m_claw, 70, -127, false).withTimeout(1)
       );
     }
 
@@ -360,15 +370,13 @@ public class RobotContainer {
       );
     }
 
-    public Command intakeObject() {
+    public Command findObj() {
       return new SequentialCommandGroup(
-        new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
-        new WaitCommand(1),
         new ParallelCommandGroup(
           stowPickup(),
           new SequentialCommandGroup(
-
-            new ClawControl(m_piston, false).withTimeout(0.1),
+            new WaitUntilVision(m_vision),
+            toggleClaw(),
             new generateAndFollow(
               m_intake,
               m_vision,
@@ -377,10 +385,40 @@ public class RobotContainer {
               new PIDController(xP, xI, xD),
               new PIDController(yP, yI, yD),
               new PIDController(rP, rI, rD),
-              new PathConstraints(2, 1),
+              new PathConstraints(1.6, 1),
               false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
               m_driveTrain,
-              true // Requires this drive subsystem
+              true,
+              false // Requires this drive subsystem
+            ),
+            toggleClaw()
+          )
+        ),
+        stow()
+      );
+    }
+
+    public Command intakeObject() {
+      return new SequentialCommandGroup(
+        new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
+        new ParallelCommandGroup(
+          stowPickup(),
+          new SequentialCommandGroup(
+            new WaitUntilVision(m_vision),
+            toggleClaw(),
+            new generateAndFollow(
+              m_intake,
+              m_vision,
+              m_driveTrain.m_poseX,
+              m_driveTrain.m_poseY, // Pose supplier
+              new PIDController(xP, xI, xD),
+              new PIDController(yP, yI, yD),
+              new PIDController(rP, rI, rD),
+              new PathConstraints(1.6, 1),
+              false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+              m_driveTrain,
+              true,
+              false // Requires this drive subsystem
             ),
             toggleClaw()
           )
@@ -394,17 +432,63 @@ public class RobotContainer {
           new PIDController(xP, xI, xD),
           new PIDController(yP, yI, yD),
           new PIDController(rP, rI, rD),
-          new PathConstraints(3.5, 2.5),
+          new PathConstraints(4, 3),
           false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
           m_driveTrain,
+          false,
           false // Requires this drive subsystem
         ),
         //align(),
         new MoveTimed(m_driveTrain, 0.1, 0.1).withTimeout(0.1),
         highCone(),
         moveAndDrop()
-      )
-      ;
+      );
+      
+    }
+
+    public Command intakeObjectBalance() {
+      return new SequentialCommandGroup(
+        new MoveTimed(m_driveTrain, 0.05, 0.05).withTimeout(0.2),
+        new ParallelCommandGroup(
+          stowPickup(),
+          new SequentialCommandGroup(
+            new WaitUntilVision(m_vision),
+            toggleClaw(),
+            new generateAndFollow(
+              m_intake,
+              m_vision,
+              m_driveTrain.m_poseX,
+              m_driveTrain.m_poseY, // Pose supplier
+              new PIDController(xP, xI, xD),
+              new PIDController(yP, yI, yD),
+              new PIDController(rP, rI, rD),
+              new PathConstraints(1.6, 1),
+              false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+              m_driveTrain,
+              true,
+              false // Requires this drive subsystem
+            ),
+            toggleClaw()
+          )
+        ),
+        stow(),
+        new generateAndFollow(
+          m_intake,
+          m_vision,
+          m_driveTrain.m_poseX,
+          m_driveTrain.m_poseY, // Pose supplier
+          new PIDController(xP, xI, xD),
+          new PIDController(yP, yI, yD),
+          new PIDController(rP, rI, rD),
+          new PathConstraints(4, 3),
+          false, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+          m_driveTrain,
+          false,
+          true // Requires this drive subsystem
+        ),
+        //align(),
+        autoBalance()
+      );
       
     }
 

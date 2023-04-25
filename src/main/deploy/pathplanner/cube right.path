@@ -17,61 +17,8 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Cube"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.0,
-        "y": 1.05
-      },
-      "prevControl": {
-        "x": 1.9951199476867052,
-        "y": 1.048938223833895
-      },
-      "nextControl": {
-        "x": 2.004880052313295,
-        "y": 1.0510617761661052
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "Toggle Claw"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.3,
-        "y": 1.05
-      },
-      "prevControl": {
-        "x": 2.2818816285745847,
-        "y": 1.05
-      },
-      "nextControl": {
-        "x": 2.318118371425415,
-        "y": 1.05
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "Toggle Claw",
+          "High Cube",
+          "Outtake",
           "Stow"
         ],
         "executionBehavior": "sequential",

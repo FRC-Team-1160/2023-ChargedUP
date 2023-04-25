@@ -32,15 +32,15 @@ public class AutoBalance extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_drive.getGyroPitch() < -11) {
+    if (m_drive.getGyroPitch() < -10.5) {
       timer.reset();
       timer.stop();
-      m_drive.m_controller.setSwerveDrive(false, -0.5, 0, 0, m_drive.getGyroAngle());
+      m_drive.m_controller.setSwerveDrive(false, -0.6, 0, 0, m_drive.getGyroAngle());
       dir = false;
-    } else if (m_drive.getGyroPitch() > 11) {
+    } else if (m_drive.getGyroPitch() > 10.5) {
       timer.reset();
       timer.stop();
-      m_drive.m_controller.setSwerveDrive(false, 0.5, 0, 0, m_drive.getGyroAngle());
+      m_drive.m_controller.setSwerveDrive(false, 0.6, 0, 0, m_drive.getGyroAngle());
       dir = true;
     } else {
       timer.start();

@@ -98,6 +98,10 @@ public class Vision extends SubsystemBase {
     return pose;
   }
 
+  public double getDistance() {
+    return table.getEntry("distance").getNumber(-1).doubleValue();
+  }
+
   public PathPlannerTrajectory generatePathToObj(PathConstraints max) {
     double[] pos = getFieldObjectPose();
     double xPos = pos[0];

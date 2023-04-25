@@ -157,6 +157,7 @@ public class Arm extends SubsystemBase {
     }
     SmartDashboard.putBoolean("lastFiveArmLimit", lastFiveLimit);
     SmartDashboard.putNumber("arm angle", angle);
+    SmartDashboard.putNumber("arm potentiometer reading", getPotPosition());
     SmartDashboard.putNumber("arm encoder reading", getEncoderPosition());
     SmartDashboard.putBoolean("arm switch", !m_armSwitch.get());
   }

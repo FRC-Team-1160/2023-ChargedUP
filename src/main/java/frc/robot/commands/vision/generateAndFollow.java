@@ -36,7 +36,8 @@ public class generateAndFollow extends CommandBase {
   private PIDController rController;
   private PathConstraints constraints;
   private boolean findObj;
-  public generateAndFollow(Intake m_intake, Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive, boolean findObj) {
+  private boolean charge;
+  public generateAndFollow(Intake m_intake, Vision m_vision, double m_poseX, double m_poseY, PIDController xController, PIDController yController, PIDController rController, PathConstraints constraints, boolean mirrorIfRed, DriveTrain m_drive, boolean findObj, boolean charge) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_drive);
     addRequirements(m_vision);
@@ -52,6 +53,7 @@ public class generateAndFollow extends CommandBase {
     this.rController = rController;
     this.m_intake = m_intake;
     this.findObj = findObj;
+    this.charge = charge;
   }
 
   // Called when the command is initially scheduled.
@@ -59,11 +61,19 @@ public class generateAndFollow extends CommandBase {
   public void initialize() {
     if (findObj) {
       traj = m_vision.generatePathToObj(constraints);
+    } else if (charge) {
+      traj = PathPlanner.generatePath(
+        constraints,
+        new PathPoint(new Translation2d(5.7, 4.64), Rotation2d.fromDegrees(0), Rotation2d.fromDegrees(0)),
+        new PathPoint(new Translation2d(5.7, 2.8), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(0)),
+        new PathPoint(new Translation2d(4.22, 2.8), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(0))
+        );
+      
     } else {
       traj = PathPlanner.generatePath(
         constraints,
         new PathPoint(new Translation2d(3.79, 4.64), Rotation2d.fromDegrees(-176.52), Rotation2d.fromDegrees(160)),
-        new PathPoint(new Translation2d(2.3, 4.57), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(180)),
+        new PathPoint(new Translation2d(2.3, 4.64), Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(180)),
         new PathPoint(new Translation2d(2.3, 3.8), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(180))
         );
     }

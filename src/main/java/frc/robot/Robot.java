@@ -61,8 +61,8 @@ public class Robot extends LoggedRobot {
     UsbCamera camera1, camera2;
     //NetworkTableInstance.getDefault().startServer();
 
-    //camera1 = CameraServer.startAutomaticCapture(0);
-    //cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
+    camera1 = CameraServer.startAutomaticCapture(0);
+    cameraSelection = NetworkTableInstance.getDefault().getTable("").getEntry("CameraSelection");
     //cameraSelection.setString(camera2.getName());
     m_robotContainer = new RobotContainer();
     //m_dashboard = new Driver();
